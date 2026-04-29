@@ -22,7 +22,7 @@
 
 **Goal:** A fully running local development environment with all services healthy.
 
-### `[CURRENT]` 0.1 — Repository Initialization
+### `[DONE]` 0.1 — Repository Initialization
 **Deliverables:**
 - Initialize git repo
 - Create `pnpm-workspace.yaml` for monorepo
@@ -37,7 +37,7 @@
 
 ---
 
-### `[ ]` 0.2 — Docker Compose for Local Services
+### `[CURRENT]` 0.2 — Docker Compose for Local Services
 **Deliverables:**
 - `docker-compose.yml` with: PostgreSQL 16, Redis 7, MailHog, Meilisearch (for later)
 - Health checks on all services

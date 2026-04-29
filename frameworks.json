@@ -1,0 +1,643 @@
+{
+  "version": "1.0.0",
+  "description": "Frameworks library for AgencyOS Content Studio. Each framework is a structured form that guides content creation.",
+  "frameworks": [
+    {
+      "id": "aida",
+      "name_ar": "AIDA — الانتباه، الاهتمام، الرغبة، الفعل",
+      "name_en": "AIDA — Attention, Interest, Desire, Action",
+      "category": "copywriting",
+      "best_for": ["sales_copy", "ads", "video_ads", "static_design"],
+      "fields": [
+        {
+          "key": "attention",
+          "label_ar": "الانتباه (Attention)",
+          "label_en": "Attention",
+          "description_ar": "كيف تجذب انتباه الجمهور في الثواني الأولى؟ (هوك، صدمة، سؤال)",
+          "type": "textarea",
+          "max_length": 200,
+          "placeholder_ar": "مثلاً: هل تعلم أن 90% من الفيديوهات تفقد المشاهد قبل الثانية الخامسة؟"
+        },
+        {
+          "key": "interest",
+          "label_ar": "الاهتمام (Interest)",
+          "label_en": "Interest",
+          "description_ar": "كيف تبني اهتمام الجمهور؟ (قصة، إحصائية، فائدة)",
+          "type": "textarea",
+          "max_length": 400
+        },
+        {
+          "key": "desire",
+          "label_ar": "الرغبة (Desire)",
+          "label_en": "Desire",
+          "description_ar": "كيف تجعل الجمهور يريد ما تقدمه؟ (فوائد، تخيّل، اجتماعي)",
+          "type": "textarea",
+          "max_length": 400
+        },
+        {
+          "key": "action",
+          "label_ar": "الفعل (Action)",
+          "label_en": "Action",
+          "description_ar": "ما الفعل الذي تريد من الجمهور القيام به؟ (CTA واضح وسهل)",
+          "type": "textarea",
+          "max_length": 100
+        }
+      ]
+    },
+    {
+      "id": "pas",
+      "name_ar": "PAS — المشكلة، التهييج، الحل",
+      "name_en": "PAS — Problem, Agitation, Solution",
+      "category": "copywriting",
+      "best_for": ["sales_copy", "landing_pages", "video_ads"],
+      "fields": [
+        {
+          "key": "problem",
+          "label_ar": "المشكلة (Problem)",
+          "label_en": "Problem",
+          "description_ar": "ما المشكلة المحددة التي يعاني منها جمهورك؟",
+          "type": "textarea",
+          "max_length": 300
+        },
+        {
+          "key": "agitation",
+          "label_ar": "التهييج (Agitation)",
+          "label_en": "Agitation",
+          "description_ar": "كبّر المشكلة. اذكر تبعاتها. لماذا تجاهلها مكلف؟",
+          "type": "textarea",
+          "max_length": 400
+        },
+        {
+          "key": "solution",
+          "label_ar": "الحل (Solution)",
+          "label_en": "Solution",
+          "description_ar": "كيف يحل منتجك/خدمتك المشكلة؟ كن محدداً.",
+          "type": "textarea",
+          "max_length": 400
+        }
+      ]
+    },
+    {
+      "id": "bab",
+      "name_ar": "BAB — قبل، بعد، الجسر",
+      "name_en": "BAB — Before, After, Bridge",
+      "category": "copywriting",
+      "best_for": ["transformation_stories", "case_studies", "testimonials"],
+      "fields": [
+        {
+          "key": "before",
+          "label_ar": "قبل (Before)",
+          "label_en": "Before",
+          "description_ar": "كيف كان الوضع قبل؟ ما الألم؟ ما الإحباط؟",
+          "type": "textarea",
+          "max_length": 300
+        },
+        {
+          "key": "after",
+          "label_ar": "بعد (After)",
+          "label_en": "After",
+          "description_ar": "كيف يبدو الوضع بعد؟ ما الذي تغيّر؟ كيف الشعور الآن؟",
+          "type": "textarea",
+          "max_length": 300
+        },
+        {
+          "key": "bridge",
+          "label_ar": "الجسر (Bridge)",
+          "label_en": "Bridge",
+          "description_ar": "كيف انتقلت من قبل إلى بعد؟ (هنا منتجك أو خدمتك)",
+          "type": "textarea",
+          "max_length": 400
+        }
+      ]
+    },
+    {
+      "id": "hook_story_offer",
+      "name_ar": "الهوك، القصة، العرض",
+      "name_en": "Hook — Story — Offer",
+      "category": "video",
+      "best_for": ["reels", "tiktok", "short_video_ads"],
+      "fields": [
+        {
+          "key": "hook",
+          "label_ar": "الهوك (3 ثواني الأولى)",
+          "label_en": "Hook (first 3 seconds)",
+          "description_ar": "ما الجملة/المشهد الذي يوقف التمرير فوراً؟",
+          "type": "textarea",
+          "max_length": 100
+        },
+        {
+          "key": "story",
+          "label_ar": "القصة (الجزء الأكبر)",
+          "label_en": "Story (the bulk)",
+          "description_ar": "ما القصة/الفائدة/الدرس الذي تنقله؟ (3-15 ثانية)",
+          "type": "textarea",
+          "max_length": 600
+        },
+        {
+          "key": "offer",
+          "label_ar": "العرض (آخر 3-5 ثواني)",
+          "label_en": "Offer (last 3-5 seconds)",
+          "description_ar": "ما العرض أو الـ CTA؟ (احجز، اشترك، اشترِ، تابع)",
+          "type": "textarea",
+          "max_length": 100
+        }
+      ]
+    },
+    {
+      "id": "sb7",
+      "name_ar": "SB7 — البطل في 7 خطوات (StoryBrand)",
+      "name_en": "SB7 — StoryBrand 7-Part Framework",
+      "category": "storytelling",
+      "best_for": ["brand_messaging", "about_pages", "long_form_content"],
+      "fields": [
+        {
+          "key": "character",
+          "label_ar": "1. الشخصية (Character)",
+          "label_en": "Character",
+          "description_ar": "من البطل؟ (= العميل، ليس البراند). صف رغباته بدقة.",
+          "type": "textarea",
+          "max_length": 200
+        },
+        {
+          "key": "problem",
+          "label_ar": "2. المشكلة (Problem)",
+          "label_en": "Problem",
+          "description_ar": "ما المشكلة الخارجية؟ الداخلية (مشاعر)؟ الفلسفية (لماذا تستحق الحل)؟",
+          "type": "textarea",
+          "max_length": 400
+        },
+        {
+          "key": "guide",
+          "label_ar": "3. المرشد (Guide)",
+          "label_en": "Guide",
+          "description_ar": "كيف يظهر البراند كمرشد للبطل؟ (تعاطف + سلطة)",
+          "type": "textarea",
+          "max_length": 300
+        },
+        {
+          "key": "plan",
+          "label_ar": "4. الخطة (Plan)",
+          "label_en": "Plan",
+          "description_ar": "ما الخطة البسيطة (3 خطوات) للبطل ليحل مشكلته؟",
+          "type": "textarea",
+          "max_length": 300
+        },
+        {
+          "key": "call_to_action",
+          "label_ar": "5. الفعل (Call to Action)",
+          "label_en": "Call to Action",
+          "description_ar": "ما الفعل المباشر والثانوي؟",
+          "type": "textarea",
+          "max_length": 200
+        },
+        {
+          "key": "failure",
+          "label_ar": "6. تجنب الفشل (Failure)",
+          "label_en": "Failure",
+          "description_ar": "ما الذي يخسره البطل إن لم يفعل شيئاً؟",
+          "type": "textarea",
+          "max_length": 200
+        },
+        {
+          "key": "success",
+          "label_ar": "7. النجاح (Success)",
+          "label_en": "Success",
+          "description_ar": "كيف ستبدو حياة البطل بعد النجاح؟",
+          "type": "textarea",
+          "max_length": 200
+        }
+      ]
+    },
+    {
+      "id": "pastor",
+      "name_ar": "PASTOR — صياغة بيع طويلة",
+      "name_en": "PASTOR — Persuasive Long-Form",
+      "category": "copywriting",
+      "best_for": ["sales_pages", "long_form_articles", "newsletters"],
+      "fields": [
+        {
+          "key": "person_problem",
+          "label_ar": "P — الشخص والمشكلة",
+          "label_en": "Person & Problem",
+          "description_ar": "من جمهورك بالضبط؟ ما مشكلتهم؟",
+          "type": "textarea",
+          "max_length": 300
+        },
+        {
+          "key": "amplify",
+          "label_ar": "A — تكبير العواقب",
+          "label_en": "Amplify Consequences",
+          "description_ar": "ماذا يحدث إن لم تُحلّ المشكلة؟",
+          "type": "textarea",
+          "max_length": 300
+        },
+        {
+          "key": "story_solution",
+          "label_ar": "S — القصة والحل",
+          "label_en": "Story & Solution",
+          "description_ar": "قصة شخصية أو دراسة حالة + الحل المقدم",
+          "type": "textarea",
+          "max_length": 500
+        },
+        {
+          "key": "transformation",
+          "label_ar": "T — التحول",
+          "label_en": "Transformation",
+          "description_ar": "ما الذي سيتغير في حياة العميل؟ بدليل (شهادات، أرقام)",
+          "type": "textarea",
+          "max_length": 400
+        },
+        {
+          "key": "offer",
+          "label_ar": "O — العرض",
+          "label_en": "Offer",
+          "description_ar": "العرض المحدد، السعر، ما يحصل عليه",
+          "type": "textarea",
+          "max_length": 300
+        },
+        {
+          "key": "response",
+          "label_ar": "R — استدعاء الاستجابة",
+          "label_en": "Response",
+          "description_ar": "CTA + ضمان + ندرة (إن وُجدت)",
+          "type": "textarea",
+          "max_length": 200
+        }
+      ]
+    },
+    {
+      "id": "fab",
+      "name_ar": "FAB — الميزات، المزايا، الفوائد",
+      "name_en": "FAB — Features, Advantages, Benefits",
+      "category": "copywriting",
+      "best_for": ["product_descriptions", "feature_announcements", "comparisons"],
+      "fields": [
+        {
+          "key": "features",
+          "label_ar": "الميزات (Features)",
+          "label_en": "Features",
+          "description_ar": "ما الذي يقدمه المنتج؟ (مواصفات تقنية)",
+          "type": "textarea",
+          "max_length": 400
+        },
+        {
+          "key": "advantages",
+          "label_ar": "المزايا (Advantages)",
+          "label_en": "Advantages",
+          "description_ar": "كيف هذا أفضل من البدائل؟",
+          "type": "textarea",
+          "max_length": 400
+        },
+        {
+          "key": "benefits",
+          "label_ar": "الفوائد (Benefits)",
+          "label_en": "Benefits",
+          "description_ar": "ماذا يعني هذا للعميل بشكل ملموس؟ (= ما يهم فعلاً)",
+          "type": "textarea",
+          "max_length": 400
+        }
+      ]
+    },
+    {
+      "id": "three_act",
+      "name_ar": "البنية الثلاثية للقصة",
+      "name_en": "Three-Act Structure",
+      "category": "storytelling",
+      "best_for": ["video_ads", "brand_films", "documentary_style"],
+      "fields": [
+        {
+          "key": "act1_setup",
+          "label_ar": "الفصل الأول — الإعداد",
+          "label_en": "Act 1 — Setup",
+          "description_ar": "تقديم الشخصية، العالم، الصراع الأولي (~25%)",
+          "type": "textarea",
+          "max_length": 400
+        },
+        {
+          "key": "act2_confrontation",
+          "label_ar": "الفصل الثاني — المواجهة",
+          "label_en": "Act 2 — Confrontation",
+          "description_ar": "العقبات، التحديات، نقطة منتصف، النقطة المظلمة (~50%)",
+          "type": "textarea",
+          "max_length": 500
+        },
+        {
+          "key": "act3_resolution",
+          "label_ar": "الفصل الثالث — الحل",
+          "label_en": "Act 3 — Resolution",
+          "description_ar": "الذروة، الحل، الانتقال إلى الوضع الجديد (~25%)",
+          "type": "textarea",
+          "max_length": 400
+        }
+      ]
+    },
+    {
+      "id": "heros_journey_lite",
+      "name_ar": "رحلة البطل (مبسطة)",
+      "name_en": "Hero's Journey (Simplified)",
+      "category": "storytelling",
+      "best_for": ["brand_stories", "case_studies", "founder_stories"],
+      "fields": [
+        {
+          "key": "ordinary_world",
+          "label_ar": "العالم العادي",
+          "label_en": "Ordinary World",
+          "description_ar": "الوضع المألوف للبطل قبل المغامرة",
+          "type": "textarea",
+          "max_length": 200
+        },
+        {
+          "key": "call_to_adventure",
+          "label_ar": "نداء المغامرة",
+          "label_en": "Call to Adventure",
+          "description_ar": "الحدث الذي غيّر كل شيء",
+          "type": "textarea",
+          "max_length": 200
+        },
+        {
+          "key": "challenges",
+          "label_ar": "التحديات",
+          "label_en": "Challenges",
+          "description_ar": "العقبات التي واجهها البطل",
+          "type": "textarea",
+          "max_length": 400
+        },
+        {
+          "key": "transformation",
+          "label_ar": "التحول",
+          "label_en": "Transformation",
+          "description_ar": "كيف تغيّر البطل؟ ما الذي تعلّمه؟",
+          "type": "textarea",
+          "max_length": 300
+        },
+        {
+          "key": "return",
+          "label_ar": "العودة بالحكمة",
+          "label_en": "Return with Wisdom",
+          "description_ar": "كيف يطبّق البطل ما تعلّمه الآن؟ (الربط بالعرض)",
+          "type": "textarea",
+          "max_length": 300
+        }
+      ]
+    },
+    {
+      "id": "hook_hold_payoff",
+      "name_ar": "الهوك، التشويق، المكافأة",
+      "name_en": "Hook — Hold — Payoff",
+      "category": "video",
+      "best_for": ["reels", "tiktok", "youtube_shorts"],
+      "fields": [
+        {
+          "key": "hook",
+          "label_ar": "Hook (0-3 ثوانٍ)",
+          "label_en": "Hook (0-3s)",
+          "description_ar": "صدمة بصرية أو سؤال يوقف التمرير",
+          "type": "textarea",
+          "max_length": 100
+        },
+        {
+          "key": "hold",
+          "label_ar": "Hold (3-X ثوانٍ)",
+          "label_en": "Hold (3-Xs)",
+          "description_ar": "كيف تحافظ على المشاهدة؟ (وعد، تشويق، ارتقاء)",
+          "type": "textarea",
+          "max_length": 400
+        },
+        {
+          "key": "payoff",
+          "label_ar": "Payoff (آخر 5 ثوانٍ)",
+          "label_en": "Payoff (last 5s)",
+          "description_ar": "المكافأة (الإجابة، الكشف، النتيجة) + CTA",
+          "type": "textarea",
+          "max_length": 200
+        }
+      ]
+    },
+    {
+      "id": "60_30_10",
+      "name_ar": "قاعدة 60-30-10 (الألوان)",
+      "name_en": "60-30-10 Rule (Color)",
+      "category": "design",
+      "best_for": ["static_designs", "brand_visual_systems", "presentations"],
+      "fields": [
+        {
+          "key": "color_60",
+          "label_ar": "اللون السائد (60%)",
+          "label_en": "Dominant Color (60%)",
+          "description_ar": "اللون الرئيسي — للخلفيات والمساحات الكبيرة",
+          "type": "color"
+        },
+        {
+          "key": "color_30",
+          "label_ar": "اللون المساند (30%)",
+          "label_en": "Secondary Color (30%)",
+          "description_ar": "اللون الداعم — للعناصر الثانوية",
+          "type": "color"
+        },
+        {
+          "key": "color_10",
+          "label_ar": "اللون المميز (10%)",
+          "label_en": "Accent Color (10%)",
+          "description_ar": "للـ CTA والعناصر التي تتطلب انتباهاً",
+          "type": "color"
+        },
+        {
+          "key": "rationale",
+          "label_ar": "المبرر",
+          "label_en": "Rationale",
+          "description_ar": "لماذا اخترت هذه التركيبة؟",
+          "type": "textarea",
+          "max_length": 300
+        }
+      ]
+    },
+    {
+      "id": "f_pattern",
+      "name_ar": "نمط F (للقراءة الكثيفة)",
+      "name_en": "F-Pattern Layout",
+      "category": "design",
+      "best_for": ["text_heavy_designs", "blog_thumbnails", "long_carousels"],
+      "fields": [
+        {
+          "key": "top_horizontal",
+          "label_ar": "الشريط العلوي الأفقي",
+          "label_en": "Top Horizontal Bar",
+          "description_ar": "العنوان الرئيسي + العنصر الأبرز",
+          "type": "textarea",
+          "max_length": 200
+        },
+        {
+          "key": "second_horizontal",
+          "label_ar": "الشريط الثاني (أقصر)",
+          "label_en": "Second Horizontal Bar",
+          "description_ar": "عنوان فرعي أو معلومة ثانوية",
+          "type": "textarea",
+          "max_length": 200
+        },
+        {
+          "key": "left_vertical",
+          "label_ar": "العمود الأيسر العمودي",
+          "label_en": "Left Vertical Column",
+          "description_ar": "نقاط رئيسية مرقّمة",
+          "type": "textarea",
+          "max_length": 300
+        }
+      ]
+    },
+    {
+      "id": "casa",
+      "name_ar": "CASA — الوضوح، الجاذبية، الإنجاز، الفعل",
+      "name_en": "CASA — Clarity, Appeal, Action, Achievement",
+      "category": "design",
+      "best_for": ["static_design_evaluation", "ad_design", "landing_pages"],
+      "fields": [
+        {
+          "key": "clarity",
+          "label_ar": "الوضوح (Clarity)",
+          "label_en": "Clarity",
+          "description_ar": "هل الرسالة واضحة في 3 ثوانٍ؟",
+          "type": "rating",
+          "max": 10
+        },
+        {
+          "key": "appeal",
+          "label_ar": "الجاذبية (Appeal)",
+          "label_en": "Appeal",
+          "description_ar": "هل بصرياً جذاب؟ هل يميّز نفسه؟",
+          "type": "rating",
+          "max": 10
+        },
+        {
+          "key": "action",
+          "label_ar": "الفعل (Action)",
+          "label_en": "Action",
+          "description_ar": "هل CTA واضح ومحفّز؟",
+          "type": "rating",
+          "max": 10
+        },
+        {
+          "key": "achievement",
+          "label_ar": "الإنجاز (Achievement)",
+          "label_en": "Achievement",
+          "description_ar": "هل يحقق الهدف الإبداعي/التسويقي؟",
+          "type": "rating",
+          "max": 10
+        }
+      ]
+    },
+    {
+      "id": "5w1h",
+      "name_ar": "5W1H — من، ماذا، متى، أين، لماذا، كيف",
+      "name_en": "5W1H — Who, What, When, Where, Why, How",
+      "category": "ideation",
+      "best_for": ["content_briefs", "press_releases", "informative_content"],
+      "fields": [
+        {
+          "key": "who",
+          "label_ar": "من؟ (Who)",
+          "label_en": "Who",
+          "description_ar": "من المعنيون؟ (الجمهور، الأبطال، البراند)",
+          "type": "text",
+          "max_length": 200
+        },
+        {
+          "key": "what",
+          "label_ar": "ماذا؟ (What)",
+          "label_en": "What",
+          "description_ar": "ما الموضوع/الحدث/المنتج؟",
+          "type": "text",
+          "max_length": 200
+        },
+        {
+          "key": "when",
+          "label_ar": "متى؟ (When)",
+          "label_en": "When",
+          "description_ar": "ما التوقيت/التاريخ؟ هل هو موسمي؟",
+          "type": "text",
+          "max_length": 100
+        },
+        {
+          "key": "where",
+          "label_ar": "أين؟ (Where)",
+          "label_en": "Where",
+          "description_ar": "ما المكان/المنصة/السياق؟",
+          "type": "text",
+          "max_length": 100
+        },
+        {
+          "key": "why",
+          "label_ar": "لماذا؟ (Why)",
+          "label_en": "Why",
+          "description_ar": "ما السبب؟ ما الهدف من هذا المحتوى؟",
+          "type": "textarea",
+          "max_length": 200
+        },
+        {
+          "key": "how",
+          "label_ar": "كيف؟ (How)",
+          "label_en": "How",
+          "description_ar": "كيف ستنفذ؟ ما الطريقة/الأسلوب؟",
+          "type": "textarea",
+          "max_length": 200
+        }
+      ]
+    },
+    {
+      "id": "value_proposition_canvas",
+      "name_ar": "Value Proposition Canvas",
+      "name_en": "Value Proposition Canvas",
+      "category": "strategy",
+      "best_for": ["brand_positioning", "product_messaging", "sales_pitches"],
+      "fields": [
+        {
+          "key": "customer_jobs",
+          "label_ar": "مهام العميل (Customer Jobs)",
+          "label_en": "Customer Jobs",
+          "description_ar": "ما الذي يحاول العميل إنجازه؟ (وظيفي، اجتماعي، عاطفي)",
+          "type": "textarea",
+          "max_length": 400
+        },
+        {
+          "key": "pains",
+          "label_ar": "الآلام (Pains)",
+          "label_en": "Pains",
+          "description_ar": "ما المشاكل والعقبات والمخاطر؟",
+          "type": "textarea",
+          "max_length": 400
+        },
+        {
+          "key": "gains",
+          "label_ar": "المكاسب (Gains)",
+          "label_en": "Gains",
+          "description_ar": "ما النتائج/الفوائد المرغوبة؟",
+          "type": "textarea",
+          "max_length": 400
+        },
+        {
+          "key": "products_services",
+          "label_ar": "المنتجات/الخدمات",
+          "label_en": "Products & Services",
+          "description_ar": "ما الذي يقدمه البراند بالضبط؟",
+          "type": "textarea",
+          "max_length": 400
+        },
+        {
+          "key": "pain_relievers",
+          "label_ar": "مزيلات الألم (Pain Relievers)",
+          "label_en": "Pain Relievers",
+          "description_ar": "كيف يخفف العرض من الآلام؟",
+          "type": "textarea",
+          "max_length": 400
+        },
+        {
+          "key": "gain_creators",
+          "label_ar": "صانعو المكاسب (Gain Creators)",
+          "label_en": "Gain Creators",
+          "description_ar": "كيف يخلق العرض المكاسب المرغوبة؟",
+          "type": "textarea",
+          "max_length": 400
+        }
+      ]
+    }
+  ]
+}

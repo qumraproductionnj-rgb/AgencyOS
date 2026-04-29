@@ -1,0 +1,55 @@
+import { NestFactory } from '@nestjs/core'
+import { ValidationPipe, VersioningType } from '@nestjs/common'
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
+import { Logger } from 'nestjs-pino'
+import helmet from 'helmet'
+import { AppModule } from './app.module'
+
+async function bootstrap(): Promise<void> {
+  const app = await NestFactory.create(AppModule, { bufferLogs: true })
+
+  // Logger
+  app.useLogger(app.get(Logger))
+
+  // Security headers
+  app.use(helmet())
+
+  // CORS — restrict in production via env
+  app.enableCors({
+    origin: process.env['CORS_ORIGINS']?.split(',') ?? ['http://localhost:3000'],
+    credentials: true,
+  })
+
+  // Global prefix + versioning
+  app.setGlobalPrefix('api')
+  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' })
+
+  // Global validation pipe
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  )
+
+  // Swagger (dev only)
+  if (process.env['NODE_ENV'] !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('AgencyOS API')
+      .setDescription('AgencyOS — Operating System for Marketing & Creative Production Agencies')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build()
+    const document = SwaggerModule.createDocument(app, config)
+    SwaggerModule.setup('api/docs', app, document)
+  }
+
+  const port = process.env['PORT'] ?? 3001
+  await app.listen(port)
+  app.get(Logger).log(`🚀 AgencyOS API running on http://localhost:${port}/api/v1`)
+  app.get(Logger).log(`📚 Swagger docs: http://localhost:${port}/api/docs`)
+}
+
+void bootstrap()

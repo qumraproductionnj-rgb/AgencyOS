@@ -1,0 +1,48 @@
+{
+  "name": "agencyos",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AgencyOS — Operating System for Marketing & Creative Production Agencies",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel run dev",
+    "dev:api": "pnpm --filter api dev",
+    "dev:web": "pnpm --filter web dev",
+    "build": "pnpm --recursive run build",
+    "lint": "pnpm --recursive run lint",
+    "typecheck": "pnpm --recursive run typecheck",
+    "test": "pnpm --recursive run test",
+    "test:e2e": "pnpm --recursive run test:e2e",
+    "db:migrate": "pnpm --filter database migrate:dev",
+    "db:migrate:prod": "pnpm --filter database migrate:deploy",
+    "db:seed": "pnpm --filter database seed",
+    "db:reset": "pnpm --filter database migrate:reset",
+    "db:studio": "pnpm --filter database studio",
+    "db:generate": "pnpm --filter database generate",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:reset": "docker compose down -v",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.9",
+    "typescript": "^5.7.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yaml,yml}": [
+      "prettier --write"
+    ]
+  }
+}

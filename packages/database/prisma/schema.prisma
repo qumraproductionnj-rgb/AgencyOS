@@ -1,0 +1,59 @@
+// Prisma schema for AgencyOS
+// Phase 0 — minimal: companies + users only
+// Phase 1 — full schema added in Task 1.1
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// PHASE 0 — Minimal bootstrap tables
+// ============================================================
+
+/// Companies (tenants). Every tenant-owned table references this.
+model Company {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  slug      String    @unique // subdomain identifier e.g. "ruya"
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+
+  users User[]
+
+  @@map("companies")
+}
+
+/// Platform users — covers all three tiers (admin, tenant, external).
+/// Tier separation enforced at JWT signing level (Phase 1.2).
+model User {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId    String?   @map("company_id") @db.Uuid // null for platform admins
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  tier         UserTier  @default(TENANT)
+  isActive     Boolean   @default(true) @map("is_active")
+  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz
+
+  company Company? @relation(fields: [companyId], references: [id])
+
+  @@index([companyId], name: "idx_users_company_id")
+  @@index([email], name: "idx_users_email")
+  @@map("users")
+}
+
+enum UserTier {
+  PLATFORM_ADMIN
+  TENANT
+  EXTERNAL
+
+  @@map("user_tier")
+}

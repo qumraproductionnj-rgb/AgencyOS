@@ -10,9 +10,11 @@ import { envSchema } from './config/env.validation'
 
 @Module({
   imports: [
-    // Config — validates env vars on startup via Zod
+    // Config — validates env vars on startup via Zod.
+    // envFilePath: monorepo root .env first, then api-local .env override (if any).
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['../../.env', '.env'],
       validate: (config: Record<string, unknown>) => {
         const result = envSchema.safeParse(config)
         if (!result.success) {
@@ -27,10 +29,9 @@ import { envSchema } from './config/env.validation'
     LoggerModule.forRoot({
       pinoHttp: {
         level: process.env['NODE_ENV'] === 'production' ? 'info' : 'debug',
-        transport:
-          process.env['NODE_ENV'] !== 'production'
-            ? { target: 'pino-pretty', options: { colorize: true, singleLine: false } }
-            : undefined,
+        ...(process.env['NODE_ENV'] !== 'production' && {
+          transport: { target: 'pino-pretty', options: { colorize: true, singleLine: false } },
+        }),
         redact: ['req.headers.authorization', 'req.headers.cookie'],
       },
     }),

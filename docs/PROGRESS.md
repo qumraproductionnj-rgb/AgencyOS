@@ -7,7 +7,7 @@
 ## 📍 Current State
 
 **Phase:** Phase 0 — Setup
-**Current Task:** 0.4 — Backend Scaffold (NestJS) (next)
+**Current Task:** 0.5 — Frontend Scaffold (Next.js) (next)
 **Last Updated:** 2026-04-29
 
 ---
@@ -15,18 +15,40 @@
 ## 📊 Progress Overview
 
 ```
-Phase 0 — Setup:                    [███░░░] 3/6
+Phase 0 — Setup:                    [████░░] 4/6
 Phase 1 — Foundation:               [░░░░░░░░░░░░░░] 0/14
 Phase 2 — Core Operations:          [░░░░░░░░░░░░░░░░░░] 0/18
 Phase 3 — Creative & Collaboration: [░░░░░░░░░░░░░░░░░░░░░░] 0/22
 Phase 4 — SaaS Layer:               [░░░░░░░░░░░░] 0/12
 
-TOTAL:                              [███░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 3/72
+TOTAL:                              [████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 4/72
 ```
 
 ---
 
 ## ✅ Completed Tasks
+
+### Task 0.4 — Backend Scaffold (NestJS) (2026-04-29)
+
+- [x] `prisma generate` produces working `@prisma/client` from existing minimal schema (Company + User models)
+- [x] Fixed Pino transport type: conditional spread instead of `transport: undefined` (works with `exactOptionalPropertyTypes: true`)
+- [x] `RedisHealthIndicator` rewritten using `ioredis` (was importing non-existent `redis` package)
+- [x] `supertest` import fixed: default import instead of namespace
+- [x] `/health` excluded from `/api` global prefix AND from URI versioning (via `VERSION_NEUTRAL`)
+- [x] Global `AllExceptionsFilter` (RFC 7807 Problem Details) registered in `main.ts`
+- [x] Production `apps/api/Dockerfile` (multi-stage: base/deps/builder/runtime, node:20-alpine, non-root nestjs user, tini, healthcheck)
+- [x] Local `.env` created from `.env.example` (gitignored)
+- [x] `ConfigModule.forRoot` reads `envFilePath: ['../../.env', '.env']` so monorepo-root `.env` works regardless of cwd
+- [x] Removed `@typescript-eslint/consistent-type-imports` rule (auto-fix breaks NestJS DI by stripping runtime metadata)
+- [x] Re-enabled real `lint` + `typecheck` for `apps/api` (no more no-op stub)
+- [x] Removed `apps/api/**` from root ESLint ignores
+
+**Verified:**
+
+- `pnpm --filter api typecheck` → ✓
+- `pnpm --filter api lint` → ✓ (0 errors)
+- `pnpm --filter api dev` → API boots on `:3001`
+- `curl localhost:3001/health` → `200 OK` with `{"status":"ok","info":{"database":{"status":"up"},"redis":{"status":"up"}},...}`
 
 ### Task 0.3 — TypeScript + Linting + Hooks (2026-04-29)
 

@@ -67,7 +67,7 @@
 
 ---
 
-### `[CURRENT]` 0.4 — Backend Scaffold (NestJS)
+### `[DONE]` 0.4 — Backend Scaffold (NestJS)
 
 **Deliverables:**
 
@@ -84,7 +84,7 @@
 
 ---
 
-### `[ ]` 0.5 — Frontend Scaffold (Next.js)
+### `[CURRENT]` 0.5 — Frontend Scaffold (Next.js)
 
 **Deliverables:**
 

@@ -9,14 +9,13 @@ export default tseslint.config(
   {
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
-      '@typescript-eslint/consistent-type-imports': [
-        'error',
-        { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
-      ],
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+      // consistent-type-imports is disabled because it conflicts with NestJS DI:
+      // auto-fix converts constructor param types (e.g. ConfigService) to type-only
+      // imports, breaking emitDecoratorMetadata-driven dependency injection at runtime.
     },
   },
   {
@@ -29,7 +28,6 @@ export default tseslint.config(
       '**/.next/**',
       '**/prisma/migrations/**',
       '*.config.{js,cjs,mjs}',
-      'apps/api/**',
       'apps/web/**',
       'packages/database/**',
       'packages/shared/**',

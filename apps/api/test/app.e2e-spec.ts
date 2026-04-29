@@ -1,6 +1,6 @@
 import { type INestApplication, ValidationPipe, VersioningType } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
-import * as request from 'supertest'
+import request from 'supertest'
 import { AppModule } from '../src/app.module'
 
 describe('App (e2e)', () => {
@@ -12,7 +12,7 @@ describe('App (e2e)', () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
-    app.setGlobalPrefix('api')
+    app.setGlobalPrefix('api', { exclude: ['health'] })
     app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' })
     app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
@@ -24,9 +24,9 @@ describe('App (e2e)', () => {
     await app.close()
   })
 
-  describe('GET /api/v1/health', () => {
+  describe('GET /health', () => {
     it('should return 200 with status ok when DB and Redis are up', async () => {
-      const response = await request(app.getHttpServer()).get('/api/v1/health').expect(200)
+      const response = await request(app.getHttpServer()).get('/health').expect(200)
 
       expect(response.body).toMatchObject({
         status: 'ok',

@@ -4,6 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { Logger } from 'nestjs-pino'
 import helmet from 'helmet'
 import { AppModule } from './app.module'
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter'
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { bufferLogs: true })
@@ -20,8 +21,8 @@ async function bootstrap(): Promise<void> {
     credentials: true,
   })
 
-  // Global prefix + versioning
-  app.setGlobalPrefix('api')
+  // Global prefix + versioning. /health is intentionally unprefixed for ops/monitoring.
+  app.setGlobalPrefix('api', { exclude: ['health'] })
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' })
 
   // Global validation pipe
@@ -33,6 +34,9 @@ async function bootstrap(): Promise<void> {
       transformOptions: { enableImplicitConversion: true },
     }),
   )
+
+  // Global exception filter — RFC 7807 Problem Details
+  app.useGlobalFilters(new AllExceptionsFilter())
 
   // Swagger (dev only)
   if (process.env['NODE_ENV'] !== 'production') {

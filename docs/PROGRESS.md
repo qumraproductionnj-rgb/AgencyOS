@@ -7,7 +7,7 @@
 ## 📍 Current State
 
 **Phase:** Phase 0 — Setup
-**Current Task:** 0.2 — Docker Compose for Local Services (next)
+**Current Task:** 0.3 — TypeScript + Linting Configuration (next)
 **Last Updated:** 2026-04-29
 
 ---
@@ -15,18 +15,29 @@
 ## 📊 Progress Overview
 
 ```
-Phase 0 — Setup:                    [█░░░░░] 1/6
+Phase 0 — Setup:                    [██░░░░] 2/6
 Phase 1 — Foundation:               [░░░░░░░░░░░░░░] 0/14
 Phase 2 — Core Operations:          [░░░░░░░░░░░░░░░░░░] 0/18
 Phase 3 — Creative & Collaboration: [░░░░░░░░░░░░░░░░░░░░░░] 0/22
 Phase 4 — SaaS Layer:               [░░░░░░░░░░░░] 0/12
 
-TOTAL:                              [█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 1/72
+TOTAL:                              [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 2/72
 ```
 
 ---
 
 ## ✅ Completed Tasks
+
+### Task 0.2 — Docker Compose for Local Services (2026-04-29)
+- [x] Postgres 16 on host port `5433` (container 5432) — healthy
+- [x] Redis 7 on `6379` — healthy (PONG)
+- [x] MailHog (SMTP `1025`, UI `8025`) — healthy (HTTP 200 on /api/v2/messages)
+- [x] Meilisearch v1.6 on `7700` — healthy (added healthcheck on /health)
+- [x] MinIO on `9000`/`9001` — healthy (kept for offline dev)
+- [x] Adminer on `8080` (no healthcheck — GUI only)
+- [x] `init-db.sql` ran: 6 extensions installed (uuid-ossp, pgcrypto, pg_trgm, unaccent, btree_gin, plpgsql); UTC timezone; `agencyos_app` role created
+- [x] Verified DB reachable from external container via `host.docker.internal:5433`
+- [x] `.env.example` updated to use port 5433 in `DATABASE_URL`, `DIRECT_DATABASE_URL`, `DB_PORT`
 
 ### Task 0.1 — Repository Initialization (2026-04-29)
 - [x] Git repo initialized

@@ -37,7 +37,7 @@
 
 ---
 
-### `[CURRENT]` 0.2 — Docker Compose for Local Services
+### `[DONE]` 0.2 — Docker Compose for Local Services
 **Deliverables:**
 - `docker-compose.yml` with: PostgreSQL 16, Redis 7, MailHog, Meilisearch (for later)
 - Health checks on all services
@@ -49,7 +49,7 @@
 
 ---
 
-### `[ ]` 0.3 — TypeScript + Linting Configuration
+### `[CURRENT]` 0.3 — TypeScript + Linting Configuration
 **Deliverables:**
 - Root `tsconfig.json` with strict settings
 - ESLint config (typescript-eslint, prettier integration)

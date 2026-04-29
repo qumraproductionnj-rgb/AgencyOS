@@ -7,14 +7,14 @@
 
 ## 📊 Summary
 
-| Phase | Tasks | Est. Sessions | Real Calendar Time (2-4 hrs/day) |
-|---|---|---|---|
-| Phase 0 — Setup | 6 | 6 | 1 week |
-| Phase 1 — Foundation | 14 | 14 | 3-4 weeks |
-| Phase 2 — Core Operations | 18 | 18 | 4-5 weeks |
-| Phase 3 — Creative & Collaboration | 22 | 22 | 5-6 weeks |
-| Phase 4 — SaaS Layer | 12 | 12 | 3 weeks |
-| **TOTAL** | **72** | **72** | **~16-19 weeks (~4 months)** |
+| Phase                              | Tasks  | Est. Sessions | Real Calendar Time (2-4 hrs/day) |
+| ---------------------------------- | ------ | ------------- | -------------------------------- |
+| Phase 0 — Setup                    | 6      | 6             | 1 week                           |
+| Phase 1 — Foundation               | 14     | 14            | 3-4 weeks                        |
+| Phase 2 — Core Operations          | 18     | 18            | 4-5 weeks                        |
+| Phase 3 — Creative & Collaboration | 22     | 22            | 5-6 weeks                        |
+| Phase 4 — SaaS Layer               | 12     | 12            | 3 weeks                          |
+| **TOTAL**                          | **72** | **72**        | **~16-19 weeks (~4 months)**     |
 
 ---
 
@@ -23,7 +23,9 @@
 **Goal:** A fully running local development environment with all services healthy.
 
 ### `[DONE]` 0.1 — Repository Initialization
+
 **Deliverables:**
+
 - Initialize git repo
 - Create `pnpm-workspace.yaml` for monorepo
 - Folder structure as defined in CLAUDE.md
@@ -38,7 +40,9 @@
 ---
 
 ### `[DONE]` 0.2 — Docker Compose for Local Services
+
 **Deliverables:**
+
 - `docker-compose.yml` with: PostgreSQL 16, Redis 7, MailHog, Meilisearch (for later)
 - Health checks on all services
 - Persistent volumes
@@ -49,8 +53,10 @@
 
 ---
 
-### `[CURRENT]` 0.3 — TypeScript + Linting Configuration
+### `[DONE]` 0.3 — TypeScript + Linting Configuration
+
 **Deliverables:**
+
 - Root `tsconfig.json` with strict settings
 - ESLint config (typescript-eslint, prettier integration)
 - Prettier config (with `prettier-plugin-tailwindcss`)
@@ -61,8 +67,10 @@
 
 ---
 
-### `[ ]` 0.4 — Backend Scaffold (NestJS)
+### `[CURRENT]` 0.4 — Backend Scaffold (NestJS)
+
 **Deliverables:**
+
 - `apps/api/` with NestJS 10 scaffold
 - Health check endpoint (`/health`)
 - Configuration module (env validation with Zod)
@@ -77,7 +85,9 @@
 ---
 
 ### `[ ]` 0.5 — Frontend Scaffold (Next.js)
+
 **Deliverables:**
+
 - `apps/web/` with Next.js 14 App Router
 - TailwindCSS configured
 - shadcn/ui initialized
@@ -91,7 +101,9 @@
 ---
 
 ### `[ ]` 0.6 — Prisma Setup
+
 **Deliverables:**
+
 - `packages/database/` with Prisma
 - `prisma/schema.prisma` with `companies`, `users` tables (minimal)
 - Initial migration
@@ -110,7 +122,9 @@
 ---
 
 ### `[ ]` 1.1 — Database Schema for Phase 1
+
 **Deliverables:**
+
 - Migrations for: `companies`, `users`, `roles`, `permissions`, `user_roles`, `sessions`, `departments`, `employees`, `work_locations`, `attendance_records`, `audit_logs`
 - All tables follow standard column rules (Section "Database Standards" in CLAUDE.md)
 - RLS policies on all tenant tables
@@ -122,7 +136,9 @@
 ---
 
 ### `[ ]` 1.2 — Authentication Tier 2 (Tenant Users)
+
 **Deliverables:**
+
 - `POST /auth/signup` (creates company + owner user, sends verification email)
 - `POST /auth/verify-email`
 - `POST /auth/login` (returns access + refresh tokens)
@@ -136,6 +152,7 @@
 - Email templates (Arabic + English) sent via Resend
 
 **Acceptance:**
+
 - Can sign up new company → receives verification email → verifies → logs in
 - Failed login 5 times → account locked
 - Refresh token rotates correctly
@@ -144,7 +161,9 @@
 ---
 
 ### `[ ]` 1.3 — Tenant Context Middleware + RLS Wiring
+
 **Deliverables:**
+
 - NestJS middleware that extracts `company_id` from JWT
 - Sets `app.current_company_id` on every Prisma query (via `$queryRaw` or extension)
 - Permission guard decorator for routes
@@ -155,7 +174,9 @@
 ---
 
 ### `[ ]` 1.4 — Roles & Permissions System
+
 **Deliverables:**
+
 - 11 default roles seeded (owner, admin, hr_manager, project_manager, creative_director, designer, video_editor, account_manager, sales, freelancer, client)
 - Permission matrix from MasterSpec implemented
 - `@RequireRole()` decorator
@@ -168,7 +189,9 @@
 ---
 
 ### `[ ]` 1.5 — Tenant Onboarding Wizard (Frontend)
+
 **Deliverables:**
+
 - 5-step wizard at `/onboarding`:
   1. Company profile (name AR/EN, logo upload, address)
   2. GPS work location setup (map picker with Leaflet)
@@ -184,7 +207,9 @@
 ---
 
 ### `[ ]` 1.6 — Departments CRUD
+
 **Deliverables:**
+
 - API: `GET/POST/PUT/DELETE /departments`
 - Frontend: `/settings/departments` with table + create/edit modal
 - Soft delete preserves history
@@ -195,7 +220,9 @@
 ---
 
 ### `[ ]` 1.7 — Employees CRUD
+
 **Deliverables:**
+
 - API: `GET/POST/PUT/DELETE /employees` with all fields from spec
 - Includes employee invitation email flow (creates user account on accept)
 - Frontend: `/employees` table with filters (department, status, employment_type)
@@ -209,7 +236,9 @@
 ---
 
 ### `[ ]` 1.8 — Work Locations CRUD with Map
+
 **Deliverables:**
+
 - API: `GET/POST/PUT/DELETE /work-locations`
 - Frontend: `/settings/work-locations` with Leaflet map for setting GPS coords
 - Configurable radius (slider: 50m - 500m)
@@ -221,7 +250,9 @@
 ---
 
 ### `[ ]` 1.9 — PWA Setup
+
 **Deliverables:**
+
 - `next-pwa` configured for `apps/web/`
 - Manifest with Arabic name, icons (192, 512, maskable)
 - Service worker for offline caching of shell
@@ -234,7 +265,9 @@
 ---
 
 ### `[ ]` 1.10 — GPS Check-In API
+
 **Deliverables:**
+
 - `POST /attendance/check-in` (body: `lat`, `lng`, `device_info`)
 - `POST /attendance/check-out`
 - Server calculates Haversine distance to nearest assigned work_location
@@ -244,6 +277,7 @@
 - `GET /attendance/today/all` (HR view: all employees today)
 
 **Acceptance:**
+
 - Successful check-in within radius
 - Blocked check-in outside radius (with helpful error)
 - Late detection works (config grace period)
@@ -252,7 +286,9 @@
 ---
 
 ### `[ ]` 1.11 — Check-In UI (Mobile PWA)
+
 **Deliverables:**
+
 - `/check-in` page (mobile-first design)
 - Big "Check In" / "Check Out" button (state-aware)
 - Real-time location accuracy indicator
@@ -266,7 +302,9 @@
 ---
 
 ### `[ ]` 1.12 — Attendance Dashboard (Web)
+
 **Deliverables:**
+
 - `/attendance` page for HR/Owner
 - Live "who's in" widget (real-time via WebSocket)
 - Today's status table: present, late, absent, on leave
@@ -280,7 +318,9 @@
 ---
 
 ### `[ ]` 1.13 — Audit Logging Infrastructure
+
 **Deliverables:**
+
 - `audit_logs` table populated automatically via NestJS interceptor
 - Captures: user, action, entity, old_value, new_value, IP, user_agent
 - API: `GET /audit-logs` with filters (Owner/Admin only)
@@ -291,7 +331,9 @@
 ---
 
 ### `[ ]` 1.14 — Phase 1 Acceptance Tests
+
 **Deliverables:**
+
 - Playwright E2E suite covering:
   - Tenant signup flow
   - Owner completes onboarding
@@ -312,7 +354,9 @@
 ---
 
 ### `[ ]` 2.1 — Database Schema for Phase 2
+
 **Deliverables:**
+
 - Migrations for: `leaves`, `leave_balances`, `payroll_runs`, `payroll_entries`, `performance_reviews`, `leads`, `clients`, `contacts`, `deals`, `quotations`, `invoices`, `payments`, `expenses`, `campaigns`, `projects`, `revisions`, `tasks`, `task_comments`, `task_time_logs`, `files`, `notifications`, `exchange_rates`
 - All standard columns + RLS policies + indexes
 - Seed extended with sample lead, deal, project, task
@@ -322,7 +366,9 @@
 ---
 
 ### `[ ]` 2.2 — HR: Leaves Management
+
 **Deliverables:**
+
 - API: leave request CRUD, approve/reject endpoints
 - Leave balance calculation (annual reset, accrual)
 - Approval chain (>5 days requires Owner approval)
@@ -334,7 +380,9 @@
 ---
 
 ### `[ ]` 2.3 — HR: Payroll
+
 **Deliverables:**
+
 - API: generate monthly payroll run, calculate based on attendance + leaves + overrides
 - Per-employee entry with additions/deductions
 - Dual currency support (IQD + USD)
@@ -347,7 +395,9 @@
 ---
 
 ### `[ ]` 2.4 — HR: Performance Reviews
+
 **Deliverables:**
+
 - API: create review with KPIs, score, comments
 - Frontend: manager creates review, employee sees their reviews
 - KPI templates (reusable)
@@ -358,7 +408,9 @@
 ---
 
 ### `[ ]` 2.5 — CRM: Leads Pipeline
+
 **Deliverables:**
+
 - API: leads CRUD with pipeline stage transitions
 - Frontend: Kanban board (drag-drop between stages)
 - Lead detail with notes, follow-up date, activity log
@@ -370,7 +422,9 @@
 ---
 
 ### `[ ]` 2.6 — CRM: Clients & Contacts
+
 **Deliverables:**
+
 - API: clients CRUD, multiple contacts per client
 - Frontend: clients table, client detail with tabs (overview, contacts, projects, invoices, files)
 - VIP/blacklist flagging
@@ -381,7 +435,9 @@
 ---
 
 ### `[ ]` 2.7 — Quotations
+
 **Deliverables:**
+
 - API: quotations CRUD, send (generates PDF + unique link), accept (creates project + invoice)
 - Line items with quantity, unit price, currency
 - Discounts and taxes
@@ -395,7 +451,9 @@
 ---
 
 ### `[ ]` 2.8 — Invoices & Payments
+
 **Deliverables:**
+
 - API: invoices CRUD with status lifecycle, record payment, mark overdue
 - Recurring invoices (cron job clones)
 - Frontend: invoice builder, list, detail, payment recording modal
@@ -408,7 +466,9 @@
 ---
 
 ### `[ ]` 2.9 — Expenses
+
 **Deliverables:**
+
 - API: expense CRUD, approval workflow
 - Receipt upload (R2)
 - Approval chain by amount thresholds
@@ -421,7 +481,9 @@
 ---
 
 ### `[ ]` 2.10 — Campaigns
+
 **Deliverables:**
+
 - API: campaign CRUD
 - Frontend: campaigns list per client, detail with linked projects + content plan placeholder
 - Budget tracking
@@ -431,7 +493,9 @@
 ---
 
 ### `[ ]` 2.11 — Projects (Core)
+
 **Deliverables:**
+
 - API: project CRUD with stage transitions, team assignment
 - Production pipeline stages enforced (state machine)
 - Revision tracking with limit warnings
@@ -443,7 +507,9 @@
 ---
 
 ### `[ ]` 2.12 — Tasks (Core)
+
 **Deliverables:**
+
 - API: tasks CRUD with subtasks, status transitions, comments, time logs
 - @Mentions in comments → notification
 - Frontend: tasks list, Kanban board, detail page
@@ -455,7 +521,9 @@
 ---
 
 ### `[ ]` 2.13 — Files Module (with TUS chunked upload)
+
 **Deliverables:**
+
 - API: file upload (small + chunked TUS), download with signed URLs
 - Frontend: file picker, drag-drop, progress bar
 - Generic linkage: any entity can attach files
@@ -467,7 +535,9 @@
 ---
 
 ### `[ ]` 2.14 — Notifications System (in-app + email)
+
 **Deliverables:**
+
 - API: notifications stream via WebSocket, REST `GET /notifications`, mark read
 - Email channel via Resend (Arabic templates)
 - Per-user preference panel
@@ -479,7 +549,9 @@
 ---
 
 ### `[ ]` 2.15 — Exchange Rates Management
+
 **Deliverables:**
+
 - API: set manual rate, get current rate
 - Background job: fetch from public API daily (configurable on/off)
 - Frontend: settings page for rate management
@@ -489,7 +561,9 @@
 ---
 
 ### `[ ]` 2.16 — Dashboard Refinement
+
 **Deliverables:**
+
 - Owner/Admin dashboard widgets:
   - Revenue this month (IQD + USD split)
   - Active projects count
@@ -506,7 +580,9 @@
 ---
 
 ### `[ ]` 2.17 — Search (Postgres FTS)
+
 **Deliverables:**
+
 - Backend: full-text search across clients, projects, tasks, files, employees, invoices
 - Arabic-aware (basic — Meilisearch comes in Phase 3)
 - API: `GET /search?q=`
@@ -518,7 +594,9 @@
 ---
 
 ### `[ ]` 2.18 — Phase 2 Acceptance Tests
+
 **Deliverables:**
+
 - Playwright E2E:
   - Lead → Won → Client → Quotation → Project → Tasks → Invoice → Payment
   - Leave request → approval → balance updated
@@ -537,7 +615,9 @@
 ---
 
 ### `[ ]` 3.1 — Database Schema for Phase 3
+
 **Deliverables:**
+
 - Migrations: `brand_briefs`, `audience_personas`, `content_pillars`, `content_plans`, `content_pieces`, `content_revisions`, `frameworks`, `content_templates`, `ai_generations`, `assets`, `asset_folders`, `asset_versions`, `equipment`, `equipment_bookings`, `equipment_maintenance`, `exhibitions`, `exhibition_booths`, `booth_inventory`, `exhibition_financials`, `exhibition_settlement`
 - Seed Frameworks library (40+ frameworks from ContentStudio spec)
 
@@ -546,7 +626,9 @@
 ---
 
 ### `[ ]` 3.2 — Asset Library
+
 **Deliverables:**
+
 - API: folders + assets CRUD, version history
 - Frontend: asset library with grid/list view, folder navigation, drag-drop upload
 - Tags + filters
@@ -559,7 +641,9 @@
 ---
 
 ### `[ ]` 3.3 — Brand Briefs
+
 **Deliverables:**
+
 - API: brand brief CRUD per client
 - Frontend: rich brand brief editor with all sections (voice, personas, visual, cultural)
 - Persona builder sub-form (1-N personas per brief)
@@ -570,7 +654,9 @@
 ---
 
 ### `[ ]` 3.4 — Content Pillars
+
 **Deliverables:**
+
 - API: pillars CRUD per client
 - Frontend: pillars manager with color, icon, percentage target
 
@@ -579,7 +665,9 @@
 ---
 
 ### `[ ]` 3.5 — AI Service Layer
+
 **Deliverables:**
+
 - `packages/ai/` with Anthropic client wrapper
 - Centralized prompt registry (loaded from DB, editable)
 - Model selection logic (sonnet for default, opus for premium)
@@ -592,7 +680,9 @@
 ---
 
 ### `[ ]` 3.6 — Content Plan Wizard
+
 **Deliverables:**
+
 - 4-step wizard:
   1. Context (client + month + campaign)
   2. Objectives + distribution
@@ -607,7 +697,9 @@
 ---
 
 ### `[ ]` 3.7 — Content Piece Editor (Universal Shell)
+
 **Deliverables:**
+
 - `/content-pieces/[id]` page
 - Persistent context sidebar (Brand Brief, Audience, Pillar)
 - Tab system that adapts to piece type
@@ -620,7 +712,9 @@
 ---
 
 ### `[ ]` 3.8 — Content Editor: Video / Reel
+
 **Deliverables:**
+
 - Tabs: Idea, Hook, Script, Storyboard, Music, Caption
 - Each tab has appropriate AI assistant
 - Storyboard: shot list with shot type, duration, notes
@@ -631,7 +725,9 @@
 ---
 
 ### `[ ]` 3.9 — Content Editor: Static Design
+
 **Deliverables:**
+
 - Tabs: Idea, Texts (headline/sub/body/CTA), Visual Direction, Caption
 - Headline tester (AI scoring 1-10)
 - Layout selector (F-pattern/Z-pattern/centered)
@@ -642,7 +738,9 @@
 ---
 
 ### `[ ]` 3.10 — Content Editor: Story
+
 **Deliverables:**
+
 - Frame sequence builder (3-7 frames)
 - Per-frame: visual, text, sticker, interactive element
 - Duration per frame
@@ -652,7 +750,9 @@
 ---
 
 ### `[ ]` 3.11 — Content Editor: Carousel
+
 **Deliverables:**
+
 - Slide builder (2-10 slides)
 - Per-slide: headline, body, visual brief
 - Special hook slide + CTA slide
@@ -662,7 +762,9 @@
 ---
 
 ### `[ ]` 3.12 — AI Tools Library (Round 1: Strategic + Ideation)
+
 **Deliverables (each as a standalone tool with prompt template):**
+
 - Brand Voice Builder
 - Audience Persona Builder
 - Content Pillars Designer
@@ -675,7 +777,9 @@
 ---
 
 ### `[ ]` 3.13 — AI Tools Library (Round 2: Video)
+
 **Deliverables:**
+
 - Script Writer (with framework selection)
 - Storyboard Builder
 - Voiceover Polisher
@@ -689,7 +793,9 @@
 ---
 
 ### `[ ]` 3.14 — AI Tools Library (Round 3: Design + Story + Carousel + Final)
+
 **Deliverables:**
+
 - Visual Direction Generator
 - Color Palette Extractor + Generator
 - Typography Pair Suggester
@@ -707,7 +813,9 @@
 ---
 
 ### `[ ]` 3.15 — Frameworks Library (Interactive)
+
 **Deliverables:**
+
 - Frameworks catalog (40+ from spec) loaded from DB
 - Each framework as interactive form (fields generated from JSON Schema)
 - "Use this framework" button on Content Piece editor
@@ -718,7 +826,9 @@
 ---
 
 ### `[ ]` 3.16 — Smart Integrations (Phase 3 cross-module)
+
 **Deliverables:**
+
 - Content Plan approval → auto-creates tasks per piece (with proper roles + lead times)
 - Content Piece "approved" → file goes to Asset Library
 - Content Piece "scheduled" → appears on Calendar module
@@ -729,7 +839,9 @@
 ---
 
 ### `[ ]` 3.17 — Content Calendar (Module replacement)
+
 **Deliverables:**
+
 - Monthly + weekly views
 - Drag-drop scheduling
 - Filters: client, platform, status
@@ -740,7 +852,9 @@
 ---
 
 ### `[ ]` 3.18 — Client Portal (Tier 3 auth + UI)
+
 **Deliverables:**
+
 - Separate Next.js app at `apps/portal/`
 - Auth Tier 3 (external user)
 - Client dashboard: their projects, files awaiting approval, invoices
@@ -755,7 +869,9 @@
 ---
 
 ### `[ ]` 3.19 — Telegram Notifications
+
 **Deliverables:**
+
 - Single platform-wide bot (@AgencyOSBot)
 - User linking: deep-link with one-time token
 - Per-user notification preference includes Telegram channel
@@ -766,7 +882,9 @@
 ---
 
 ### `[ ]` 3.20 — Equipment Management
+
 **Deliverables:**
+
 - API: equipment CRUD, bookings (with conflict detection), maintenance log
 - QR code generation per equipment item
 - Frontend: equipment library, calendar view, booking form, maintenance log
@@ -777,7 +895,9 @@
 ---
 
 ### `[ ]` 3.21 — Exhibition Management (Ru'ya specific)
+
 **Deliverables:**
+
 - API: exhibitions, booths, inventory, financials, settlement
 - Frontend: exhibition setup, booth management, inventory tracking, financial entries, settlement report
 - Multi-brand booth support (like Najaf experience)
@@ -787,7 +907,9 @@
 ---
 
 ### `[ ]` 3.22 — Phase 3 Acceptance Tests + Demo
+
 **Deliverables:**
+
 - E2E tests for:
   - Brand Brief creation → Plan creation → Pieces → Approval → Schedule
   - Client portal: video annotation + revision request
@@ -806,7 +928,9 @@
 ---
 
 ### `[ ]` 4.1 — Subscription Plans
+
 **Deliverables:**
+
 - DB tables: `subscription_plans`, `subscriptions`, `plan_features`
 - Plans seeded: Starter, Professional, Agency, Enterprise
 - Feature flags loaded per tenant
@@ -818,7 +942,9 @@
 ---
 
 ### `[ ]` 4.2 — Stripe Integration
+
 **Deliverables:**
+
 - Stripe customer + subscription creation
 - Webhook handlers (subscription.created/updated/deleted, invoice.paid/failed)
 - Frontend: payment method form, plan selection, change plan, cancel
@@ -829,7 +955,9 @@
 ---
 
 ### `[ ]` 4.3 — Local Payment Gateway (Iraqi market)
+
 **Deliverables:**
+
 - Research + integration of one of: FastPay, ZainCash, FIB
 - Manual bank transfer flow as fallback (admin marks as paid)
 - Frontend: payment method selector
@@ -839,7 +967,9 @@
 ---
 
 ### `[ ]` 4.4 — Tenant Lifecycle Management
+
 **Deliverables:**
+
 - Background job: trial expiry warnings (3 days, 1 day, expiry)
 - Status transitions: trial → active → past_due → read_only → suspended → anonymized
 - Email notifications at each transition
@@ -850,7 +980,9 @@
 ---
 
 ### `[ ]` 4.5 — Platform Admin Panel
+
 **Deliverables:**
+
 - Separate Next.js app at `apps/admin/`
 - Auth Tier 1 (super admin)
 - Dashboards: total tenants, MRR, churn, active users
@@ -862,7 +994,9 @@
 ---
 
 ### `[ ]` 4.6 — Billing UI for Tenants
+
 **Deliverables:**
+
 - `/settings/billing` page for Owner role only
 - Current plan + usage meters
 - Invoice history (Stripe invoices)
@@ -874,7 +1008,9 @@
 ---
 
 ### `[ ]` 4.7 — Reports & Analytics (Tenant-level)
+
 **Deliverables:**
+
 - All reports from MasterSpec Module 16:
   - Financial: revenue, profitability, expenses, aging
   - Operations: completion rate, delivery time, revisions
@@ -888,7 +1024,9 @@
 ---
 
 ### `[ ]` 4.8 — Webhook System (External Integrations)
+
 **Deliverables:**
+
 - Tenants can register webhooks for events
 - Signature verification (HMAC-SHA256)
 - Retry logic with exponential backoff
@@ -899,7 +1037,9 @@
 ---
 
 ### `[ ]` 4.9 — White-Label Option (Agency plan)
+
 **Deliverables:**
+
 - Custom subdomain support (`{tenant}.agencyos.app` or own domain)
 - Custom logo, colors in tenant settings
 - "Powered by AgencyOS" toggle (only on Agency plan)
@@ -910,7 +1050,9 @@
 ---
 
 ### `[ ]` 4.10 — Customer Support
+
 **Deliverables:**
+
 - In-app help center (markdown articles)
 - Contact form → ticket system
 - Knowledge base seeded with 20+ articles in AR + EN
@@ -920,7 +1062,9 @@
 ---
 
 ### `[ ]` 4.11 — Marketing Site
+
 **Deliverables:**
+
 - Public site at `agencyos.app/` (separate Next.js app or pages in `web`)
 - Pages: home, features, pricing, about, contact, privacy, terms
 - Bilingual (AR + EN with detected default)
@@ -932,7 +1076,9 @@
 ---
 
 ### `[ ]` 4.12 — Phase 4 Acceptance + Production Launch
+
 **Deliverables:**
+
 - Full E2E covering signup-to-payment
 - Load testing (k6, target: 1000 concurrent users)
 - Security audit checklist (OWASP top 10)
@@ -958,6 +1104,7 @@
 # 🚨 EMERGENCY HALT CONDITIONS
 
 Stop development immediately if:
+
 - Cross-tenant data leak detected
 - Authentication bypass discovered
 - Data loss incident

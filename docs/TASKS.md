@@ -100,7 +100,7 @@
 
 ---
 
-### `[CURRENT]` 0.6 — Prisma Setup
+### `[DONE]` 0.6 — Prisma Setup
 
 **Deliverables:**
 
@@ -121,7 +121,7 @@
 
 ---
 
-### `[ ]` 1.1 — Database Schema for Phase 1
+### `[CURRENT]` 1.1 — Database Schema for Phase 1
 
 **Deliverables:**
 

@@ -1,5 +1,7 @@
 import { useTranslations } from 'next-intl'
-import { unstable_setRequestLocale } from 'next-intl/server'
+import { setRequestLocale } from 'next-intl/server'
+import { LanguageSwitcher } from '@/components/language-switcher'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 interface HomePageProps {
   params: Promise<{ locale: string }>
@@ -7,7 +9,7 @@ interface HomePageProps {
 
 export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params
-  unstable_setRequestLocale(locale)
+  setRequestLocale(locale)
 
   return <HomeContent />
 }
@@ -16,25 +18,32 @@ function HomeContent() {
   const t = useTranslations('home')
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold tracking-tight">{t('title')}</h1>
-        <p className="text-lg text-muted-foreground">{t('description')}</p>
-        <div className="mt-8 flex gap-4 justify-center">
-          <a
-            href="/ar"
-            className="rounded-md bg-primary px-4 py-2 text-primary-foreground hover:opacity-90"
-          >
-            العربية (RTL)
-          </a>
-          <a
-            href="/en"
-            className="rounded-md border border-border px-4 py-2 hover:bg-accent"
-          >
-            English (LTR)
-          </a>
+    <main className="flex min-h-screen flex-col items-center justify-center p-8">
+      <div className="absolute end-4 top-4 flex items-center gap-3">
+        <LanguageSwitcher />
+        <ThemeToggle />
+      </div>
+
+      <div className="max-w-2xl text-center">
+        <h1 className="mb-4 text-5xl font-bold tracking-tight">{t('title')}</h1>
+        <p className="text-muted-foreground text-lg">{t('description')}</p>
+
+        <div className="text-muted-foreground mt-12 grid gap-3 text-start text-sm sm:grid-cols-2">
+          <Card label="Locale" value="useLocale()" />
+          <Card label="Direction" value="dir on <html>" />
+          <Card label="Theme" value="next-themes (system)" />
+          <Card label="Query" value="TanStack Query 5" />
         </div>
       </div>
     </main>
+  )
+}
+
+function Card({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border-border bg-card text-card-foreground rounded-lg border p-4">
+      <div className="text-muted-foreground text-xs uppercase tracking-wide">{label}</div>
+      <div className="mt-1 font-mono text-sm">{value}</div>
+    </div>
   )
 }

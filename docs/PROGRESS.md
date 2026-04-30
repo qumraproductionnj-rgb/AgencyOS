@@ -7,26 +7,51 @@
 ## 📍 Current State
 
 **Phase:** Phase 0 — Setup
-**Current Task:** 0.5 — Frontend Scaffold (Next.js) (next)
-**Last Updated:** 2026-04-29
+**Current Task:** 0.6 — Prisma Setup (next)
+**Last Updated:** 2026-05-01
 
 ---
 
 ## 📊 Progress Overview
 
 ```
-Phase 0 — Setup:                    [████░░] 4/6
+Phase 0 — Setup:                    [█████░] 5/6
 Phase 1 — Foundation:               [░░░░░░░░░░░░░░] 0/14
 Phase 2 — Core Operations:          [░░░░░░░░░░░░░░░░░░] 0/18
 Phase 3 — Creative & Collaboration: [░░░░░░░░░░░░░░░░░░░░░░] 0/22
 Phase 4 — SaaS Layer:               [░░░░░░░░░░░░] 0/12
 
-TOTAL:                              [████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 4/72
+TOTAL:                              [█████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 5/72
 ```
 
 ---
 
 ## ✅ Completed Tasks
+
+### Task 0.5 — Frontend Scaffold (Next.js) (2026-05-01)
+
+- [x] Registered `createNextIntlPlugin('./src/i18n/request.ts')` in `next.config.mjs` (was missing — translations would not have loaded)
+- [x] Fixed `i18n/request.ts` type: cast to `AbstractIntlMessages` from `next-intl`, used `.default` from JSON dynamic import
+- [x] Installed `next-themes@^0.4.6`
+- [x] `src/lib/utils.ts` with `cn()` helper (clsx + tailwind-merge)
+- [x] `src/components/providers.tsx` (client) — wraps `ThemeProvider` (system default) + `QueryClientProvider` + Devtools (dev only)
+- [x] shadcn/ui initialized: `components.json` (slate base, RSC, alias `@/*`) + `src/components/ui/.gitkeep` (ready for `pnpm dlx shadcn@latest add`)
+- [x] `src/i18n/navigation.ts` exports `Link`/`usePathname`/`useRouter` from next-intl
+- [x] `src/components/language-switcher.tsx` — preserves current pathname when switching locale
+- [x] `src/components/theme-toggle.tsx` — Sun/Moon Lucide icons, hydration-safe
+- [x] `layout.tsx` calls `setRequestLocale(locale)`, wraps children with `Providers`
+- [x] `page.tsx` redesigned: title + description + 4 status cards + LanguageSwitcher + ThemeToggle in top corner
+- [x] Re-enabled real `lint` + `typecheck` for `apps/web` (`eslint . --max-warnings=0`, `tsc --noEmit`)
+- [x] Refined root ESLint ignores: only `apps/web/.next/**` and `apps/web/next-env.d.ts` excluded
+
+**Verified:**
+
+- `pnpm --filter web typecheck` → ✓
+- `pnpm --filter web lint` → ✓ (0 errors)
+- `pnpm --filter web dev` → boots on `:3000`
+- `GET /ar` → `200 OK`, `<html lang="ar" dir="rtl">`, Arabic translations rendered
+- `GET /en` → `200 OK`, `<html lang="en" dir="ltr">`, English translations rendered
+- Language switcher links + Theme toggle button present on both pages
 
 ### Task 0.4 — Backend Scaffold (NestJS) (2026-04-29)
 

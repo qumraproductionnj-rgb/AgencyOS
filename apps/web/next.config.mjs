@@ -1,7 +1,10 @@
+import createNextIntlPlugin from 'next-intl/plugin'
+
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Internationalization handled by next-intl middleware
   // PWA handled by next-pwa (added in Task 1.9)
   images: {
     remotePatterns: [
@@ -25,4 +28,4 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+export default withNextIntl(nextConfig)

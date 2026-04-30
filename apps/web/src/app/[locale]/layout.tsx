@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
-import { getMessages } from 'next-intl/server'
+import { getMessages, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
+import type { ReactNode } from 'react'
 import { routing } from '../../i18n/routing'
+import { Providers } from '../../components/providers'
 import '../../globals.css'
 
 export const metadata: Metadata = {
@@ -31,28 +33,29 @@ export function generateStaticParams() {
 }
 
 interface LocaleLayoutProps {
-  children: React.ReactNode
+  children: ReactNode
   params: Promise<{ locale: string }>
 }
 
 export default async function LocaleLayout({ children, params }: LocaleLayoutProps) {
   const { locale } = await params
 
-  // Validate locale
-  if (!routing.locales.includes(locale as 'ar' | 'en')) {
+  if (!routing.locales.includes(locale as (typeof routing.locales)[number])) {
     notFound()
   }
 
-  const messages = await getMessages()
+  setRequestLocale(locale)
 
-  // Arabic = RTL, English = LTR
+  const messages = await getMessages()
   const dir = locale === 'ar' ? 'rtl' : 'ltr'
 
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning>
       <head />
-      <body className="min-h-screen bg-background font-sans antialiased">
-        <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
+      <body className="bg-background min-h-screen font-sans antialiased">
+        <NextIntlClientProvider messages={messages}>
+          <Providers>{children}</Providers>
+        </NextIntlClientProvider>
       </body>
     </html>
   )

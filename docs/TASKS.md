@@ -84,7 +84,7 @@
 
 ---
 
-### `[CURRENT]` 0.5 — Frontend Scaffold (Next.js)
+### `[DONE]` 0.5 — Frontend Scaffold (Next.js)
 
 **Deliverables:**
 
@@ -100,7 +100,7 @@
 
 ---
 
-### `[ ]` 0.6 — Prisma Setup
+### `[CURRENT]` 0.6 — Prisma Setup
 
 **Deliverables:**
 

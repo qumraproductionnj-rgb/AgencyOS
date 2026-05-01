@@ -1,6 +1,6 @@
 // Prisma schema for AgencyOS
-// Phase 0 — minimal: companies + users only
-// Phase 1 — full schema added in Task 1.1
+// Phase 0 — minimal: companies + users
+// Phase 1 — RBAC, sessions, HR, GPS attendance, audit (Task 1.1)
 
 generator client {
   provider = "prisma-client-js"
@@ -12,38 +12,57 @@ datasource db {
 }
 
 // ============================================================
-// PHASE 0 — Minimal bootstrap tables
+// PHASE 0 — Companies & Users (extended in Phase 1 with audit fields)
 // ============================================================
 
 /// Companies (tenants). Every tenant-owned table references this.
 model Company {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String
-  slug      String    @unique // subdomain identifier e.g. "ruya"
+  slug      String    @unique
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
 
-  users User[]
+  users                 User[]
+  roles                 Role[]
+  rolePermissions       RolePermission[]
+  userRoles             UserRole[]
+  sessions              Session[]
+  departments           Department[]
+  employees             Employee[]
+  workLocations         WorkLocation[]
+  workLocationEmployees WorkLocationEmployee[]
+  attendanceRecords     AttendanceRecord[]
+  auditLogs             AuditLog[]
 
   @@map("companies")
 }
 
 /// Platform users — covers all three tiers (admin, tenant, external).
-/// Tier separation enforced at JWT signing level (Phase 1.2).
 model User {
-  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId    String?   @map("company_id") @db.Uuid // null for platform admins
-  email        String    @unique
-  passwordHash String    @map("password_hash")
-  tier         UserTier  @default(TENANT)
-  isActive     Boolean   @default(true) @map("is_active")
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId       String?   @map("company_id") @db.Uuid
+  email           String    @unique
+  passwordHash    String    @map("password_hash")
+  tier            UserTier  @default(TENANT)
+  isActive        Boolean   @default(true) @map("is_active")
   emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz
-  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz
-  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy       String?   @map("created_by") @db.Uuid
+  updatedBy       String?   @map("updated_by") @db.Uuid
 
-  company Company? @relation(fields: [companyId], references: [id])
+  company             Company?           @relation(fields: [companyId], references: [id])
+  userRoles           UserRole[]
+  sessions            Session[]
+  employee            Employee?
+  managedDepartments  Department[]       @relation("DepartmentManager")
+  attendanceOverrides AttendanceRecord[] @relation("AttendanceOverrideBy")
+  auditLogs           AuditLog[]
 
   @@index([companyId], name: "idx_users_company_id")
   @@index([email], name: "idx_users_email")
@@ -56,4 +75,323 @@ enum UserTier {
   EXTERNAL
 
   @@map("user_tier")
+}
+
+// ============================================================
+// PHASE 1 — RBAC: Permissions, Roles, User-Role mapping
+// ============================================================
+
+/// System-wide permission catalog (no company_id, no RLS).
+/// Seeded once. Roles reference these via RolePermission.
+model Permission {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  resource    String
+  action      String
+  scope       String?
+  description String
+
+  rolePermissions RolePermission[]
+
+  @@unique([resource, action, scope])
+  @@map("permissions")
+}
+
+/// Per-tenant roles. The 11 system roles are seeded per-tenant on signup.
+/// Tenants may define custom roles (is_system = false).
+model Role {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId     String    @map("company_id") @db.Uuid
+  name          String
+  displayNameAr String    @map("display_name_ar")
+  displayNameEn String    @map("display_name_en")
+  isSystem      Boolean   @default(false) @map("is_system")
+  description   String?
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy     String?   @map("created_by") @db.Uuid
+  updatedBy     String?   @map("updated_by") @db.Uuid
+
+  company         Company          @relation(fields: [companyId], references: [id])
+  rolePermissions RolePermission[]
+  userRoles       UserRole[]
+
+  @@unique([companyId, name])
+  @@index([companyId], name: "idx_roles_company_id")
+  @@index([companyId, createdAt(sort: Desc)], name: "idx_roles_company_created")
+  @@map("roles")
+}
+
+/// Junction: which permissions each role has.
+/// company_id denormalized for efficient RLS.
+model RolePermission {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId    String   @map("company_id") @db.Uuid
+  roleId       String   @map("role_id") @db.Uuid
+  permissionId String   @map("permission_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  createdBy    String?  @map("created_by") @db.Uuid
+
+  company    Company    @relation(fields: [companyId], references: [id])
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([roleId, permissionId])
+  @@index([companyId], name: "idx_role_permissions_company_id")
+  @@map("role_permissions")
+}
+
+/// Junction: a user can have multiple roles within a tenant.
+model UserRole {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String   @map("company_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  roleId    String   @map("role_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  createdBy String?  @map("created_by") @db.Uuid
+
+  company Company @relation(fields: [companyId], references: [id])
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role    Role    @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, roleId])
+  @@index([companyId], name: "idx_user_roles_company_id")
+  @@index([userId], name: "idx_user_roles_user_id")
+  @@map("user_roles")
+}
+
+/// Active sessions (for refresh-token rotation + JWT blacklist).
+/// Phase 1: tenant users only (company_id NOT NULL).
+model Session {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId        String    @map("company_id") @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  refreshTokenHash String    @map("refresh_token_hash")
+  deviceInfo       Json?     @map("device_info")
+  ipAddress        String?   @map("ip_address") @db.Inet
+  lastActiveAt     DateTime  @map("last_active_at") @db.Timestamptz
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamptz
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  company Company @relation(fields: [companyId], references: [id])
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([companyId], name: "idx_sessions_company_id")
+  @@index([userId], name: "idx_sessions_user_id")
+  @@index([refreshTokenHash], name: "idx_sessions_refresh_token_hash")
+  @@map("sessions")
+}
+
+// ============================================================
+// PHASE 1 — HR (Departments, Employees)
+// ============================================================
+
+model Department {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId     String    @map("company_id") @db.Uuid
+  nameAr        String    @map("name_ar")
+  nameEn        String?   @map("name_en")
+  description   String?
+  managerUserId String?   @map("manager_user_id") @db.Uuid
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy     String?   @map("created_by") @db.Uuid
+  updatedBy     String?   @map("updated_by") @db.Uuid
+
+  company   Company    @relation(fields: [companyId], references: [id])
+  manager   User?      @relation("DepartmentManager", fields: [managerUserId], references: [id])
+  employees Employee[]
+
+  @@index([companyId], name: "idx_departments_company_id")
+  @@index([companyId, createdAt(sort: Desc)], name: "idx_departments_company_created")
+  @@map("departments")
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  FREELANCER
+  INTERN
+  CONTRACT
+
+  @@map("employment_type")
+}
+
+enum SalaryType {
+  MONTHLY
+  DAILY
+  HOURLY
+  PER_PROJECT
+
+  @@map("salary_type")
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  ON_LEAVE
+  TERMINATED
+  SUSPENDED
+
+  @@map("employee_status")
+}
+
+model Employee {
+  id                 String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId          String         @map("company_id") @db.Uuid
+  userId             String         @unique @map("user_id") @db.Uuid
+  employeeCode       String         @map("employee_code")
+  fullNameAr         String         @map("full_name_ar")
+  fullNameEn         String?        @map("full_name_en")
+  email              String
+  phone              String?
+  nationalId         String?        @map("national_id")
+  position           String?
+  departmentId       String?        @map("department_id") @db.Uuid
+  employmentType     EmploymentType @default(FULL_TIME) @map("employment_type")
+  salaryAmount       BigInt         @default(0) @map("salary_amount")
+  salaryCurrency     String         @default("IQD") @map("salary_currency")
+  salaryType         SalaryType     @default(MONTHLY) @map("salary_type")
+  startDate          DateTime       @map("start_date") @db.Date
+  endDate            DateTime?      @map("end_date") @db.Date
+  scheduledStartTime String         @default("09:00") @map("scheduled_start_time")
+  scheduledEndTime   String         @default("17:00") @map("scheduled_end_time")
+  weeklyOffDays      Json           @default("[\"Friday\", \"Saturday\"]") @map("weekly_off_days")
+  status             EmployeeStatus @default(ACTIVE)
+  profilePhotoUrl    String?        @map("profile_photo_url")
+  notesInternal      String?        @map("notes_internal")
+  createdAt          DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime       @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt          DateTime?      @map("deleted_at") @db.Timestamptz
+  createdBy          String?        @map("created_by") @db.Uuid
+  updatedBy          String?        @map("updated_by") @db.Uuid
+
+  company               Company                @relation(fields: [companyId], references: [id])
+  user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department            Department?            @relation(fields: [departmentId], references: [id])
+  workLocationEmployees WorkLocationEmployee[]
+  attendanceRecords     AttendanceRecord[]
+
+  @@unique([companyId, employeeCode])
+  @@index([companyId], name: "idx_employees_company_id")
+  @@index([companyId, createdAt(sort: Desc)], name: "idx_employees_company_created")
+  @@index([departmentId], name: "idx_employees_department_id")
+  @@map("employees")
+}
+
+// ============================================================
+// PHASE 1 — GPS / Attendance
+// ============================================================
+
+model WorkLocation {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId    String    @map("company_id") @db.Uuid
+  name         String
+  address      String?
+  latitude     Decimal   @db.Decimal(10, 7)
+  longitude    Decimal   @db.Decimal(10, 7)
+  radiusMeters Int       @default(100) @map("radius_meters")
+  isActive     Boolean   @default(true) @map("is_active")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy    String?   @map("created_by") @db.Uuid
+  updatedBy    String?   @map("updated_by") @db.Uuid
+
+  company               Company                @relation(fields: [companyId], references: [id])
+  workLocationEmployees WorkLocationEmployee[]
+  attendanceRecords     AttendanceRecord[]
+
+  @@index([companyId], name: "idx_work_locations_company_id")
+  @@index([companyId, createdAt(sort: Desc)], name: "idx_work_locations_company_created")
+  @@map("work_locations")
+}
+
+/// Junction: which employees may check in at which work locations.
+model WorkLocationEmployee {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId      String   @map("company_id") @db.Uuid
+  workLocationId String   @map("work_location_id") @db.Uuid
+  employeeId     String   @map("employee_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  company      Company      @relation(fields: [companyId], references: [id])
+  workLocation WorkLocation @relation(fields: [workLocationId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([workLocationId, employeeId])
+  @@index([companyId], name: "idx_work_location_employees_company_id")
+  @@map("work_location_employees")
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  ABSENT
+  REMOTE
+  MANUAL_OVERRIDE
+
+  @@map("attendance_status")
+}
+
+model AttendanceRecord {
+  id                  String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId           String           @map("company_id") @db.Uuid
+  employeeId          String           @map("employee_id") @db.Uuid
+  workLocationId      String?          @map("work_location_id") @db.Uuid
+  checkInTime         DateTime         @map("check_in_time") @db.Timestamptz
+  checkOutTime        DateTime?        @map("check_out_time") @db.Timestamptz
+  checkInLat          Decimal?         @map("check_in_lat") @db.Decimal(10, 7)
+  checkInLng          Decimal?         @map("check_in_lng") @db.Decimal(10, 7)
+  checkInDistanceM    Int?             @map("check_in_distance_m")
+  checkOutLat         Decimal?         @map("check_out_lat") @db.Decimal(10, 7)
+  checkOutLng         Decimal?         @map("check_out_lng") @db.Decimal(10, 7)
+  deviceInfo          Json?            @map("device_info")
+  status              AttendanceStatus @default(PRESENT)
+  overrideReason      String?          @map("override_reason")
+  overrideByUserId    String?          @map("override_by_user_id") @db.Uuid
+  workHoursCalculated Decimal?         @map("work_hours_calculated") @db.Decimal(5, 2)
+  notes               String?
+  createdAt           DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime         @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt           DateTime?        @map("deleted_at") @db.Timestamptz
+  createdBy           String?          @map("created_by") @db.Uuid
+  updatedBy           String?          @map("updated_by") @db.Uuid
+
+  company      Company       @relation(fields: [companyId], references: [id])
+  employee     Employee      @relation(fields: [employeeId], references: [id])
+  workLocation WorkLocation? @relation(fields: [workLocationId], references: [id])
+  overrideBy   User?         @relation("AttendanceOverrideBy", fields: [overrideByUserId], references: [id])
+
+  @@index([companyId], name: "idx_attendance_records_company_id")
+  @@index([companyId, employeeId, checkInTime(sort: Desc)], name: "idx_attendance_records_employee_time")
+  @@index([companyId, createdAt(sort: Desc)], name: "idx_attendance_records_company_created")
+  @@map("attendance_records")
+}
+
+// ============================================================
+// PHASE 1 — Audit Logs (immutable: no updated_at, no deleted_at)
+// ============================================================
+
+model AuditLog {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId  String?  @map("company_id") @db.Uuid
+  userId     String?  @map("user_id") @db.Uuid
+  action     String
+  entityType String?  @map("entity_type")
+  entityId   String?  @map("entity_id")
+  changes    Json?
+  ipAddress  String?  @map("ip_address") @db.Inet
+  userAgent  String?  @map("user_agent")
+  metadata   Json?
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  company Company? @relation(fields: [companyId], references: [id])
+  user    User?    @relation(fields: [userId], references: [id])
+
+  @@index([companyId, createdAt(sort: Desc)], name: "idx_audit_logs_company_created")
+  @@index([entityType, entityId], name: "idx_audit_logs_entity")
+  @@index([userId, createdAt(sort: Desc)], name: "idx_audit_logs_user_created")
+  @@map("audit_logs")
 }

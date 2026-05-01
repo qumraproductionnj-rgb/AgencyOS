@@ -6,8 +6,8 @@
 
 ## 📍 Current State
 
-**Phase:** Phase 1 — Foundation (Phase 0 complete 🎉)
-**Current Task:** 1.1 — Database Schema for Phase 1 (next)
+**Phase:** Phase 1 — Foundation
+**Current Task:** 1.2 — Authentication Tier 2 (next)
 **Last Updated:** 2026-05-01
 
 ---
@@ -16,17 +16,40 @@
 
 ```
 Phase 0 — Setup:                    [██████] 6/6 ✅
-Phase 1 — Foundation:               [░░░░░░░░░░░░░░] 0/14
+Phase 1 — Foundation:               [█░░░░░░░░░░░░░] 1/14
 Phase 2 — Core Operations:          [░░░░░░░░░░░░░░░░░░] 0/18
 Phase 3 — Creative & Collaboration: [░░░░░░░░░░░░░░░░░░░░░░] 0/22
 Phase 4 — SaaS Layer:               [░░░░░░░░░░░░] 0/12
 
-TOTAL:                              [██████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 6/72
+TOTAL:                              [███████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7/72
 ```
 
 ---
 
 ## ✅ Completed Tasks
+
+### Task 1.1 — Database Schema for Phase 1 (2026-05-01)
+
+- [x] Schema extended with 11 new models: `Permission`, `Role`, `RolePermission`, `UserRole`, `Session`, `Department`, `Employee`, `WorkLocation`, `WorkLocationEmployee`, `AttendanceRecord`, `AuditLog`
+- [x] 4 new enums: `EmploymentType`, `SalaryType`, `EmployeeStatus`, `AttendanceStatus`
+- [x] Existing `Company` and `User` extended with `created_by`/`updated_by` audit fields
+- [x] Standard columns on every tenant table: `id` (UUID/`gen_random_uuid()`), `company_id`, `created_at`, `updated_at`, `deleted_at`, `created_by`, `updated_by`
+- [x] Standard indexes: `idx_<table>_company_id` and `idx_<table>_company_created` on all tenant tables
+- [x] `audit_logs` is immutable: no `updated_at`, no `deleted_at`, no `updated_by`
+- [x] Junction tables (`role_permissions`, `user_roles`, `work_location_employees`) carry denormalized `company_id` for efficient RLS
+- [x] First migration `20260501031735_phase1_foundation` applied
+- [x] Manual SQL migration `20260501031746_enable_rls` applied — `tenant_isolation` policy on 12 tenant tables (RLS enabled), `permissions` left unrestricted as platform reference data
+- [x] RLS uses `current_setting('app.current_company_id', true)::uuid` (fail-closed if unset). Table owner bypasses RLS until Task 1.3 wires the app to a non-owner role.
+
+**Verified:**
+
+- 14 tables in DB (12 tenant + `permissions` + `_prisma_migrations`)
+- `pg_tables.rowsecurity = true` on all 12 tenant tables, `false` on `permissions`
+- `pg_policies` shows 12 `tenant_isolation` policies
+- `pnpm --filter @agencyos/database lint` ✓
+- `pnpm --filter @agencyos/database typecheck` ✓
+- `pnpm --filter api typecheck` ✓ (Prisma client regenerated, types resolve)
+- `curl localhost:3001/health` → 200 OK with database `up`
 
 ### Task 0.6 — Prisma Setup (2026-05-01)
 

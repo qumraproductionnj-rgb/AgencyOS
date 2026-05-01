@@ -121,7 +121,7 @@
 
 ---
 
-### `[CURRENT]` 1.1 — Database Schema for Phase 1
+### `[DONE]` 1.1 — Database Schema for Phase 1
 
 **Deliverables:**
 
@@ -135,7 +135,7 @@
 
 ---
 
-### `[ ]` 1.2 — Authentication Tier 2 (Tenant Users)
+### `[CURRENT]` 1.2 — Authentication Tier 2 (Tenant Users)
 
 **Deliverables:**
 

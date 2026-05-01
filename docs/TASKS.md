@@ -135,7 +135,7 @@
 
 ---
 
-### `[CURRENT]` 1.2 — Authentication Tier 2 (Tenant Users)
+### `[DONE]` 1.2 — Authentication Tier 2 (Tenant Users)
 
 **Deliverables:**
 
@@ -160,7 +160,7 @@
 
 ---
 
-### `[ ]` 1.3 — Tenant Context Middleware + RLS Wiring
+### `[CURRENT]` 1.3 — Tenant Context Middleware + RLS Wiring
 
 **Deliverables:**
 

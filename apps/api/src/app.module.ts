@@ -6,6 +6,8 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { HealthModule } from './health/health.module'
 import { DatabaseModule } from './database/database.module'
+import { RedisModule } from './redis/redis.module'
+import { AuthModule } from './auth/auth.module'
 import { envSchema } from './config/env.validation'
 
 @Module({
@@ -40,8 +42,10 @@ import { envSchema } from './config/env.validation'
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
 
     // Feature modules
-    HealthModule,
     DatabaseModule,
+    RedisModule,
+    AuthModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

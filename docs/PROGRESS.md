@@ -7,7 +7,7 @@
 ## 📍 Current State
 
 **Phase:** Phase 1 — Foundation
-**Current Task:** 1.2 — Authentication Tier 2 (next)
+**Current Task:** 1.3 — Tenant Context Middleware + RLS Wiring (next)
 **Last Updated:** 2026-05-01
 
 ---
@@ -16,17 +16,53 @@
 
 ```
 Phase 0 — Setup:                    [██████] 6/6 ✅
-Phase 1 — Foundation:               [█░░░░░░░░░░░░░] 1/14
+Phase 1 — Foundation:               [██░░░░░░░░░░░░] 2/14
 Phase 2 — Core Operations:          [░░░░░░░░░░░░░░░░░░] 0/18
 Phase 3 — Creative & Collaboration: [░░░░░░░░░░░░░░░░░░░░░░] 0/22
 Phase 4 — SaaS Layer:               [░░░░░░░░░░░░] 0/12
 
-TOTAL:                              [███████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7/72
+TOTAL:                              [████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8/72
 ```
 
 ---
 
 ## ✅ Completed Tasks
+
+### Task 1.2 — Authentication Tier 2 (Tenant Users) (2026-05-01)
+
+- [x] Schema migration `add_user_auth_fields` — adds `failed_login_attempts`, `account_locked_until`, `last_login_at`, `preferred_language`, `timezone` to `users`
+- [x] JWT keys: RSA-2048 keypair generated for Tier 2 (TENANT), base64-encoded in `.env`. Reusable script `scripts/generate-jwt-keys.sh` for additional tiers
+- [x] Argon2id password hashing (memory=64MB, t=3, p=4) — per ADR-002
+- [x] JWT RS256 access tokens (15min, payload: sub/companyId/tier/jti/iss/aud) via `jose` library
+- [x] Refresh tokens: 256-bit random, stored as SHA-256 hash in `sessions` table; rotated on each `/refresh` (old session marked `revoked_at`)
+- [x] 7 endpoints: signup, verify-email, login, refresh, logout, forgot-password, reset-password — all with Zod validation
+- [x] Account lockout: 5 failed attempts → `account_locked_until = now + 15min`; HTTP 423 LOCKED returned
+- [x] Email service dual-driver: nodemailer→MailHog in dev, Resend in prod (env-driven)
+- [x] 4 email templates (verify-email + reset-password, AR + EN), bilingual subject lines, RTL/LTR HTML
+- [x] Verification + reset tokens stored in Redis with TTL (24h verify, 1h reset) — consume-once pattern
+- [x] Audit logging: 7 actions (signup, login, login_failed, logout, email_verified, password_reset_requested, password_reset)
+- [x] RFC 7807 Problem Details on errors (already from Task 0.4 filter)
+- [x] `RedisModule` (global) + `RedisService` with managed lifecycle
+- [x] Zod-based `ZodValidationPipe` for body validation
+
+**Verified end-to-end (curl smoke test):**
+
+- `POST /auth/signup` → 201, company + user created, verification email landed in MailHog
+- `POST /auth/verify-email` (with token from email) → 200, `email_verified_at` set
+- `POST /auth/login` → 200, returns access + refresh tokens
+- JWT payload decoded correctly: sub, companyId, tier=TENANT, iss=agencyos-api, aud=agencyos:tenant
+- `POST /auth/refresh` → new pair returned, old refresh now invalid (rotation)
+- `POST /auth/logout` → 200, refresh now invalid
+- 5 wrong passwords → 401, 401, 401, 401, 401; 6th attempt → 423 LOCKED (even with correct pwd)
+- DB: 9 audit_logs entries (signup, email_verified, login, logout, 5× login_failed); 2 session rows (both revoked at end)
+- `pnpm --filter api typecheck` ✓
+- `pnpm --filter api lint` ✓
+
+**Deferred to later tasks:**
+
+- 2FA (`/auth/2fa/*`) — not in 1.2 deliverables, planned for Phase 2+
+- Formal Jest e2e tests — current curl smoke test demonstrates functional correctness; will add to test:e2e suite alongside Task 1.3 middleware tests
+- Real RLS enforcement — middleware wiring + DB connection role switch in Task 1.3
 
 ### Task 1.1 — Database Schema for Phase 1 (2026-05-01)
 

@@ -10,6 +10,7 @@ import {
 import { ConfigService } from '@nestjs/config'
 import { Prisma, type User, UserTier } from '@prisma/client'
 import { PrismaService } from '../database/prisma.service'
+import { PermissionService } from '../permissions/permission.service'
 import type {
   ForgotPasswordDto,
   LoginDto,
@@ -57,13 +58,14 @@ export class AuthService {
     private readonly sessions: SessionService,
     private readonly verification: VerificationService,
     private readonly email: EmailService,
+    private readonly permissionService: PermissionService,
     config: ConfigService<Env>,
   ) {
     this.appUrl = config.get('APP_URL', { infer: true }) ?? 'http://localhost:3000'
   }
 
   async signup(dto: SignupDto, ctx: AuthContext): Promise<{ companyId: string; userId: string }> {
-    const existing = await this.prisma.user.findUnique({ where: { email: dto.owner.email } })
+    const existing = await this.prisma.system.user.findUnique({ where: { email: dto.owner.email } })
     if (existing) {
       throw new ConflictException('An account with this email already exists')
     }
@@ -74,7 +76,7 @@ export class AuthService {
     let createdUserId: string
 
     try {
-      const result = await this.prisma.$transaction(async (tx) => {
+      const result = await this.prisma.system.$transaction(async (tx) => {
         const company = await tx.company.create({
           data: {
             name: dto.company.name,
@@ -95,6 +97,8 @@ export class AuthService {
       })
       createdCompanyId = result.company.id
       createdUserId = result.user.id
+
+      await this.permissionService.seedCompanyDefaultRoles(createdCompanyId, createdUserId)
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
         throw new ConflictException('Company slug already taken')
@@ -127,7 +131,7 @@ export class AuthService {
     if (!userId) {
       throw new BadRequestException('Invalid or expired verification token')
     }
-    const user = await this.prisma.user.update({
+    const user = await this.prisma.system.user.update({
       where: { id: userId },
       data: { emailVerifiedAt: new Date() },
     })
@@ -142,7 +146,7 @@ export class AuthService {
   }
 
   async login(dto: LoginDto, ctx: AuthContext): Promise<TokenPair & { userId: string }> {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email } })
+    const user = await this.prisma.system.user.findUnique({ where: { email: dto.email } })
 
     if (!user || !user.isActive || user.deletedAt !== null) {
       await this.recordFailedLogin(null, dto.email, ctx)
@@ -175,7 +179,7 @@ export class AuthService {
       )
     }
 
-    await this.prisma.user.update({
+    await this.prisma.system.user.update({
       where: { id: user.id },
       data: { failedLoginAttempts: 0, accountLockedUntil: null, lastLoginAt: new Date() },
     })
@@ -204,7 +208,7 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token expired')
     }
 
-    const user = await this.prisma.user.findUnique({ where: { id: session.userId } })
+    const user = await this.prisma.system.user.findUnique({ where: { id: session.userId } })
     if (!user || !user.isActive || user.deletedAt !== null) {
       throw new UnauthorizedException('User not found or inactive')
     }
@@ -244,7 +248,7 @@ export class AuthService {
   }
 
   async forgotPassword(dto: ForgotPasswordDto, ctx: AuthContext): Promise<void> {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email } })
+    const user = await this.prisma.system.user.findUnique({ where: { email: dto.email } })
     // Do not reveal account existence
     if (!user || !user.isActive || user.deletedAt !== null) {
       this.logger.debug(`forgot-password requested for unknown email ${dto.email}`)
@@ -285,7 +289,7 @@ export class AuthService {
       throw new BadRequestException('Invalid or expired reset token')
     }
     const passwordHash = await this.password.hash(dto.newPassword)
-    const user = await this.prisma.user.update({
+    const user = await this.prisma.system.user.update({
       where: { id: userId },
       data: { passwordHash, failedLoginAttempts: 0, accountLockedUntil: null },
     })
@@ -334,7 +338,7 @@ export class AuthService {
     if (user) {
       const next = user.failedLoginAttempts + 1
       const shouldLock = next >= FAILED_LOGIN_LIMIT
-      await this.prisma.user.update({
+      await this.prisma.system.user.update({
         where: { id: user.id },
         data: {
           failedLoginAttempts: next,
@@ -379,7 +383,7 @@ export class AuthService {
     ctx: AuthContext
   }): Promise<void> {
     try {
-      await this.prisma.auditLog.create({
+      await this.prisma.system.auditLog.create({
         data: {
           companyId: params.companyId,
           userId: params.userId,

@@ -6,78 +6,91 @@
 
 ## 📍 Current State
 
-**Phase:** Phase 0 — Setup
-**Current Task:** 0.1 — Repository Initialization
-**Last Updated:** [will be filled by Claude Code]
+**Phase:** Phase 1 — Foundation
+**Current Task:** 1.3 — Tenant Context Middleware + RLS Wiring
+**Last Updated:** 2026-05-09
 
 ---
 
 ## 📊 Progress Overview
 
 ```
-Phase 0 — Setup:                    [░░░░░░] 0/6
-Phase 1 — Foundation:               [░░░░░░░░░░░░░░] 0/14
+Phase 0 — Setup:                    [██████] 6/6 ✅
+Phase 1 — Foundation:               [██░░░░░░░░░░░░] 2/14
 Phase 2 — Core Operations:          [░░░░░░░░░░░░░░░░░░] 0/18
 Phase 3 — Creative & Collaboration: [░░░░░░░░░░░░░░░░░░░░░░] 0/22
 Phase 4 — SaaS Layer:               [░░░░░░░░░░░░] 0/12
 
-TOTAL:                              [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0/72
+TOTAL:                              [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8/72
 ```
 
 ---
 
 ## ✅ Completed Tasks
 
-(none yet — Claude Code will populate this list)
+### Phase 0 — Setup (6/6 ✅)
+
+- **0.1** — Repository Initialization (git, pnpm-workspace, folder structure)
+- **0.2** — Docker Compose for Local Services (PostgreSQL 16, Redis 7, MailHog)
+- **0.3** — TypeScript + Linting Configuration (strict, ESLint, Prettier, Husky)
+- **0.4** — Backend Scaffold NestJS (/health, env validation, Pino, Helmet, CORS, Swagger)
+- **0.5** — Frontend Scaffold Next.js (TailwindCSS, shadcn/ui, next-intl AR/EN RTL, TanStack Query)
+- **0.6** — Prisma Setup (schema, migrations, seed, dual clients)
+
+### Phase 1 — Foundation (2/14)
+
+- **1.1** — Database Schema for Phase 1 (all tables + RLS policies + indexes + seed)
+- **1.2** — Authentication Tier 2 (Argon2id, JWT RS256, signup/login/refresh/verify/reset, lockout, sessions, email templates AR+EN)
 
 ---
 
 ## 🚧 In Progress
 
-**Task 0.1 — Repository Initialization**
-- Started: [date]
-- Estimated completion: [date]
-- Sub-progress:
-  - [ ] Initialize git repo
-  - [ ] Create pnpm-workspace.yaml
-  - [ ] Folder structure
-  - [ ] Root package.json
-  - [ ] .gitignore + .editorconfig
-  - [ ] README.md
-  - [ ] First commit pushed
+**Task 1.3 — Tenant Context Middleware + RLS Wiring**
+
+- RLS infrastructure EXISTS: PrismaService (dual clients), TenantContextService (AsyncLocalStorage), TenantContextInterceptor
+- Missing: DB table GRANTs for `agencyos_app` role → permission errors on tenant queries
+- Missing: RLS isolation integration test
 
 ---
 
 ## 🚫 Blockers
 
-(none currently)
+**G-01 (Critical):** `agencyos_app` PostgreSQL role lacks `GRANT SELECT, INSERT, UPDATE, DELETE` on tenant tables. Without this, the tenant Prisma client (`PrismaService.tenant`) fails with permission denied errors.
 
 ---
 
 ## 📝 Decisions Made
 
-See `DECISIONS.md` for detailed architectural decisions.
+- **Argon2id over bcrypt** — ADR-002 confirmed; MasterSpec §10 superseded. Implemented in auth.service.ts.
+- **RLS defense in depth** — DB-layer (RLS) + app-layer (Prisma `WHERE company_id`). Both used.
+- **pnpm over Nx** — ADR-001. Simple monorepo.
+- **Versions locked** — Upgrades deferred to Phase 4 despite newer releases.
 
 ---
 
-## 🔄 Last 5 Sessions Summary
+## 🔄 Last Session Summary
 
-(will be populated as work progresses)
+- Explored full codebase: confirmed tasks 0.1 → 1.2 complete
+- Updated TASKS.md and PROGRESS.md to reflect actual state (were showing 0/72)
+- Identified G-01 blocker: missing GRANT privileges for `agencyos_app` role
+- Ready to execute Task 1.3: create migration with table GRANTs, write RLS isolation test
 
 ---
 
 ## ⏭ Next Up
 
-After 0.1 complete:
-- 0.2 — Docker Compose
-- 0.3 — TypeScript + Linting
-- 0.4 — Backend Scaffold
+After 1.3:
+
+- 1.4 — Roles & Permissions System
+- 1.5 — Tenant Onboarding Wizard
+- 1.6 — Departments CRUD
+- 1.7 — Employees CRUD
 
 ---
 
 ## 📈 Velocity Metrics
 
-- Average task completion time: [tracked over time]
-- Tasks per week: [tracked]
-- Bugs found per phase: [tracked]
-- Tests written: [tracked]
+- Tasks complete: 8/72 (11.1%)
+- Phase 0: 100% ✅
+- Phase 1: 2/14 (14.3%)

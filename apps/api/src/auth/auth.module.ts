@@ -6,8 +6,10 @@ import { TokenService } from './services/token.service'
 import { SessionService } from './services/session.service'
 import { EmailService } from './services/email.service'
 import { VerificationService } from './services/verification.service'
+import { PermissionModule } from '../permissions/permission.module'
 
 @Module({
+  imports: [PermissionModule],
   controllers: [AuthController],
   providers: [
     AuthService,

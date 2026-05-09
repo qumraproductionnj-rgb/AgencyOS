@@ -1,6 +1,7 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Req, UsePipes } from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import type { Request } from 'express'
+import { Public } from '../common/decorators/public.decorator'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { AuthService } from './auth.service'
 import {
@@ -28,6 +29,7 @@ interface AuthContext {
 
 @ApiTags('auth')
 @Controller({ path: 'auth', version: '1' })
+@Public()
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 

@@ -1,10 +1,12 @@
 import { Controller, Get, VERSION_NEUTRAL } from '@nestjs/common'
 import { HealthCheck, HealthCheckService } from '@nestjs/terminus'
 import { ApiTags, ApiOperation } from '@nestjs/swagger'
+import { Public } from '../common/decorators/public.decorator'
 import { DatabaseHealthIndicator } from './indicators/database.health'
 import { RedisHealthIndicator } from './indicators/redis.health'
 
 @ApiTags('health')
+@Public()
 @Controller({ path: 'health', version: VERSION_NEUTRAL })
 export class HealthController {
   constructor(

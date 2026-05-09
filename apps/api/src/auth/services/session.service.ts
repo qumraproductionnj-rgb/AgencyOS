@@ -20,7 +20,7 @@ export class SessionService {
     ipAddress?: string | null
     deviceInfo?: DeviceInfo | null
   }): Promise<Session> {
-    return this.prisma.session.create({
+    return this.prisma.system.session.create({
       data: {
         companyId: params.companyId,
         userId: params.userId,
@@ -34,7 +34,7 @@ export class SessionService {
   }
 
   findByRefreshHash(hash: string): Promise<Session | null> {
-    return this.prisma.session.findFirst({
+    return this.prisma.system.session.findFirst({
       where: { refreshTokenHash: hash, revokedAt: null },
     })
   }
@@ -48,11 +48,11 @@ export class SessionService {
       deviceInfo?: DeviceInfo | null
     },
   ): Promise<Session> {
-    const old = await this.prisma.session.update({
+    const old = await this.prisma.system.session.update({
       where: { id: oldSessionId },
       data: { revokedAt: new Date() },
     })
-    return this.prisma.session.create({
+    return this.prisma.system.session.create({
       data: {
         companyId: old.companyId,
         userId: old.userId,
@@ -66,21 +66,21 @@ export class SessionService {
   }
 
   async revoke(sessionId: string): Promise<void> {
-    await this.prisma.session.update({
+    await this.prisma.system.session.update({
       where: { id: sessionId },
       data: { revokedAt: new Date() },
     })
   }
 
   async revokeAllForUser(userId: string): Promise<void> {
-    await this.prisma.session.updateMany({
+    await this.prisma.system.session.updateMany({
       where: { userId, revokedAt: null },
       data: { revokedAt: new Date() },
     })
   }
 
   async touchLastActive(sessionId: string): Promise<void> {
-    await this.prisma.session.update({
+    await this.prisma.system.session.update({
       where: { id: sessionId },
       data: { lastActiveAt: new Date() },
     })

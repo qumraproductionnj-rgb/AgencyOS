@@ -2,12 +2,19 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { ThrottlerModule } from '@nestjs/throttler'
 import { LoggerModule } from 'nestjs-pino'
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { HealthModule } from './health/health.module'
 import { DatabaseModule } from './database/database.module'
 import { RedisModule } from './redis/redis.module'
 import { AuthModule } from './auth/auth.module'
+import { MeModule } from './me/me.module'
+import { PermissionModule } from './permissions/permission.module'
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
+import { PermissionsGuard } from './common/guards/permission.guard'
+import { RolesGuard } from './common/guards/role.guard'
+import { TenantContextInterceptor } from './common/interceptors/tenant-context.interceptor'
 import { envSchema } from './config/env.validation'
 
 @Module({
@@ -45,9 +52,17 @@ import { envSchema } from './config/env.validation'
     DatabaseModule,
     RedisModule,
     AuthModule,
+    MeModule,
+    PermissionModule,
     HealthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_GUARD, useClass: PermissionsGuard },
+    { provide: APP_INTERCEPTOR, useClass: TenantContextInterceptor },
+  ],
 })
 export class AppModule {}

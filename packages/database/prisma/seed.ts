@@ -1,11 +1,11 @@
 import { PrismaClient } from '@prisma/client'
+import { seedPermissions, seedDefaultRoles } from '../src/seed-default-roles'
 
 const prisma = new PrismaClient()
 
 async function main() {
   console.log('🌱 Seeding database...')
 
-  // Seed demo company (Ru'ya — primary tenant)
   const ruya = await prisma.company.upsert({
     where: { slug: 'ruya' },
     update: {},
@@ -17,8 +17,13 @@ async function main() {
 
   console.log(`✅ Company seeded: ${ruya.name} (id: ${ruya.id})`)
 
-  // NOTE: Owner user created in Task 1.2 (auth module) with proper Argon2id hashing.
-  // We don't seed passwords here to avoid plain-text storage.
+  console.log('📋 Seeding platform permissions...')
+  const permissionMap = await seedPermissions(prisma)
+  console.log(`✅ ${permissionMap.size} permissions seeded`)
+
+  console.log("👥 Seeding default roles for Ru'ya...")
+  await seedDefaultRoles(prisma, ruya.id, permissionMap)
+  console.log(`✅ ${11} default roles seeded with permission mappings`)
 
   console.log('✅ Seed complete.')
 }

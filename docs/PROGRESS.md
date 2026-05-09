@@ -7,8 +7,8 @@
 ## 📍 Current State
 
 **Phase:** Phase 1 — Foundation
-**Current Task:** 1.3 — Tenant Context Middleware + RLS Wiring (next)
-**Last Updated:** 2026-05-01
+**Current Task:** 1.4 — Roles & Permissions System (done) → Next: 1.5
+**Last Updated:** 2026-05-09
 
 ---
 
@@ -16,17 +16,44 @@
 
 ```
 Phase 0 — Setup:                    [██████] 6/6 ✅
-Phase 1 — Foundation:               [██░░░░░░░░░░░░] 2/14
+Phase 1 — Foundation:               [███░░░░░░░░░░░] 3/14
 Phase 2 — Core Operations:          [░░░░░░░░░░░░░░░░░░] 0/18
 Phase 3 — Creative & Collaboration: [░░░░░░░░░░░░░░░░░░░░░░] 0/22
-Phase 4 — SaaS Layer:               [░░░░░░░░░░░░] 0/12
+Phase 4 — SaaS Layer:               [░░░░░░░░░░] 0/12
 
-TOTAL:                              [████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8/72
+TOTAL:                              [█████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 9/72
 ```
 
 ---
 
 ## ✅ Completed Tasks
+
+### Task 1.4 — Roles & Permissions System (2026-05-09)
+
+- [x] `packages/database/src/permissions.ts` — 35 permission definitions in catalog (18 resources × actions from MasterSpec Section 7 matrix)
+- [x] `packages/database/src/seed-default-roles.ts` — `seedPermissions()` and `seedDefaultRoles()` helpers (upsert-safe)
+- [x] `packages/database/prisma/seed.ts` — seeds Permissions + 11 default roles for Ru'ya company
+- [x] `apps/api/src/permissions/permission.service.ts` — `userCan()`, `userHasRole()`, `getUserPermissions()`, `getUserRoles()`, `seedCompanyDefaultRoles()`
+- [x] `apps/api/src/permissions/permission.module.ts` — NestJS module exporting PermissionService
+- [x] `apps/api/src/common/decorators/require-permission.decorator.ts` — `@RequirePermission('resource', 'action')` with `manage` escalation
+- [x] `apps/api/src/common/decorators/require-role.decorator.ts` — `@RequireRole('roleKey', ...)` with OR semantics
+- [x] `apps/api/src/common/guards/permission.guard.ts` — `PermissionsGuard` (global, passes through if no metadata)
+- [x] `apps/api/src/common/guards/role.guard.ts` — `RolesGuard` (global, passes through if no metadata)
+- [x] Both guards registered as `APP_GUARD` after `JwtAuthGuard` (correct ordering for `req.user` availability)
+- [x] `AuthService.signup()` now calls `permissionService.seedCompanyDefaultRoles()` after creating company + user
+- [x] 26 unit tests across 4 suites: userCan (5), getUserPermissions (2), getUserRoles (2), userHasRole (4), PermissionsGuard (5), RolesGuard (5)
+- [x] Verified seed: 35 permissions + 11 roles in DB
+- [x] `pnpm lint` ✓ | `pnpm typecheck` ✓ | `pnpm test` ✓ (5 suites, 26 tests)
+
+**Key decisions:**
+
+- `manage` action on a resource grants any action check (implicit escalation: `manage` → `read`, `write`, etc.)
+- Roles use OR semantics: `@RequireRole('admin', 'hr_manager')` passes if user has either
+- Guards return `true` when no metadata is set (backward-compatible with existing routes)
+- `PermissionService` uses `PrismaService.system` (bypasses RLS) for permission lookups since `permissions` table has no RLS
+- All permission keys use empty string `''` for scope (nullable unique constraint incompatible with Prisma upsert `where`)
+
+---
 
 ### Task 1.2 — Authentication Tier 2 (Tenant Users) (2026-05-01)
 

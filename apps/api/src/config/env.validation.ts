@@ -5,8 +5,10 @@ export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(3001),
 
-  // Database
+  // Database — owner role; for migrations + auth flows + cross-tenant ops
   DATABASE_URL: z.string().url(),
+  // App role; RLS-enforced; for tenant-scoped queries
+  APP_DATABASE_URL: z.string().url(),
 
   // Redis
   REDIS_URL: z.string().default('redis://localhost:6379'),

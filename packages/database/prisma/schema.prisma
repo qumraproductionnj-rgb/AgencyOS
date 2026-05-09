@@ -19,24 +19,30 @@ datasource db {
 model Company {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String
+  nameEn    String?   @map("name_en")
   slug      String    @unique
+  logoUrl   String?   @map("logo_url")
+  address   String?
+  phone     String?
+  website   String?
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz
   createdBy String?   @map("created_by") @db.Uuid
   updatedBy String?   @map("updated_by") @db.Uuid
 
-  users                 User[]
-  roles                 Role[]
-  rolePermissions       RolePermission[]
-  userRoles             UserRole[]
-  sessions              Session[]
-  departments           Department[]
-  employees             Employee[]
-  workLocations         WorkLocation[]
+  onboardingProgress  OnboardingProgress?
+  users               User[]
+  roles               Role[]
+  rolePermissions     RolePermission[]
+  userRoles           UserRole[]
+  sessions            Session[]
+  departments         Department[]
+  employees           Employee[]
+  workLocations       WorkLocation[]
   workLocationEmployees WorkLocationEmployee[]
-  attendanceRecords     AttendanceRecord[]
-  auditLogs             AuditLog[]
+  attendanceRecords   AttendanceRecord[]
+  auditLogs           AuditLog[]
 
   @@map("companies")
 }
@@ -373,6 +379,30 @@ model AttendanceRecord {
   @@index([companyId, employeeId, checkInTime(sort: Desc)], name: "idx_attendance_records_employee_time")
   @@index([companyId, createdAt(sort: Desc)], name: "idx_attendance_records_company_created")
   @@map("attendance_records")
+}
+
+// ============================================================
+// PHASE 1 — Onboarding Wizard Progress
+// ============================================================
+
+/// Stores onboarding wizard state per company (one record per company).
+model OnboardingProgress {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId   String   @map("company_id") @db.Uuid
+  currentStep Int      @default(1) @map("current_step")
+  isCompleted Boolean  @default(false) @map("is_completed")
+  data        Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy   String?  @map("created_by") @db.Uuid
+  updatedBy   String?  @map("updated_by") @db.Uuid
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@unique([companyId])
+  @@index([companyId], name: "idx_onboarding_progress_company_id")
+  @@map("onboarding_progress")
 }
 
 // ============================================================

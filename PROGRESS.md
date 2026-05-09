@@ -7,7 +7,7 @@
 ## 📍 Current State
 
 **Phase:** Phase 1 — Foundation
-**Current Task:** 1.3 — Tenant Context Middleware + RLS Wiring
+**Current Task:** 1.6 — Departments CRUD
 **Last Updated:** 2026-05-09
 
 ---
@@ -16,12 +16,12 @@
 
 ```
 Phase 0 — Setup:                    [██████] 6/6 ✅
-Phase 1 — Foundation:               [██░░░░░░░░░░░░] 2/14
+Phase 1 — Foundation:               [███░░░░░░░░░░░] 3/14
 Phase 2 — Core Operations:          [░░░░░░░░░░░░░░░░░░] 0/18
 Phase 3 — Creative & Collaboration: [░░░░░░░░░░░░░░░░░░░░░░] 0/22
 Phase 4 — SaaS Layer:               [░░░░░░░░░░░░] 0/12
 
-TOTAL:                              [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8/72
+TOTAL:                              [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 9/72
 ```
 
 ---
@@ -37,26 +37,27 @@ TOTAL:                              [██░░░░░░░░░░░░�
 - **0.5** — Frontend Scaffold Next.js (TailwindCSS, shadcn/ui, next-intl AR/EN RTL, TanStack Query)
 - **0.6** — Prisma Setup (schema, migrations, seed, dual clients)
 
-### Phase 1 — Foundation (2/14)
+### Phase 1 — Foundation (3/14)
 
 - **1.1** — Database Schema for Phase 1 (all tables + RLS policies + indexes + seed)
 - **1.2** — Authentication Tier 2 (Argon2id, JWT RS256, signup/login/refresh/verify/reset, lockout, sessions, email templates AR+EN)
+- **1.3** — Tenant Context Middleware + RLS Wiring (PrismaService dual clients, TenantContext, RLS policies, GRANTs, isolation tests)
+- **1.4** — Roles & Permissions System (35 permissions, 11 roles, seed, guards, decorators, PermissionService, 26 tests)
+- **1.5** — Tenant Onboarding Wizard (5-step wizard, backend endpoints, progress save/resume, skip flow, RTL AR/EN frontend)
 
 ---
 
 ## 🚧 In Progress
 
-**Task 1.3 — Tenant Context Middleware + RLS Wiring**
+**Task 1.6 — Departments CRUD**
 
-- RLS infrastructure EXISTS: PrismaService (dual clients), TenantContextService (AsyncLocalStorage), TenantContextInterceptor
-- Missing: DB table GRANTs for `agencyos_app` role → permission errors on tenant queries
-- Missing: RLS isolation integration test
+- Not yet started
 
 ---
 
 ## 🚫 Blockers
 
-**G-01 (Critical):** `agencyos_app` PostgreSQL role lacks `GRANT SELECT, INSERT, UPDATE, DELETE` on tenant tables. Without this, the tenant Prisma client (`PrismaService.tenant`) fails with permission denied errors.
+None currently.
 
 ---
 
@@ -71,26 +72,23 @@ TOTAL:                              [██░░░░░░░░░░░░�
 
 ## 🔄 Last Session Summary
 
-- Explored full codebase: confirmed tasks 0.1 → 1.2 complete
-- Updated TASKS.md and PROGRESS.md to reflect actual state (were showing 0/72)
-- Identified G-01 blocker: missing GRANT privileges for `agencyos_app` role
-- Ready to execute Task 1.3: create migration with table GRANTs, write RLS isolation test
+- Completed Tasks 1.3 (Tenant Context), 1.4 (RBAC), 1.5 (Onboarding Wizard)
+- Fixed all type errors under `exactOptionalPropertyTypes: true` (api.ts body handling, wizard-page.tsx prop types, computed key spreads)
+- All 26 tests pass, web typecheck + lint clean
+- Ready to execute Task 1.6: Departments CRUD backend + frontend
 
 ---
 
 ## ⏭ Next Up
 
-After 1.3:
-
-- 1.4 — Roles & Permissions System
-- 1.5 — Tenant Onboarding Wizard
 - 1.6 — Departments CRUD
 - 1.7 — Employees CRUD
+- 1.8 — Work Locations CRUD with Map
 
 ---
 
 ## 📈 Velocity Metrics
 
-- Tasks complete: 8/72 (11.1%)
+- Tasks complete: 9/72 (12.5%)
 - Phase 0: 100% ✅
-- Phase 1: 2/14 (14.3%)
+- Phase 1: 3/14 (21.4%)

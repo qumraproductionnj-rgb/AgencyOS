@@ -188,7 +188,7 @@
 
 ---
 
-### `[CURRENT]` 1.5 — Tenant Onboarding Wizard (Frontend)
+### `[DONE]` 1.5 — Tenant Onboarding Wizard (Frontend)
 
 **Deliverables:**
 
@@ -206,7 +206,7 @@
 
 ---
 
-### `[ ]` 1.6 — Departments CRUD
+### `[CURRENT]` 1.6 — Departments CRUD
 
 **Deliverables:**
 

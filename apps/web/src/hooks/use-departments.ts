@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 
-interface Department {
+export interface Department {
   id: string
   nameAr: string
   nameEn: string | null

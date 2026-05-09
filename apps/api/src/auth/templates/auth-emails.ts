@@ -110,6 +110,42 @@ export function resetPasswordEn(v: ResetPasswordVars): { subject: string; html: 
   }
 }
 
+export function inviteEmployeeAr(v: { appName: string; inviteUrl: string; companyName: string }): {
+  subject: string
+  html: string
+} {
+  return {
+    subject: `دعوة للانضمام إلى ${v.appName}`,
+    html: `<!DOCTYPE html><html dir="rtl"><head>${baseStyles}</head><body><div class="container">
+      <h2 style="margin-top:0;">مرحباً بك</h2>
+      <p>تمت دعوتك للانضمام إلى <strong>${escape(v.companyName)}</strong> عبر منصة <strong>${escape(v.appName)}</strong>.</p>
+      <p>لتأكيد حسابك وبدء استخدام المنصة، يرجى الضغط على الرابط أدناه:</p>
+      <a class="button" href="${escape(v.inviteUrl)}">قبول الدعوة</a>
+      <p class="muted">إذا لم يعمل الرابط، يمكنك نسخ الرابط التالي ولصقه في المتصفح:</p>
+      <p class="url-fallback">${escape(v.inviteUrl)}</p>
+      <p class="muted" style="margin-top:24px;">إذا لم تكن تتوقع هذه الدعوة، يرجى تجاهل هذه الرسالة.</p>
+    </div></body></html>`,
+  }
+}
+
+export function inviteEmployeeEn(v: { appName: string; inviteUrl: string; companyName: string }): {
+  subject: string
+  html: string
+} {
+  return {
+    subject: `Invitation to join ${v.appName}`,
+    html: `<!DOCTYPE html><html><head>${baseStyles}</head><body><div class="container">
+      <h2 style="margin-top:0;">Welcome</h2>
+      <p>You have been invited to join <strong>${escape(v.companyName)}</strong> on <strong>${escape(v.appName)}</strong>.</p>
+      <p>To activate your account and get started, click the link below:</p>
+      <a class="button" href="${escape(v.inviteUrl)}">Accept Invitation</a>
+      <p class="muted">If the button doesn't work, copy and paste this URL into your browser:</p>
+      <p class="url-fallback">${escape(v.inviteUrl)}</p>
+      <p class="muted" style="margin-top:24px;">If you weren't expecting this invitation, please ignore this email.</p>
+    </div></body></html>`,
+  }
+}
+
 function escape(s: string): string {
   return s
     .replace(/&/g, '&amp;')

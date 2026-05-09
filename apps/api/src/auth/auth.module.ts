@@ -19,6 +19,13 @@ import { PermissionModule } from '../permissions/permission.module'
     EmailService,
     VerificationService,
   ],
-  exports: [AuthService, PasswordService, TokenService, SessionService],
+  exports: [
+    AuthService,
+    PasswordService,
+    TokenService,
+    SessionService,
+    EmailService,
+    VerificationService,
+  ],
 })
 export class AuthModule {}

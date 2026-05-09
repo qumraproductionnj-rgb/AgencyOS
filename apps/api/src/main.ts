@@ -6,6 +6,11 @@ import helmet from 'helmet'
 import { AppModule } from './app.module'
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter'
 
+// BigInt serialization for JSON responses
+;(BigInt.prototype as unknown as Record<string, unknown>)['toJSON'] = function () {
+  return Number(this)
+}
+
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { bufferLogs: true })
 

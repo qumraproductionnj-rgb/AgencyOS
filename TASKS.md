@@ -220,7 +220,7 @@
 
 ---
 
-### `[CURRENT]` 1.7 — Employees CRUD
+### `[DONE]` 1.7 — Employees CRUD
 
 **Deliverables:**
 
@@ -229,14 +229,14 @@
 - Frontend: `/employees` table with filters (department, status, employment_type)
 - Frontend: `/employees/[id]` detail page (profile, attendance, leaves, performance — last 3 are placeholders)
 - Frontend: `/employees/create` form
-- Profile photo upload (to R2)
+- Profile photo upload (to R2) — _deferred, backend needs R2 integration_
 - Bilingual fields (AR + EN names)
 
 **Acceptance:** HR can create employee, employee receives invite, sets password, logs in.
 
 ---
 
-### `[ ]` 1.8 — Work Locations CRUD with Map
+### `[CURRENT]` 1.8 — Work Locations CRUD with Map
 
 **Deliverables:**
 

@@ -7,7 +7,7 @@
 ## 📍 Current State
 
 **Phase:** Phase 1 — Foundation
-**Current Task:** 1.8 — Work Locations CRUD with Map
+**Current Task:** 1.9 — PWA Setup
 **Last Updated:** 2026-05-09
 
 ---
@@ -16,12 +16,12 @@
 
 ```
 Phase 0 — Setup:                    [██████] 6/6 ✅
-Phase 1 — Foundation:               [█████░░░░░░░░░] 5/14
+Phase 1 — Foundation:               [██████░░░░░░░░] 6/14
 Phase 2 — Core Operations:          [░░░░░░░░░░░░░░░░░░] 0/18
 Phase 3 — Creative & Collaboration: [░░░░░░░░░░░░░░░░░░░░░░] 0/22
 Phase 4 — SaaS Layer:               [░░░░░░░░░░░░] 0/12
 
-TOTAL:                              [██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 11/72
+TOTAL:                              [███░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 12/72
 ```
 
 ---
@@ -37,7 +37,7 @@ TOTAL:                              [██░░░░░░░░░░░░�
 - **0.5** — Frontend Scaffold Next.js (TailwindCSS, shadcn/ui, next-intl AR/EN RTL, TanStack Query)
 - **0.6** — Prisma Setup (schema, migrations, seed, dual clients)
 
-### Phase 1 — Foundation (5/14)
+### Phase 1 — Foundation (6/14)
 
 - **1.1** — Database Schema for Phase 1 (all tables + RLS policies + indexes + seed)
 - **1.2** — Authentication Tier 2 (Argon2id, JWT RS256, signup/login/refresh/verify/reset, lockout, sessions, email templates AR+EN)
@@ -46,12 +46,13 @@ TOTAL:                              [██░░░░░░░░░░░░�
 - **1.5** — Tenant Onboarding Wizard (5-step wizard, backend endpoints, progress save/resume, skip flow, RTL AR/EN frontend)
 - **1.6** — Departments CRUD (NestJS API, frontend table+modal, soft delete, 5 unit tests)
 - **1.7** — Employees CRUD (NestJS API, frontend table+modal+detail+accept-invite, 7 unit tests, 38 total)
+- **1.8** — Work Locations CRUD (NestJS API + Leaflet map + assign employees, 5 unit tests, 43 total)
 
 ---
 
 ## 🚧 In Progress
 
-**Task 1.8 — Work Locations CRUD with Map**
+**Task 1.9 — PWA Setup**
 
 - Not yet started
 
@@ -74,24 +75,23 @@ None currently.
 
 ## 🔄 Last Session Summary
 
-- Completed Task 1.7 — Employees CRUD: backend API (7 endpoints + accept-invite) + frontend (list page, detail page with tabs, invite modal, accept-invite page, i18n AR/EN)
-- Added `BigInt.prototype.toJSON` fix in API main.ts for salary serialization
-- Added `useAcceptInvite` mutation hook
-- All 38 tests pass, web + api typecheck/lint clean
-- Ready to execute Task 1.8: Work Locations CRUD with Map
+- Completed Task 1.8 — Work Locations CRUD: backend API (6 endpoints + assign/unassign employees) + Leaflet map picker + radius slider + employee multi-select + i18n AR/EN
+- Added `leaflet` + `react-leaflet@4` (compatible with React 18) + `@types/leaflet`
+- All 43 tests pass, web + api typecheck/lint clean
+- Ready to execute Task 1.9: PWA Setup
 
 ---
 
 ## ⏭ Next Up
 
-- 1.8 — Work Locations CRUD with Map
 - 1.9 — PWA Setup
 - 1.10 — GPS Check-In API
+- 1.11 — Check-In UI (Mobile PWA)
 
 ---
 
 ## 📈 Velocity Metrics
 
-- Tasks complete: 11/72 (15.3%)
+- Tasks complete: 12/72 (16.7%)
 - Phase 0: 100% ✅
-- Phase 1: 5/14 (35.7%)
+- Phase 1: 6/14 (42.9%)

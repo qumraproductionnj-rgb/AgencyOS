@@ -84,6 +84,26 @@
     "goToLogin": "الذهاب إلى تسجيل الدخول",
     "invalidToken": "رمز الدعوة غير صالح أو مفقود."
   },
+  "workLocations": {
+    "title": "مواقع العمل",
+    "description": "إدارة مواقع المكاتب والعمل الميداني",
+    "createTitle": "إنشاء موقع عمل",
+    "editTitle": "تعديل موقع العمل",
+    "name": "اسم الموقع",
+    "address": "العنوان",
+    "coordinates": "الإحداثيات",
+    "radius": "نصف القطر (متر)",
+    "employees": "الموظفون",
+    "status": "الحالة",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "clickMap": "انقر على الخريطة لتحديد الإحداثيات",
+    "assignEmployees": "الموظفون المعينون",
+    "noLocations": "لا توجد مواقع عمل بعد. قم بإنشاء أول موقع.",
+    "noEmployees": "لا يوجد موظفون متاحون",
+    "deleteConfirm": "هل أنت متأكد من حذف هذا الموقع؟",
+    "nameRequired": "اسم الموقع مطلوب"
+  },
   "departments": {
     "title": "الأقسام",
     "description": "إدارة أقسام الوكالة",

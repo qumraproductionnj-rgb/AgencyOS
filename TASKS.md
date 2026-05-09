@@ -236,21 +236,21 @@
 
 ---
 
-### `[CURRENT]` 1.8 — Work Locations CRUD with Map
+### `[DONE]` 1.8 — Work Locations CRUD with Map
 
 **Deliverables:**
 
-- API: `GET/POST/PUT/DELETE /work-locations`
+- API: `GET/POST/PUT/DELETE /work-locations` + assign/unassign employees endpoints
 - Frontend: `/settings/work-locations` with Leaflet map for setting GPS coords
-- Configurable radius (slider: 50m - 500m)
-- Assign/unassign employees per location
+- Configurable radius (slider: 50m - 500m) with visual circle on map
+- Assign/unassign employees per location (multi-select checkboxes in modal)
 - Multiple locations supported
 
 **Acceptance:** Owner sets office at exact coordinates. Radius shown as circle on map.
 
 ---
 
-### `[ ]` 1.9 — PWA Setup
+### `[CURRENT]` 1.9 — PWA Setup
 
 **Deliverables:**
 

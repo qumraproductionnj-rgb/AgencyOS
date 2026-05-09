@@ -13,6 +13,7 @@ import { MeModule } from './me/me.module'
 import { PermissionModule } from './permissions/permission.module'
 import { DepartmentsModule } from './departments/department.module'
 import { EmployeesModule } from './employees/employee.module'
+import { WorkLocationsModule } from './work-locations/work-location.module'
 import { OnboardingModule } from './onboarding/onboarding.module'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
 import { PermissionsGuard } from './common/guards/permission.guard'
@@ -59,6 +60,7 @@ import { envSchema } from './config/env.validation'
     PermissionModule,
     DepartmentsModule,
     EmployeesModule,
+    WorkLocationsModule,
     OnboardingModule,
     HealthModule,
   ],

@@ -84,6 +84,26 @@
     "goToLogin": "Go to Login",
     "invalidToken": "Invalid or missing invitation token."
   },
+  "workLocations": {
+    "title": "Work Locations",
+    "description": "Manage office and field locations",
+    "createTitle": "Create Work Location",
+    "editTitle": "Edit Work Location",
+    "name": "Location Name",
+    "address": "Address",
+    "coordinates": "Coordinates",
+    "radius": "Radius (meters)",
+    "employees": "Employees",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "clickMap": "Click on the map to set coordinates",
+    "assignEmployees": "Assigned Employees",
+    "noLocations": "No work locations yet. Create your first location.",
+    "noEmployees": "No employees available",
+    "deleteConfirm": "Are you sure you want to delete this location?",
+    "nameRequired": "Location name is required"
+  },
   "departments": {
     "title": "Departments",
     "description": "Manage your agency's departments",

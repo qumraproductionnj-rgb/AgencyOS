@@ -3,6 +3,24 @@
     "title": "AgencyOS",
     "description": "نظام التشغيل لوكالات التسويق والإنتاج الإبداعي"
   },
+  "attendanceDashboard": {
+    "title": "لوحة الحضور",
+    "present": "حاضر",
+    "late": "متأخر",
+    "absent": "غائب",
+    "onLeave": "في إجازة",
+    "employee": "الموظف",
+    "code": "الكود",
+    "department": "القسم",
+    "status": "الحالة",
+    "checkIn": "تسجيل الدخول",
+    "checkOut": "تسجيل الخروج",
+    "hours": "الساعات",
+    "allDepartments": "جميع الأقسام",
+    "monthlyView": "التقويم الشهري",
+    "exportExcel": "Excel",
+    "exportPdf": "PDF"
+  },
   "attendance": {
     "checkIn": "تسجيل الدخول",
     "checkOut": "تسجيل الخروج",

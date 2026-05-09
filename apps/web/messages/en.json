@@ -3,6 +3,24 @@
     "title": "AgencyOS",
     "description": "The Operating System for Marketing & Creative Production Agencies"
   },
+  "attendanceDashboard": {
+    "title": "Attendance Dashboard",
+    "present": "Present",
+    "late": "Late",
+    "absent": "Absent",
+    "onLeave": "On Leave",
+    "employee": "Employee",
+    "code": "Code",
+    "department": "Department",
+    "status": "Status",
+    "checkIn": "Check In",
+    "checkOut": "Check Out",
+    "hours": "Hours",
+    "allDepartments": "All Departments",
+    "monthlyView": "Monthly Calendar",
+    "exportExcel": "Excel",
+    "exportPdf": "PDF"
+  },
   "attendance": {
     "checkIn": "Check In",
     "checkOut": "Check Out",

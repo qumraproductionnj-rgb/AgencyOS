@@ -150,6 +150,30 @@ export class AttendanceService {
     })
   }
 
+  async override(
+    companyId: string,
+    userId: string,
+    recordId: string,
+    status: string,
+    reason: string,
+  ) {
+    const record = await this.prisma.tenant.attendanceRecord.findFirst({
+      where: { id: recordId, companyId },
+    })
+    if (!record) throw new NotFoundException('Attendance record not found')
+    const updated = await this.prisma.tenant.attendanceRecord.update({
+      where: { id: recordId },
+      data: {
+        status: status as never,
+        overrideReason: reason,
+        overrideByUserId: userId,
+        updatedBy: userId,
+      },
+    })
+    this.logger.log(`Attendance override: ${recordId} → ${status} by ${userId}`)
+    return updated
+  }
+
   private haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
     const R = 6_371_000
     const toRad = (d: number) => (d * Math.PI) / 180

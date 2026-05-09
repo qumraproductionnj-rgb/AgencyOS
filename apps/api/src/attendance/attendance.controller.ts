@@ -1,11 +1,18 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { CurrentUser, type CurrentUserPayload } from '../common/decorators/current-user.decorator'
 import { RequireRole } from '../common/decorators/require-role.decorator'
 import { RequireTier } from '../common/decorators/require-tier.decorator'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { AttendanceService } from './attendance.service'
-import { CheckInSchema, CheckOutSchema, type CheckInDto, type CheckOutDto } from './attendance.dto'
+import {
+  CheckInSchema,
+  CheckOutSchema,
+  OverrideSchema,
+  type CheckInDto,
+  type CheckOutDto,
+  type OverrideDto,
+} from './attendance.dto'
 
 @ApiTags('attendance')
 @ApiBearerAuth()
@@ -36,6 +43,17 @@ export class AttendanceController {
   @ApiOperation({ summary: "Get current user's attendance today" })
   async getToday(@CurrentUser() user: CurrentUserPayload) {
     return this.svc.getToday(user.companyId!, user.sub)
+  }
+
+  @Post(':id/override')
+  @RequireRole('owner', 'admin', 'hr_manager')
+  @ApiOperation({ summary: 'Manual override of attendance record (HR only)' })
+  async override(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(OverrideSchema)) dto: OverrideDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    return this.svc.override(user.companyId!, user.sub, id, dto.status, dto.reason)
   }
 
   @Get('today/all')

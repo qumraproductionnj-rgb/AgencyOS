@@ -15,6 +15,7 @@ import { DepartmentsModule } from './departments/department.module'
 import { EmployeesModule } from './employees/employee.module'
 import { WorkLocationsModule } from './work-locations/work-location.module'
 import { AttendanceModule } from './attendance/attendance.module'
+import { AuditModule } from './audit/audit.module'
 import { OnboardingModule } from './onboarding/onboarding.module'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
 import { PermissionsGuard } from './common/guards/permission.guard'
@@ -63,6 +64,7 @@ import { envSchema } from './config/env.validation'
     EmployeesModule,
     WorkLocationsModule,
     AttendanceModule,
+    AuditModule,
     OnboardingModule,
     HealthModule,
   ],

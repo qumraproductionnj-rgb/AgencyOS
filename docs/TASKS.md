@@ -160,7 +160,7 @@
 
 ---
 
-### `[CURRENT]` 1.3 — Tenant Context Middleware + RLS Wiring
+### `[DONE]` 1.3 — Tenant Context Middleware + RLS Wiring
 
 **Deliverables:**
 
@@ -173,7 +173,7 @@
 
 ---
 
-### `[ ]` 1.4 — Roles & Permissions System
+### `[DONE]` 1.4 — Roles & Permissions System
 
 **Deliverables:**
 
@@ -188,7 +188,7 @@
 
 ---
 
-### `[ ]` 1.5 — Tenant Onboarding Wizard (Frontend)
+### `[DONE]` 1.5 — Frontend Layout & Navigation
 
 **Deliverables:**
 
@@ -206,7 +206,7 @@
 
 ---
 
-### `[ ]` 1.6 — Departments CRUD
+### `[DONE]` 1.6 — Departments CRUD
 
 **Deliverables:**
 
@@ -219,7 +219,7 @@
 
 ---
 
-### `[ ]` 1.7 — Employees CRUD
+### `[DONE]` 1.7 — Employees CRUD
 
 **Deliverables:**
 
@@ -235,7 +235,7 @@
 
 ---
 
-### `[ ]` 1.8 — Work Locations CRUD with Map
+### `[DONE]` 1.8 — Work Locations CRUD with Map
 
 **Deliverables:**
 
@@ -249,7 +249,7 @@
 
 ---
 
-### `[ ]` 1.9 — PWA Setup
+### `[DONE]` 1.9 — PWA Setup
 
 **Deliverables:**
 
@@ -264,7 +264,7 @@
 
 ---
 
-### `[ ]` 1.10 — GPS Check-In API
+### `[DONE]` 1.10 — GPS Check-In API
 
 **Deliverables:**
 
@@ -285,7 +285,7 @@
 
 ---
 
-### `[ ]` 1.11 — Check-In UI (Mobile PWA)
+### `[DONE]` 1.11 — Check-In UI (Mobile PWA)
 
 **Deliverables:**
 
@@ -301,7 +301,7 @@
 
 ---
 
-### `[ ]` 1.12 — Attendance Dashboard (Web)
+### `[DONE]` 1.12 — Attendance Dashboard (Web)
 
 **Deliverables:**
 
@@ -317,7 +317,7 @@
 
 ---
 
-### `[ ]` 1.13 — Audit Logging Infrastructure
+### `[DONE]` 1.13 — Audit Logging Infrastructure
 
 **Deliverables:**
 
@@ -330,7 +330,7 @@
 
 ---
 
-### `[ ]` 1.14 — Phase 1 Acceptance Tests
+### `[CURRENT]` 1.14 — Phase 1 Acceptance Tests
 
 **Deliverables:**
 

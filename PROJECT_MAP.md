@@ -1,9 +1,9 @@
 # PROJECT_MAP.md — Architectural Map for AgencyOS
 
-> Last updated: 2026-05-09T16:04 UTC+3
+> Last updated: 2026-05-09T17:50 UTC+3
 > System date verified: 2026-05-09
 > Runtime: Node v22.14.0 | pnpm 10.33.2 | Docker 29.3.1 / Compose v5.1.1
-> Repository: E:\V (git root) | 72 tasks across 5 phases | Current: Phase 1
+> Repository: E:\V (git root) | 72 tasks across 5 phases | Current: Task 1.7
 
 ---
 
@@ -853,14 +853,13 @@ CREATE POLICY tenant_isolation ON {table}
 
 ### 🔴 CRITICAL BLOCKERS
 
-| ID   | Gap                                                                                                                                                         | Impact                                                                     | Blocking                | Source                              | Mitigation                                                                                                                                                                           |
-| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| G-01 | **RLS not wired to app layer** — Prisma connects as table owner (bypasses RLS). The `agencyos_app` role exists in `init-db.sql` but is NOT used by the API. | ALL tenant data is exposed. RLS provides zero protection.                  | Task 1.3 (CURRENT)      | PROGRESS.md Task 1.1 log            | NestJS TenantContextMiddleware must switch to `agencyos_app` role at request start. Implement via Prisma `$queryRaw` to `SET ROLE agencyos_app; SET app.current_company_id = '...';` |
-| G-02 | **No CI pipeline running** — GitHub Actions workflow exists in `scripts/github-actions-ci.yml` but not deployed to `.github/workflows/`.                    | All lint/typecheck/tests manual. No guard against bad commits.             | Task 0.3, 0.4, 0.5, 0.6 | Repo inspection                     | Copy to `.github/workflows/ci.yml`. _Status: scripts/github-actions-ci.yml exists but .github/workflows/ does NOT exist._                                                            |
-| G-03 | **TUS upload not implemented** — No chunked upload capability.                                                                                              | Large video files (1GB+) cannot be uploaded. Blocks media-heavy Phase 2/3. | Task 2.13               | MasterSpec §14, TASKS.md 2.13       | Implement TUS protocol in files module. Use `@tus/server` or `tus-node-server`. Need Docker service for temp storage.                                                                |
-| G-04 | **No antivirus for uploads** — ClamAV not in Docker stack, no file scanning.                                                                                | Risk of malware upload through file endpoints.                             | Phase 4 (deferred)      | MasterSpec §14, CLAUDE.md §Security | Add ClamAV container in Phase 4. Document as known gap.                                                                                                                              |
-| G-05 | **Tenant lifecycle not implemented** — No trial expiry cron, no read-only mode, no suspension logic.                                                        | Trials never expire. Unpaid tenants keep full access indefinitely.         | Phase 4.4               | MasterSpec §4 (Tenant Deactivation) | BullMQ cron job for daily expiry check. Lifecycle status machine in `companies.status`.                                                                                              |
-| G-06 | **MasterSpec vs CLAUDE.md contradiction on password hashing** — MasterSpec says bcrypt, CLAUDE.md + ADR-002 say Argon2id (already implemented).             | Document inconsistency could cause confusion in future additions.          | —                       | DECISIONS.md ADR-002                | UPDATE MasterSpec §10 Security table to reflect Argon2id. Task for next review cycle.                                                                                                |
+| ID   | Gap                                                                                                                                             | Impact                                                                     | Blocking                | Source                              | Mitigation                                                                                                                |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| G-02 | **No CI pipeline running** — GitHub Actions workflow exists in `scripts/github-actions-ci.yml` but not deployed to `.github/workflows/`.        | All lint/typecheck/tests manual. No guard against bad commits.             | Task 0.3, 0.4, 0.5, 0.6 | Repo inspection                     | Copy to `.github/workflows/ci.yml`. _Status: scripts/github-actions-ci.yml exists but .github/workflows/ does NOT exist._ |
+| G-03 | **TUS upload not implemented** — No chunked upload capability.                                                                                  | Large video files (1GB+) cannot be uploaded. Blocks media-heavy Phase 2/3. | Task 2.13               | MasterSpec §14, TASKS.md 2.13       | Implement TUS protocol in files module. Use `@tus/server` or `tus-node-server`. Need Docker service for temp storage.     |
+| G-04 | **No antivirus for uploads** — ClamAV not in Docker stack, no file scanning.                                                                    | Risk of malware upload through file endpoints.                             | Phase 4 (deferred)      | MasterSpec §14, CLAUDE.md §Security | Add ClamAV container in Phase 4. Document as known gap.                                                                   |
+| G-05 | **Tenant lifecycle not implemented** — No trial expiry cron, no read-only mode, no suspension logic.                                            | Trials never expire. Unpaid tenants keep full access indefinitely.         | Phase 4.4               | MasterSpec §4 (Tenant Deactivation) | BullMQ cron job for daily expiry check. Lifecycle status machine in `companies.status`.                                   |
+| G-06 | **MasterSpec vs CLAUDE.md contradiction on password hashing** — MasterSpec says bcrypt, CLAUDE.md + ADR-002 say Argon2id (already implemented). | Document inconsistency could cause confusion in future additions.          | —                       | DECISIONS.md ADR-002                | UPDATE MasterSpec §10 Security table to reflect Argon2id. Task for next review cycle.                                     |
 
 ### 🟡 CRITICAL TECHNICAL DEBT (must fix before Phase 2)
 
@@ -892,7 +891,7 @@ CREATE POLICY tenant_isolation ON {table}
 | Auth (1.2)           | ❌         | ✅ (curl smoke)   | ❌        | HIGH — auth is critical security boundary      |
 | Companies            | ❌         | ❌                | ❌        | MEDIUM — low complexity                        |
 | Employees (1.7)      | ❌         | ❌                | ❌        | HIGH — invitation flow has many edge cases     |
-| Departments (1.6)    | ❌         | ❌                | ❌        | LOW — simple CRUD                              |
+| Departments (1.6)    | ✅ (5)     | ❌                | ❌        | LOW — simple CRUD                              |
 | Work Locations (1.8) | ❌         | ❌                | ❌        | MEDIUM — map + GPS test challenging            |
 | Attendance (1.10)    | ❌         | ❌                | ❌        | CRITICAL — Haversine calc is business-critical |
 | PWA (1.9)            | ❌         | ❌                | ❌        | MEDIUM — geolocation permission flow           |
@@ -928,14 +927,14 @@ Phase 0 (6/6 ✅):
   0.5 ✅ Frontend Scaffold (Next.js)
   0.6 ✅ Prisma Setup
 
-Phase 1 (2/14):
+Phase 1 (4/14):
   1.1 ✅ Database Schema for Phase 1
   1.2 ✅ Authentication Tier 2 (Tenant Users)
-  1.3 🔴 [CURRENT] Tenant Context Middleware + RLS Wiring
-  1.4 ❌ Roles & Permissions System
-  1.5 ❌ Tenant Onboarding Wizard
-  1.6 ❌ Departments CRUD
-  1.7 ❌ Employees CRUD
+  1.3 ✅ Tenant Context Middleware + RLS Wiring
+  1.4 ✅ Roles & Permissions System
+  1.5 ✅ Tenant Onboarding Wizard
+  1.6 ✅ Departments CRUD
+  1.7 🔴 [CURRENT] Employees CRUD
   1.8 ❌ Work Locations CRUD with Map
   1.9 ❌ PWA Setup
   1.10 ❌ GPS Check-In API
@@ -948,7 +947,7 @@ Phase 2 (0/18): All ❌
 Phase 3 (0/22): All ❌
 Phase 4 (0/12): All ❌
 
-TOTAL: 8/72 (11.1%)  [████░░░░░░░░░░░░░░░░░░░░░░░]
+TOTAL: 10/72 (13.9%)  [██████░░░░░░░░░░░░░░░░░░░░░]
 ```
 
 ---
@@ -963,7 +962,7 @@ TOTAL: 8/72 (11.1%)  [████░░░░░░░░░░░░░░░�
 | M1.2   | 1     | RLS Enforcement               | TenantContextMiddleware sets `app.current_company_id` ✓, `agencyos_app` role used for runtime queries ✓, cross-tenant access returns 403 ✓                                        | 🔴 CURRENT (1.3)  |
 | M1.3   | 1     | Roles & Permissions           | 11 default roles seeded ✓, permission matrix enforced ✓, `@RequireRole()` and `@RequirePermission()` decorators work ✓, frontend `useCan()` hook works ✓                          | ❌ (1.4)          |
 | M1.4   | 1     | Tenant Onboarding             | 5-step wizard completes ✓, owner profile saved to R2 ✓, GPS location set ✓, departments created ✓, first employee invited ✓, plan selected ✓                                      | ❌ (1.5)          |
-| M1.5   | 1     | Employee Management           | Departments CRUD ✓, Employees CRUD ✓, invitation email sent ✓, employee sets password and logs in ✓, profile photo uploaded ✓                                                     | ❌ (1.6, 1.7)     |
+| M1.5   | 1     | Employee Management           | Departments CRUD ✓, Employees CRUD ✓, invitation email sent ✓, employee sets password and logs in ✓, profile photo uploaded ✓                                                     | ❌ (1.7)          |
 | M1.6   | 1     | PWA GPS Check-in              | PWA installable ✓, geolocation granted ✓, POST /attendance/check-in within radius → 201 ✓, outside radius → 403 with distance error ✓, late detection ✓, HR real-time dashboard ✓ | ❌ (1.8-1.12)     |
 | M1.7   | 1     | Audit Logging                 | Every write operation logged ✓, audit viewer for Owner/Admin ✓, sensitive fields never logged ✓                                                                                   | ❌ (1.13)         |
 | M1.8   | 1     | Phase 1 E2E                   | Full Playwright suite passes: signup → onboarding → invite → check-in (success + failure) ✓                                                                                       | ❌ (1.14)         |

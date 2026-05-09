@@ -11,6 +11,7 @@ import { RedisModule } from './redis/redis.module'
 import { AuthModule } from './auth/auth.module'
 import { MeModule } from './me/me.module'
 import { PermissionModule } from './permissions/permission.module'
+import { DepartmentsModule } from './departments/department.module'
 import { OnboardingModule } from './onboarding/onboarding.module'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
 import { PermissionsGuard } from './common/guards/permission.guard'
@@ -55,6 +56,7 @@ import { envSchema } from './config/env.validation'
     AuthModule,
     MeModule,
     PermissionModule,
+    DepartmentsModule,
     OnboardingModule,
     HealthModule,
   ],

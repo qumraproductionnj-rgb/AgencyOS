@@ -40,6 +40,21 @@
     "signup": "إنشاء حساب جديد",
     "verifyEmail": "تحقق من البريد الإلكتروني"
   },
+  "departments": {
+    "title": "الأقسام",
+    "description": "إدارة أقسام الوكالة",
+    "createTitle": "إنشاء قسم",
+    "editTitle": "تعديل القسم",
+    "nameAr": "الاسم (بالعربية)",
+    "nameEn": "الاسم (بالإنجليزية)",
+    "description": "الوصف",
+    "manager": "المدير",
+    "managerPlaceholder": "اختر مديراً",
+    "employees": "الموظفون",
+    "createdAt": "تاريخ الإنشاء",
+    "noDepartments": "لا توجد أقسام بعد. قم بإنشاء أول قسم.",
+    "deleteConfirm": "هل أنت متأكد من حذف هذا القسم؟"
+  },
   "onboarding": {
     "title": "مرحباً بك في AgencyOS",
     "subtitle": "لنقم بإعداد مساحة العمل الخاصة بك في بضع خطوات",

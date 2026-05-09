@@ -206,7 +206,7 @@
 
 ---
 
-### `[CURRENT]` 1.6 — Departments CRUD
+### `[DONE]` 1.6 — Departments CRUD
 
 **Deliverables:**
 
@@ -214,12 +214,13 @@
 - Frontend: `/settings/departments` with table + create/edit modal
 - Soft delete preserves history
 - Permission: HR Manager + above
+- 5 unit tests for DepartmentService
 
 **Acceptance:** Full CRUD works. Cross-tenant isolation verified.
 
 ---
 
-### `[ ]` 1.7 — Employees CRUD
+### `[CURRENT]` 1.7 — Employees CRUD
 
 **Deliverables:**
 

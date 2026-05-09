@@ -40,6 +40,21 @@
     "signup": "Create Account",
     "verifyEmail": "Verify Email"
   },
+  "departments": {
+    "title": "Departments",
+    "description": "Manage your agency's departments",
+    "createTitle": "Create Department",
+    "editTitle": "Edit Department",
+    "nameAr": "Name (Arabic)",
+    "nameEn": "Name (English)",
+    "description": "Description",
+    "manager": "Manager",
+    "managerPlaceholder": "Select a manager",
+    "employees": "Employees",
+    "createdAt": "Created",
+    "noDepartments": "No departments yet. Create your first department.",
+    "deleteConfirm": "Are you sure you want to delete this department?"
+  },
   "onboarding": {
     "title": "Welcome to AgencyOS",
     "subtitle": "Let's set up your workspace in a few steps",

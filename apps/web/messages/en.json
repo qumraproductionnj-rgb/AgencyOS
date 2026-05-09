@@ -13,6 +13,11 @@
     "reports": "Reports",
     "settings": "Settings"
   },
+  "pwa": {
+    "installPrompt": "Install AgencyOS on your device for quick access and offline support.",
+    "install": "Install",
+    "dismiss": "Not now"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",

@@ -13,6 +13,11 @@
     "reports": "التقارير",
     "settings": "الإعدادات"
   },
+  "pwa": {
+    "installPrompt": "قم بتثبيت AgencyOS على جهازك للوصول السريع والدعم بدون اتصال.",
+    "install": "تثبيت",
+    "dismiss": "ليس الآن"
+  },
   "common": {
     "save": "حفظ",
     "cancel": "إلغاء",

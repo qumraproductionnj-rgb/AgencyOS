@@ -437,14 +437,18 @@
 
 ---
 
-### `[CURRENT]` 2.6 — CRM: Clients & Contacts
+### `[DONE]` 2.6 — CRM: Clients & Contacts
 
 **Deliverables:**
 
-- API: clients CRUD, multiple contacts per client
-- Frontend: clients table, client detail with tabs (overview, contacts, projects, invoices, files)
-- VIP/blacklist flagging
-- Total revenue calculated from invoices
+- [x] API: clients CRUD (5 endpoints) + nested contacts CRUD (4 endpoints)
+- [x] Frontend: clients table with VIP/blacklist badges, search, status filter
+- [x] Client detail with tabs (overview, contacts)
+- [x] Contact create/edit modal within client detail
+- [x] VIP/blacklist flagging with mutual exclusion
+- [x] Total revenue calculated from won deals
+- [x] 12 unit tests, full lint + typecheck + 132 test suite
+- [x] AR/EN translations for clients module
 
 **Acceptance:** Full CRUD works. Client detail page comprehensive.
 

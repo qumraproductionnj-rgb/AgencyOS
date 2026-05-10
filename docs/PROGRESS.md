@@ -7,7 +7,7 @@
 ## 📍 Current State
 
 **Phase:** Phase 2 — Core Operations
-**Current Task:** 2.6 — CRM: Clients & Contacts (up next)
+**Current Task:** 2.7 — Quotations (up next)
 **Last Updated:** 2026-05-10
 
 ---
@@ -17,21 +17,11 @@
 ```
 Phase 0 — Setup:                    [██████] 6/6 ✅
 Phase 1 — Foundation:               [████████████████] 14/14 ✅
-Phase 2 — Core Operations:          [███░░░░░░░░░░░░░░░░] 5/18
+Phase 2 — Core Operations:          [████████████░░░░░░░░░░] 6/18
 Phase 3 — Creative & Collaboration: [░░░░░░░░░░░░░░░░░░░░░░] 0/22
 Phase 4 — SaaS Layer:               [░░░░░░░░] 0/12
 
-TOTAL:                              [████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 24/72
-```
-
-Phase 0 — Setup: [██████] 6/6 ✅
-Phase 1 — Foundation: [████████████████] 14/14 ✅
-Phase 2 — Core Operations: [█░░░░░░░░░░░░░░░░░░] 1/18
-Phase 3 — Creative & Collaboration: [░░░░░░░░░░░░░░░░░░░░░░] 0/22
-Phase 4 — SaaS Layer: [░░░░░░░░░░] 0/12
-
-TOTAL: [████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 20/72
-
+TOTAL:                              [████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 26/72
 ```
 
 ---
@@ -105,6 +95,22 @@ TOTAL: [████████████████████████
 
 - Calendar view — deferred to future enhancement
 - Notification triggers — logging only for now; email/Telegram notifications in Task 2.14
+
+### Task 2.6 — CRM: Clients & Contacts (2026-05-10)
+
+- [x] `client.dto.ts` — Zod schemas for client CRUD + nested contact CRUD
+- [x] `client.service.ts` — client CRUD, contact CRUD with primary toggle, revenue from won deals
+- [x] `client.controller.ts` — 9 endpoints (clients: list/search/vip, get, create, update, delete; contacts: list, create, update, delete)
+- [x] `client.module.ts` — registered in `app.module.ts` as `ClientsModule`
+- [x] `client.service.spec.ts` — 12 unit tests covering all operations
+- [x] Frontend `hooks/use-clients.ts` — React Query hooks for clients + contacts
+- [x] `client-table.tsx` — table with VIP/blacklist badges, search, VIP filter, revenue display
+- [x] `client-modal.tsx` — create/edit with name AR/EN, email, phone, address, VIP/blacklist checkboxes
+- [x] `client-detail.tsx` — slide-in panel with tabs (overview + contacts), deals list, contact management
+- [x] `contact-modal.tsx` — create/edit contact (name, position, email, phone, primary toggle)
+- [x] `app/[locale]/clients/page.tsx` — route page
+- [x] Translations: AR + EN `clients` block (30+ keys)
+- [x] `pnpm lint` ✓ | `pnpm typecheck` ✓ | `pnpm test` ✓ (132 tests, 16 suites)
 
 ### Task 2.5 — CRM: Leads Pipeline (2026-05-10)
 
@@ -417,7 +423,7 @@ TOTAL: [████████████████████████
 
 ## 🚧 In Progress
 
-- Task 2.6 — CRM: Clients & Contacts (up next)
+- Task 2.7 — Quotations (up next)
 
 ---
 
@@ -441,7 +447,7 @@ See `DECISIONS.md` for detailed architectural decisions.
 
 ## ⏭ Next Up
 
-- 2.5 — CRM: Leads Pipeline (Kanban board, pipeline stages, lead-to-client conversion)
+- 2.7 — Quotations (PDF generation, line items, discounts, taxes, accept flow)
 
 ---
 
@@ -451,4 +457,7 @@ See `DECISIONS.md` for detailed architectural decisions.
 - Tasks per week: [tracked]
 - Bugs found per phase: [tracked]
 - Tests written: [tracked]
+
+```
+
 ```

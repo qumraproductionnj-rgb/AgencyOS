@@ -526,7 +526,7 @@
 
 ---
 
-### `[CURRENT]` 2.12 — Tasks (Core)
+### `[DONE]` 2.12 — Tasks (Core)
 
 **Deliverables:**
 
@@ -540,7 +540,7 @@
 
 ---
 
-### `[ ]` 2.13 — Files Module (with TUS chunked upload)
+### `[CURRENT]` 2.13 — Files Module (with TUS chunked upload)
 
 **Deliverables:**
 

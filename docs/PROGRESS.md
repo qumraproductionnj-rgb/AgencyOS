@@ -7,7 +7,7 @@
 ## 📍 Current State
 
 **Phase:** Phase 2 — Core Operations
-**Current Task:** 2.12 — Tasks (Core)
+**Current Task:** 2.13 — Files Module
 **Last Updated:** 2026-05-10
 
 ---
@@ -17,11 +17,11 @@
 ```
 Phase 0 — Setup:                    [██████] 6/6 ✅
 Phase 1 — Foundation:               [████████████████] 14/14 ✅
-Phase 2 — Core Operations:          [████████████████████████░░] 11/18
+Phase 2 — Core Operations:          [██████████████████████████] 12/18
 Phase 3 — Creative & Collaboration: [░░░░░░░░░░░░░░░░░░░░░░] 0/22
 Phase 4 — SaaS Layer:               [░░░░░░░░] 0/12
 
-TOTAL:                              [████████████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░] 31/72
+TOTAL:                              [██████████████████████████████████████████████████████████████░░░░░░░░░░░░░░] 32/72
 ```
 
 ---
@@ -75,6 +75,32 @@ TOTAL:                              [██████████████�
 - `() => { void 0 }` for empty catch handlers to satisfy `no-empty-function` rule
 
 ---
+
+### Task 2.12 — Tasks (Core) (2026-05-10)
+
+- [x] Backend DTOs: `CreateTaskSchema`, `UpdateTaskSchema`, `UpdateTaskStatusSchema`, `CreateCommentSchema`, `StartTimerSchema`, `StopTimerSchema`
+- [x] `task.service.ts` — full CRUD, status transitions (TODO→IN_PROGRESS→IN_REVIEW→DONE, with rollback), comments with user validation, timer start/stop with duration calc, workload aggregation per user
+- [x] `task.controller.ts` — 11 endpoints: list (with filters), workload, create, get, update, updateStatus, addComment, deleteComment, startTimer, stopTimer, soft delete
+- [x] `task.module.ts` — registered in `app.module.ts`
+- [x] `task.service.spec.ts` — 21 unit tests covering CRUD, transitions, comment ownership, timer conflicts, workload
+- [x] Frontend `use-tasks.ts` — 12 React Query hooks (list, get, create, update, updateStatus, addComment, deleteComment, startTimer, stopTimer, delete, projectTasks, employeesList, projectsList)
+- [x] `task-list.tsx` — filterable table with search, status/priority filters, list/kanban toggle
+- [x] `task-kanban.tsx` — 4-column Kanban with HTML5 drag-drop (TODO/IN_PROGRESS/IN_REVIEW/DONE)
+- [x] `task-modal.tsx` — create/edit slideover with project, assignee, priority, dates, estimated hours
+- [x] `task-detail.tsx` — detail panel with stage progression buttons, timer controls, subtask list, threaded comments, delete
+- [x] Route page `app/[locale]/tasks/page.tsx`
+- [x] Translations: AR + EN `tasks` block (40+ keys: status labels, priorities, form fields, timer controls, comments)
+- [x] `pnpm lint` ✓ | `pnpm typecheck` ✓ | `pnpm test` ✓ (204 tests, 22 suites)
+- [x] Committed: `feat(tasks): CRUD, status transitions, subtasks, comments, time tracking, workload, AR/EN translations`
+
+**Key decisions:**
+
+- Status transitions: forward (TODO→IN_PROGRESS→IN_REVIEW→DONE) with rollback allowed (IN_REVIEW→IN_PROGRESS, IN_PROGRESS→TODO); DONE and CANCELLED are terminal
+- Timer: one active timer per user per task; start rejects if already active; stop calculates duration server-side
+- Subtasks: stored as Task rows with `parentTaskId`; list query filters `parentTaskId: null` (top-level only)
+- Comments: ownership enforced on delete (own comments only)
+- Workload: aggregates active (non-DONE, non-CANCELLED) tasks per assignee with estimated + logged hours
+- `tags` field omitted from DTOs — Prisma schema doesn't have it; can be added in future migration
 
 ### Task 2.11 — Projects (Core) (2026-05-10)
 
@@ -495,7 +521,7 @@ TOTAL:                              [██████████████�
 
 ## 🚧 In Progress
 
-- Task 2.11 — Projects (Core) ✅
+- Task 2.12 — Tasks (Core) ✅
 
 ---
 
@@ -519,7 +545,7 @@ See `DECISIONS.md` for detailed architectural decisions.
 
 ## ⏭ Next Up
 
-- 2.12 — Tasks (Core) (CRUD, subtasks, comments, time tracking, Kanban view)
+- 2.13 — Files Module (TUS chunked upload, R2, signed URLs, drag-drop)
 
 ---
 
@@ -528,7 +554,7 @@ See `DECISIONS.md` for detailed architectural decisions.
 - Average task completion time: [tracked over time]
 - Tasks per week: [tracked]
 - Bugs found per phase: [tracked]
-- Tests written: 183
+- Tests written: 204
 
 ```
 

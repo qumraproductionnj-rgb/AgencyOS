@@ -512,7 +512,7 @@
 
 ---
 
-### `[CURRENT]` 2.11 — Projects (Core)
+### `[DONE]` 2.11 — Projects (Core)
 
 **Deliverables:**
 
@@ -526,7 +526,7 @@
 
 ---
 
-### `[ ]` 2.12 — Tasks (Core)
+### `[CURRENT]` 2.12 — Tasks (Core)
 
 **Deliverables:**
 

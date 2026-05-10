@@ -1,7 +1,5 @@
 import { useTranslations } from 'next-intl'
 import { setRequestLocale } from 'next-intl/server'
-import { LanguageSwitcher } from '@/components/language-switcher'
-import { ThemeToggle } from '@/components/theme-toggle'
 
 interface HomePageProps {
   params: Promise<{ locale: string }>
@@ -19,11 +17,6 @@ function HomeContent() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
-      <div className="absolute end-4 top-4 flex items-center gap-3">
-        <LanguageSwitcher />
-        <ThemeToggle />
-      </div>
-
       <div className="max-w-2xl text-center">
         <h1 className="mb-4 text-5xl font-bold tracking-tight">{t('title')}</h1>
         <p className="text-muted-foreground text-lg">{t('description')}</p>

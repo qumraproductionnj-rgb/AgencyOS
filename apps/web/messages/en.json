@@ -557,6 +557,13 @@
     "addSubtask": "Add Subtask",
     "overview": "Overview"
   },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet",
+    "markRead": "Read",
+    "markAllRead": "Mark all as read",
+    "delete": "Delete"
+  },
   "files": {
     "title": "Files",
     "upload": "Upload",

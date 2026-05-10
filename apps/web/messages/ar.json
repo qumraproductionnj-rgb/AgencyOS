@@ -557,6 +557,13 @@
     "addSubtask": "إضافة مهمة فرعية",
     "overview": "نظرة عامة"
   },
+  "notifications": {
+    "title": "الإشعارات",
+    "empty": "لا توجد إشعارات بعد",
+    "markRead": "قراءة",
+    "markAllRead": "تحديد الكل كمقروء",
+    "delete": "حذف"
+  },
   "files": {
     "title": "الملفات",
     "upload": "رفع",

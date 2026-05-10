@@ -4,6 +4,7 @@ import { getMessages, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { routing } from '../../i18n/routing'
+import { AppShell } from '../../components/app-shell'
 import { Providers } from '../../components/providers'
 import '../../globals.css'
 
@@ -54,7 +55,9 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       <head />
       <body className="bg-background min-h-screen font-sans antialiased">
         <NextIntlClientProvider messages={messages}>
-          <Providers>{children}</Providers>
+          <Providers>
+            <AppShell>{children}</AppShell>
+          </Providers>
         </NextIntlClientProvider>
       </body>
     </html>

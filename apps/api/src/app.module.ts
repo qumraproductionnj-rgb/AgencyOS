@@ -16,6 +16,7 @@ import { EmployeesModule } from './employees/employee.module'
 import { WorkLocationsModule } from './work-locations/work-location.module'
 import { AttendanceModule } from './attendance/attendance.module'
 import { AuditModule } from './audit/audit.module'
+import { LeadsModule } from './leads/lead.module'
 import { LeavesModule } from './leave/leave.module'
 import { PayrollModule } from './payroll/payroll.module'
 import { PerformanceReviewsModule } from './performance-reviews/performance-review.module'
@@ -68,6 +69,7 @@ import { envSchema } from './config/env.validation'
     WorkLocationsModule,
     AttendanceModule,
     AuditModule,
+    LeadsModule,
     LeavesModule,
     PayrollModule,
     PerformanceReviewsModule,

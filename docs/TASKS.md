@@ -420,21 +420,24 @@
 
 ---
 
-### `[CURRENT]` 2.5 — CRM: Leads Pipeline
+### `[DONE]` 2.5 — CRM: Leads Pipeline
 
 **Deliverables:**
 
-- API: leads CRUD with pipeline stage transitions
-- Frontend: Kanban board (drag-drop between stages)
-- Lead detail with notes, follow-up date, activity log
-- Conversion: lead → won creates client + deal automatically
-- Filters and search
+- [x] API: leads CRUD with pipeline stage transitions (6 endpoints)
+- [x] Frontend: Kanban board with HTML5 drag-drop between stages
+- [x] Lead detail panel showing lead info + deals
+- [x] Lead create/edit modal
+- [x] Conversion: WON auto-creates client + deal
+- [x] Search and status filter
+- [x] 12 unit tests, full lint + typecheck + 118 test suite
+- [x] AR/EN translations for leads module
 
 **Acceptance:** Sales adds lead, drags through stages, marks won, client auto-created.
 
 ---
 
-### `[ ]` 2.6 — CRM: Clients & Contacts
+### `[CURRENT]` 2.6 — CRM: Clients & Contacts
 
 **Deliverables:**
 

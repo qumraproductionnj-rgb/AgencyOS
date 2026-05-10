@@ -485,7 +485,7 @@
 
 ---
 
-### `[CURRENT]` 2.9 — Expenses
+### `[DONE]` 2.9 — Expenses
 
 **Deliverables:**
 
@@ -500,7 +500,7 @@
 
 ---
 
-### `[ ]` 2.10 — Campaigns
+### `[CURRENT]` 2.10 — Campaigns
 
 **Deliverables:**
 

@@ -137,6 +137,29 @@
       "12": "ديسمبر"
     }
   },
+  "performanceReviews": {
+    "title": "تقييم الأداء",
+    "description": "إدارة تقييمات أداء الموظفين",
+    "createTitle": "إنشاء تقييم",
+    "editTitle": "تعديل التقييم",
+    "employee": "الموظف",
+    "reviewDate": "تاريخ التقييم",
+    "overallScore": "الدرجة الكلية",
+    "kpis": "مؤشرات الأداء",
+    "kpiName": "اسم المؤشر",
+    "kpiScore": "الدرجة",
+    "kpiWeight": "الوزن",
+    "kpiComment": "تعليق",
+    "addKpi": "إضافة مؤشر",
+    "removeKpi": "حذف",
+    "strengths": "نقاط القوة",
+    "improvements": "مجالات التطوير",
+    "notes": "ملاحظات",
+    "noReviews": "لا توجد تقييمات أداء بعد.",
+    "reviewer": "المقيّم",
+    "createdAt": "تاريخ الإنشاء",
+    "deleteConfirm": "هل أنت متأكد من حذف هذا التقييم؟"
+  },
   "nav": {
     "dashboard": "لوحة التحكم",
     "projects": "المشاريع",
@@ -146,6 +169,7 @@
     "employees": "الموظفون",
     "attendance": "الحضور",
     "payroll": "الرواتب",
+    "performanceReviews": "تقييم الأداء",
     "reports": "التقارير",
     "settings": "الإعدادات"
   },

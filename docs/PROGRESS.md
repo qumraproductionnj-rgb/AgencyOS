@@ -390,7 +390,7 @@ TOTAL:                              [██████████████�
 
 ## 🚧 In Progress
 
-- Task 2.4 — HR: Performance Reviews (up next)
+- Task 2.5 — CRM: Leads Pipeline (up next)
 
 ---
 
@@ -414,7 +414,7 @@ See `DECISIONS.md` for detailed architectural decisions.
 
 ## ⏭ Next Up
 
-- 2.4 — HR: Performance Reviews (KPI templates, review creation, scoring, employee history)
+- 2.5 — CRM: Leads Pipeline (Kanban board, pipeline stages, lead-to-client conversion)
 
 ---
 

@@ -624,6 +624,7 @@ model PerformanceReview {
   reviewerId    String   @map("reviewer_id") @db.Uuid
   reviewDate    DateTime @map("review_date") @db.Date
   overallScore  Decimal? @map("overall_score") @db.Decimal(3, 1)
+  kpis          Json     @default("[]")
   strengths     String?
   improvements  String?
   notes         String?

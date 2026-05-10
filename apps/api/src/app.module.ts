@@ -18,6 +18,7 @@ import { AttendanceModule } from './attendance/attendance.module'
 import { AuditModule } from './audit/audit.module'
 import { LeavesModule } from './leave/leave.module'
 import { PayrollModule } from './payroll/payroll.module'
+import { PerformanceReviewsModule } from './performance-reviews/performance-review.module'
 import { OnboardingModule } from './onboarding/onboarding.module'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
 import { PermissionsGuard } from './common/guards/permission.guard'
@@ -69,6 +70,7 @@ import { envSchema } from './config/env.validation'
     AuditModule,
     LeavesModule,
     PayrollModule,
+    PerformanceReviewsModule,
     OnboardingModule,
     HealthModule,
   ],

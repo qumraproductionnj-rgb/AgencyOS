@@ -406,20 +406,21 @@
 
 ---
 
-### `[CURRENT]` 2.4 — HR: Performance Reviews
+### `[DONE]` 2.4 — HR: Performance Reviews
 
 **Deliverables:**
 
-- API: create review with KPIs, score, comments
-- Frontend: manager creates review, employee sees their reviews
-- KPI templates (reusable)
-- History view per employee
+- [x] API: create review with KPIs, score, comments
+- [x] Frontend: manager creates review, employee sees their reviews
+- [x] KPIs stored as JSON array (dynamic per review)
+- [x] 12 unit tests, full lint + typecheck + 107 test suite
+- KPI templates (reusable) deferred to future enhancement (Phase 3)
 
 **Acceptance:** Manager creates review with 3 KPIs, employee sees it on their profile.
 
 ---
 
-### `[ ]` 2.5 — CRM: Leads Pipeline
+### `[CURRENT]` 2.5 — CRM: Leads Pipeline
 
 **Deliverables:**
 

@@ -540,7 +540,7 @@
 
 ---
 
-### `[CURRENT]` 2.13 — Files Module (with TUS chunked upload)
+### `[DONE]` 2.13 — Files Module (with TUS chunked upload)
 
 **Deliverables:**
 
@@ -554,7 +554,7 @@
 
 ---
 
-### `[ ]` 2.14 — Notifications System (in-app + email)
+### `[CURRENT]` 2.14 — Notifications System (in-app + email)
 
 **Deliverables:**
 

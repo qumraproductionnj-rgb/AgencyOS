@@ -64,6 +64,17 @@ Thumbs.db
 prisma/migrations/dev/
 prisma/.env
 
+# Generated JS/declaration outputs in database package
+packages/database/src/*.js
+packages/database/src/*.mjs
+packages/database/src/*.d.ts
+packages/database/src/*.d.ts.map
+packages/database/src/*.js.map
+
+# PWA generated service worker files
+apps/web/public/sw.js
+apps/web/public/workbox-*.js
+
 # Database dumps
 *.sql.gz
 *.dump

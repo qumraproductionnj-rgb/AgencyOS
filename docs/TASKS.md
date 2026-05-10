@@ -10,7 +10,7 @@
 | Phase                              | Tasks  | Est. Sessions | Real Calendar Time (2-4 hrs/day) |
 | ---------------------------------- | ------ | ------------- | -------------------------------- |
 | Phase 0 — Setup                    | 6      | 6             | 1 week                           |
-| Phase 1 — Foundation               | 14     | 14            | 3-4 weeks                        |
+| Phase 1 — Foundation ✅            | 14/14  | 14            | 3-4 weeks                        |
 | Phase 2 — Core Operations          | 18     | 18            | 4-5 weeks                        |
 | Phase 3 — Creative & Collaboration | 22     | 22            | 5-6 weeks                        |
 | Phase 4 — SaaS Layer               | 12     | 12            | 3 weeks                          |
@@ -346,7 +346,7 @@
 
 ---
 
-### `[CURRENT]` 1.15 — Finalize Phase 1
+### `[DONE]` 1.15 — Finalize Phase 1
 
 **Deliverables:**
 
@@ -365,11 +365,11 @@
 
 ---
 
-### `[ ]` 2.1 — Database Schema for Phase 2
+### `[DONE]` 2.1 — Database Schema for Phase 2
 
 **Deliverables:**
 
-- Migrations for: `leaves`, `leave_balances`, `payroll_runs`, `payroll_entries`, `performance_reviews`, `leads`, `clients`, `contacts`, `deals`, `quotations`, `invoices`, `payments`, `expenses`, `campaigns`, `projects`, `revisions`, `tasks`, `task_comments`, `task_time_logs`, `files`, `notifications`, `exchange_rates`
+- Migrations for: `leaves`, `leave_balances`, `payroll_runs`, `payroll_entries`, `performance_reviews`, `leads`, `clients`, `contacts`, `deals`, `quotations`, `invoices`, `payments`, `expenses`, `campaigns`, `projects`, `revisions`, `task_comments`, `task_time_logs`, `files`, `notifications`, `exchange_rates`
 - All standard columns + RLS policies + indexes
 - Seed extended with sample lead, deal, project, task
 
@@ -377,7 +377,7 @@
 
 ---
 
-### `[ ]` 2.2 — HR: Leaves Management
+### `[CURRENT]` 2.2 — HR: Leaves Management
 
 **Deliverables:**
 

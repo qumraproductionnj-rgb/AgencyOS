@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useClient, useDeleteContact } from '@/hooks/use-clients'
+import { useCampaigns } from '@/hooks/use-campaigns'
 import { ContactModal } from './contact-modal'
 
 interface Props {
@@ -14,8 +15,9 @@ export function ClientDetail({ clientId, onClose }: Props) {
   const t = useTranslations('clients')
   const tCommon = useTranslations('common')
   const { data: client, isLoading } = useClient(clientId)
+  const { data: clientCampaigns } = useCampaigns({ clientId })
   const deleteContact = useDeleteContact()
-  const [tab, setTab] = useState<'overview' | 'contacts'>('overview')
+  const [tab, setTab] = useState<'overview' | 'contacts' | 'campaigns'>('overview')
   const [contactModal, setContactModal] = useState(false)
   const [editContactId, setEditContactId] = useState<string | null>(null)
 
@@ -24,6 +26,7 @@ export function ClientDetail({ clientId, onClose }: Props) {
   const tabs = [
     { key: 'overview' as const, label: t('overview') },
     { key: 'contacts' as const, label: t('contacts') },
+    { key: 'campaigns' as const, label: t('campaigns') },
   ]
 
   return (
@@ -145,6 +148,48 @@ export function ClientDetail({ clientId, onClose }: Props) {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === 'campaigns' && (
+          <div>
+            {!clientCampaigns || clientCampaigns.length === 0 ? (
+              <p className="py-8 text-center text-sm text-gray-400">{t('noCampaigns')}</p>
+            ) : (
+              <div className="space-y-2">
+                {clientCampaigns.map((campaign) => (
+                  <div
+                    key={campaign.id}
+                    className="flex items-center justify-between rounded-md border p-3 text-sm"
+                  >
+                    <div>
+                      <span className="font-medium">{campaign.name}</span>
+                      {campaign.nameEn && (
+                        <span className="ml-1 text-xs text-gray-400">({campaign.nameEn})</span>
+                      )}
+                      <p className="text-xs text-gray-500">
+                        {Number(campaign.budget).toLocaleString()} {campaign.currency}
+                      </p>
+                    </div>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                        campaign.status === 'ACTIVE'
+                          ? 'bg-green-100 text-green-700'
+                          : campaign.status === 'PLANNING'
+                            ? 'bg-gray-100 text-gray-700'
+                            : campaign.status === 'PAUSED'
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : campaign.status === 'COMPLETED'
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'bg-red-100 text-red-700'
+                      }`}
+                    >
+                      {campaign.status}
+                    </span>
+                  </div>
+                ))}
               </div>
             )}
           </div>

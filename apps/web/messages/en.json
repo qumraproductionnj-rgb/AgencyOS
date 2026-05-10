@@ -690,5 +690,19 @@
     "step": "Step {{n}} of 5",
     "welcomeMessage": "You're all set! Welcome to AgencyOS.",
     "redirecting": "Redirecting to dashboard..."
+  },
+  "exchangeRates": {
+    "title": "Exchange Rates",
+    "description": "Manage currency exchange rates used in invoices and expenses",
+    "currentRate": "Current Rate",
+    "currencyPair": "Currency Pair",
+    "rate": "Rate",
+    "setRate": "Set Rate",
+    "setting": "Setting...",
+    "currentLabel": "Current",
+    "history": "History",
+    "noRates": "No exchange rates yet",
+    "manual": "Manual",
+    "delete": "Delete"
   }
 }

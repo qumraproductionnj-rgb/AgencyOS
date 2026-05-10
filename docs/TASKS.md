@@ -554,7 +554,7 @@
 
 ---
 
-### `[CURRENT]` 2.14 — Notifications System (in-app + email)
+### `[DONE]` 2.14 — Notifications System (in-app + email)
 
 **Deliverables:**
 
@@ -568,7 +568,7 @@
 
 ---
 
-### `[ ]` 2.15 — Exchange Rates Management
+### `[CURRENT]` 2.15 — Exchange Rates Management
 
 **Deliverables:**
 

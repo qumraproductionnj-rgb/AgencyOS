@@ -690,5 +690,19 @@
     "step": "الخطوة {{n}} من 5",
     "welcomeMessage": "كل شيء جاهز! مرحباً بك في AgencyOS.",
     "redirecting": "جاري التوجيه إلى لوحة التحكم..."
+  },
+  "exchangeRates": {
+    "title": "أسعار الصرف",
+    "description": "إدارة أسعار صرف العملات المستخدمة في الفواتير والمصروفات",
+    "currentRate": "السعر الحالي",
+    "currencyPair": "زوج العملات",
+    "rate": "السعر",
+    "setRate": "تعيين السعر",
+    "setting": "يتم التعيين...",
+    "currentLabel": "السعر الحالي",
+    "history": "السجل",
+    "noRates": "لا توجد أسعار صرف بعد",
+    "manual": "يدوي",
+    "delete": "حذف"
   }
 }

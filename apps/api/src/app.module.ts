@@ -29,6 +29,7 @@ import { TasksModule } from './tasks/task.module'
 import { FilesModule } from './files/file.module'
 import { NotificationsModule } from './notifications/notification.module'
 import { ExpensesModule } from './expenses/expense.module'
+import { ExchangeRatesModule } from './exchange-rates/exchange-rate.module'
 import { OnboardingModule } from './onboarding/onboarding.module'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
 import { PermissionsGuard } from './common/guards/permission.guard'
@@ -91,6 +92,7 @@ import { envSchema } from './config/env.validation'
     FilesModule,
     NotificationsModule,
     ExpensesModule,
+    ExchangeRatesModule,
     OnboardingModule,
     HealthModule,
   ],

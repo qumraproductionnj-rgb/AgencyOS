@@ -390,7 +390,7 @@ TOTAL:                              [██████████████�
 
 ## 🚧 In Progress
 
-- Task 2.3 — HR: Payroll (up next)
+- Task 2.4 — HR: Performance Reviews (up next)
 
 ---
 
@@ -414,7 +414,7 @@ See `DECISIONS.md` for detailed architectural decisions.
 
 ## ⏭ Next Up
 
-- 2.3 — HR: Payroll (generate monthly payroll, attendance-based calculations, dual currency, PDF payslip)
+- 2.4 — HR: Performance Reviews (KPI templates, review creation, scoring, employee history)
 
 ---
 

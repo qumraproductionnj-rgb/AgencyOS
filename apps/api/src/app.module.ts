@@ -17,6 +17,7 @@ import { WorkLocationsModule } from './work-locations/work-location.module'
 import { AttendanceModule } from './attendance/attendance.module'
 import { AuditModule } from './audit/audit.module'
 import { LeavesModule } from './leave/leave.module'
+import { PayrollModule } from './payroll/payroll.module'
 import { OnboardingModule } from './onboarding/onboarding.module'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
 import { PermissionsGuard } from './common/guards/permission.guard'
@@ -67,6 +68,7 @@ import { envSchema } from './config/env.validation'
     AttendanceModule,
     AuditModule,
     LeavesModule,
+    PayrollModule,
     OnboardingModule,
     HealthModule,
   ],

@@ -500,7 +500,7 @@
 
 ---
 
-### `[CURRENT]` 2.10 — Campaigns
+### `[DONE]` 2.10 — Campaigns
 
 **Deliverables:**
 
@@ -512,7 +512,7 @@
 
 ---
 
-### `[ ]` 2.11 — Projects (Core)
+### `[CURRENT]` 2.11 — Projects (Core)
 
 **Deliverables:**
 

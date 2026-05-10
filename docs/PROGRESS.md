@@ -7,7 +7,7 @@
 ## 📍 Current State
 
 **Phase:** Phase 2 — Core Operations
-**Current Task:** 2.10 — Campaigns
+**Current Task:** 2.11 — Projects (Core)
 **Last Updated:** 2026-05-10
 
 ---
@@ -17,11 +17,11 @@
 ```
 Phase 0 — Setup:                    [██████] 6/6 ✅
 Phase 1 — Foundation:               [████████████████] 14/14 ✅
-Phase 2 — Core Operations:          [██████████████████░░░░░░] 9/18
+Phase 2 — Core Operations:          [██████████████████████░░░░] 10/18
 Phase 3 — Creative & Collaboration: [░░░░░░░░░░░░░░░░░░░░░░] 0/22
 Phase 4 — SaaS Layer:               [░░░░░░░░] 0/12
 
-TOTAL:                              [█████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░] 29/72
+TOTAL:                              [██████████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░] 30/72
 ```
 
 ---
@@ -75,6 +75,29 @@ TOTAL:                              [██████████████�
 - `() => { void 0 }` for empty catch handlers to satisfy `no-empty-function` rule
 
 ---
+
+### Task 2.10 — Campaigns (2026-05-10)
+
+- [x] `campaign.dto.ts` — 3 Zod schemas for Create, Update, UpdateStatus
+- [x] `campaign.service.ts` — CRUD, forward-only status transitions via `VALID_TRANSITIONS` lookup table
+- [x] `campaign.controller.ts` — 6 endpoints (list with search/status/clientId, get, create, update, status, delete); `@RequireRole('owner', 'admin', 'account_manager', 'sales')`
+- [x] `campaign.module.ts` — registered in `app.module.ts`
+- [x] `campaign.service.spec.ts` — 8 unit tests (findAll, findOne, create, PLANNING→ACTIVE, backward reject, COMPLETED reject, soft delete)
+- [x] Frontend `use-campaigns.ts` — 7 React Query hooks (list, get, create, update, status, delete, clientsList)
+- [x] `campaign-list.tsx` — table with search, status filter, activate/cancel/edit/delete actions per status
+- [x] `campaign-modal.tsx` — create/edit slideover with client dropdown, name AR/EN, description, budget/currency, date range
+- [x] `campaign-detail.tsx` — side panel with linked projects list or empty placeholder
+- [x] `app/[locale]/campaigns/page.tsx` — route page shell
+- [x] Client detail tab — added `campaigns` tab using `useCampaigns({clientId})`, shows campaign name/budget/status badges
+- [x] Translations: AR + EN `campaigns` nav link + 22 keys (status labels, form fields, actions)
+- [x] `pnpm lint` ✓ | `pnpm typecheck` ✓ | `pnpm test` ✓ (173 tests, 20 suites)
+
+**Key decisions:**
+
+- Forward-only transitions: `PLANNING→ACTIVE`, `ACTIVE→PAUSED/COMPLETED`, `PAUSED→ACTIVE/COMPLETED`, `CANCELLED` and `COMPLETED` are terminal
+- `clientId` query param on `GET /campaigns` allows client detail tab to fetch per-client campaigns
+- `_count.projects` shown in list, full `projects[]` array in detail view (with name + stage)
+- Campaign table already migrated in Phase 2 DB schema with full RLS + indexes — no new migration needed
 
 ### Task 2.9 — Expenses (2026-05-10)
 
@@ -446,7 +469,7 @@ TOTAL:                              [██████████████�
 
 ## 🚧 In Progress
 
-- Task 2.9 — Expenses ✅
+- Task 2.10 — Campaigns ✅
 
 ---
 
@@ -470,7 +493,7 @@ See `DECISIONS.md` for detailed architectural decisions.
 
 ## ⏭ Next Up
 
-- 2.10 — Campaigns (CRUD, budget tracking, per-client listing)
+- 2.11 — Projects (Core) (CRUD, stage transitions, revision tracking, Kanban view)
 
 ---
 
@@ -479,7 +502,7 @@ See `DECISIONS.md` for detailed architectural decisions.
 - Average task completion time: [tracked over time]
 - Tasks per week: [tracked]
 - Bugs found per phase: [tracked]
-- Tests written: 165
+- Tests written: 173
 
 ```
 

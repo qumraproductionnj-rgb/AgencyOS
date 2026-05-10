@@ -454,7 +454,7 @@
 
 ---
 
-### `[ ]` 2.7 — Quotations
+### `[DONE]` 2.7 — Quotations
 
 **Deliverables:**
 
@@ -470,7 +470,7 @@
 
 ---
 
-### `[ ]` 2.8 — Invoices & Payments
+### `[CURRENT]` 2.8 — Invoices & Payments
 
 **Deliverables:**
 

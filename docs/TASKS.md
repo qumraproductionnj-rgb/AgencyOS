@@ -470,7 +470,7 @@
 
 ---
 
-### `[CURRENT]` 2.8 — Invoices & Payments
+### `[DONE]` 2.8 — Invoices & Payments
 
 **Deliverables:**
 
@@ -485,7 +485,7 @@
 
 ---
 
-### `[ ]` 2.9 — Expenses
+### `[CURRENT]` 2.9 — Expenses
 
 **Deliverables:**
 

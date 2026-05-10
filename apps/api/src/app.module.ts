@@ -19,6 +19,7 @@ import { AuditModule } from './audit/audit.module'
 import { LeadsModule } from './leads/lead.module'
 import { ClientsModule } from './clients/client.module'
 import { QuotationsModule } from './quotations/quotation.module'
+import { InvoicesModule } from './invoices/invoice.module'
 import { LeavesModule } from './leave/leave.module'
 import { PayrollModule } from './payroll/payroll.module'
 import { PerformanceReviewsModule } from './performance-reviews/performance-review.module'
@@ -74,6 +75,7 @@ import { envSchema } from './config/env.validation'
     LeadsModule,
     ClientsModule,
     QuotationsModule,
+    InvoicesModule,
     LeavesModule,
     PayrollModule,
     PerformanceReviewsModule,

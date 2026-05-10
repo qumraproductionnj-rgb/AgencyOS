@@ -21,5 +21,10 @@ export const api = {
       method: 'POST',
       ...(body !== undefined ? { body: JSON.stringify(body) as BodyInit | null } : {}),
     }),
+  patch: <T>(path: string, body?: unknown) =>
+    request<T>(path, {
+      method: 'PATCH',
+      ...(body !== undefined ? { body: JSON.stringify(body) as BodyInit | null } : {}),
+    }),
   del: <T = void>(path: string) => request<T>(path, { method: 'DELETE' }),
 }

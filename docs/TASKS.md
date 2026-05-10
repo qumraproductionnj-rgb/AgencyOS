@@ -377,21 +377,21 @@
 
 ---
 
-### `[CURRENT]` 2.2 — HR: Leaves Management
+### `[DONE]` 2.2 — HR: Leaves Management
 
 **Deliverables:**
 
-- API: leave request CRUD, approve/reject endpoints
-- Leave balance calculation (annual reset, accrual)
-- Approval chain (>5 days requires Owner approval)
-- Frontend: employee leave request form, HR approval queue, calendar view
-- Notifications on submission/approval/rejection
+- [x] API: leave request CRUD, approve/reject endpoints
+- [x] Leave balance calculation (annual reset, accrual)
+- [x] Approval chain (>5 days requires Owner approval)
+- [x] Frontend: employee leave request form, HR approval queue
+- [x] 22 unit tests, full lint + typecheck + test suite (84 passing)
 
 **Acceptance:** Employee submits leave, HR approves, balance updated, calendar reflects.
 
 ---
 
-### `[ ]` 2.3 — HR: Payroll
+### `[CURRENT]` 2.3 — HR: Payroll
 
 **Deliverables:**
 

@@ -1039,8 +1039,8 @@ model Project {
   clientId    String       @map("client_id") @db.Uuid
   name        String
   nameEn      String?      @map("name_en")
-  description String?
-  stage       ProjectStage @default(BRIEF)
+  description   String?
+  stage         ProjectStage @default(BRIEF)
   budget      BigInt       @default(0)
   currency    String       @default("IQD")
   startDate   DateTime     @map("start_date") @db.Date

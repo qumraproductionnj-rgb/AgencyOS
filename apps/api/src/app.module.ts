@@ -25,6 +25,7 @@ import { PayrollModule } from './payroll/payroll.module'
 import { PerformanceReviewsModule } from './performance-reviews/performance-review.module'
 import { CampaignsModule } from './campaigns/campaign.module'
 import { ProjectsModule } from './projects/project.module'
+import { TasksModule } from './tasks/task.module'
 import { ExpensesModule } from './expenses/expense.module'
 import { OnboardingModule } from './onboarding/onboarding.module'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
@@ -84,6 +85,7 @@ import { envSchema } from './config/env.validation'
     PerformanceReviewsModule,
     CampaignsModule,
     ProjectsModule,
+    TasksModule,
     ExpensesModule,
     OnboardingModule,
     HealthModule,

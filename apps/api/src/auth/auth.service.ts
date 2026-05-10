@@ -99,6 +99,20 @@ export class AuthService {
       createdUserId = result.user.id
 
       await this.permissionService.seedCompanyDefaultRoles(createdCompanyId, createdUserId)
+
+      const ownerRole = await this.prisma.system.role.findFirst({
+        where: { companyId: createdCompanyId, name: 'owner' },
+      })
+      if (ownerRole) {
+        await this.prisma.system.userRole.create({
+          data: {
+            companyId: createdCompanyId,
+            userId: createdUserId,
+            roleId: ownerRole.id,
+            createdBy: createdUserId,
+          },
+        })
+      }
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
         throw new ConflictException('Company slug already taken')

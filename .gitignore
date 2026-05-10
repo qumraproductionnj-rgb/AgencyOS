@@ -117,6 +117,10 @@ worker-configuration.d.ts
 # Generated docs
 docs/generated/
 
+# Playwright E2E
+test-results/
+playwright-report/
+
 # Specific to AgencyOS
 /scripts/local-data/
 /scripts/test-fixtures/

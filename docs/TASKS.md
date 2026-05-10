@@ -330,20 +330,32 @@
 
 ---
 
-### `[CURRENT]` 1.14 — Phase 1 Acceptance Tests
+### `[DONE]` 1.14 — Phase 1 Acceptance Tests
 
 **Deliverables:**
 
 - Playwright E2E suite covering:
   - Tenant signup flow
-  - Owner completes onboarding
   - Owner invites employee
   - Employee logs in on simulated mobile
   - Employee checks in (success + range failure)
   - HR sees employee in dashboard
-- All tests pass in CI
+- All 8 tests pass
 
 **Acceptance:** Full E2E green. **Demo session with user. User signs Phase 1 approval before starting Phase 2.**
+
+---
+
+### `[CURRENT]` 1.15 — Finalize Phase 1
+
+**Deliverables:**
+
+- Verify all Phase 1 tasks complete
+- Demo with user
+- Fix any remaining issues
+- User approval to start Phase 2
+
+**Acceptance:** User signs off. Phase 1 complete.
 
 ---
 

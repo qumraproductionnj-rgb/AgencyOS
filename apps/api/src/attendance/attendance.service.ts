@@ -39,12 +39,9 @@ export class AttendanceService {
     }
 
     if (!nearest || nearest.distance > nearest.radiusMeters) {
-      throw new ForbiddenException({
-        status: 'OUT_OF_RANGE',
-        distanceMeters: Math.round(nearest?.distance ?? 0),
-        allowedRadius: nearest?.radiusMeters ?? 0,
-        nearestLocation: nearest?.name ?? 'unknown',
-      })
+      throw new ForbiddenException(
+        `OUT_OF_RANGE: ${Math.round(nearest?.distance ?? 0)}m from nearest location "${nearest?.name ?? 'unknown'}" (max ${nearest?.radiusMeters ?? 0}m)`,
+      )
     }
 
     const graceMinutes = 15

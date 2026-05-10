@@ -1,6 +1,18 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { CurrentUser, type CurrentUserPayload } from '../common/decorators/current-user.decorator'
+import { Public } from '../common/decorators/public.decorator'
 import { RequireRole } from '../common/decorators/require-role.decorator'
 import { RequireTier } from '../common/decorators/require-tier.decorator'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
@@ -78,11 +90,13 @@ export class EmployeeController {
 }
 
 @ApiTags('employees')
+@Public()
 @Controller({ path: 'employees', version: '1' })
 export class EmployeePublicController {
   constructor(private readonly emp: EmployeeService) {}
 
   @Post('accept-invite')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Accept invitation and set password' })
   async acceptInvite(@Body(new ZodValidationPipe(AcceptInviteSchema)) dto: AcceptInviteDto) {
     await this.emp.acceptInvite(dto.token, dto.password)

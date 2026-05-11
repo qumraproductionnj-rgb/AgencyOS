@@ -6,9 +6,9 @@
 
 ## 📍 Current State
 
-**Phase:** Phase 2 — Core Operations
-**Current Task:** 2.16 — Dashboard Refinement
-**Last Updated:** 2026-05-10
+**Phase:** Phase 2 ✅ — Core Operations (Complete)
+**Current Task:** Awaiting user approval to start Phase 3
+**Last Updated:** 2026-05-11
 
 ---
 
@@ -17,11 +17,11 @@
 ```
 Phase 0 — Setup:                    [██████] 6/6 ✅
 Phase 1 — Foundation:               [████████████████] 14/14 ✅
-Phase 2 — Core Operations:          [████████████████████████████████████] 16/18
+Phase 2 — Core Operations:          [████████████████████████████████████████████] 18/18 ✅
 Phase 3 — Creative & Collaboration: [░░░░░░░░░░░░░░░░░░░░░░] 0/22
 Phase 4 — SaaS Layer:               [░░░░░░░░] 0/12
 
-TOTAL:                              [████████████████████████████████████████████████████████████████████████░░░░] 36/72
+TOTAL:                              [████████████████████████████████████████████████████████████████████████████████░░] 38/72
 ```
 
 ---
@@ -174,11 +174,48 @@ TOTAL:                              [██████████████�
 - Top performers = groupBy `assignedTo` on DONE tasks this month, sorted descending, limited to 5
 - Conditional spread pattern (`{...(condition ? { key: val } : {})}`) used for optional `subtitle` prop to satisfy `exactOptionalPropertyTypes`
 
+### Task 2.17 — Search (Postgres FTS) (2026-05-11)
+
+- [x] `search.service.ts` — searches 8 entities (clients, projects, tasks, leads, invoices, employees, files, campaigns) via `contains` + `mode: 'insensitive'` (basic Arabic-aware)
+- [x] `search.controller.ts` — `GET /v1/search?q=` (minimum 2 chars, returns categorized grouped results)
+- [x] `search.module.ts` — registered in `app.module.ts`
+- [x] Frontend `use-search.ts` — React Query hook, enabled only when `q.length >= 2`
+- [x] `search-modal.tsx` — Cmd+K trigger button, modal with categorized grouped results (type badges, entity icons), ESC/click-outside to close, keyboard shortcut `Ctrl+K`/`Cmd+K`
+- [x] Integrated `SearchTrigger` into `app-topnav.tsx`
+- [x] Translations: AR + EN `search` block (7 keys: title, placeholder, noResults, resultsCount, clients, projects, tasks, invoices, employees, files, campaigns, loading)
+- [x] `pnpm lint` ✓ | `pnpm typecheck` ✓ | `pnpm test` ✓ (25 suites, 231 tests)
+
+**Key decisions:**
+
+- Basic `insensitive contains` approach is sufficient for Phase 2; dedicated search engine (Meilisearch) deferred to Phase 3 for full Arabic stemming/fuzzy search
+- Search scope limited to 8 entities that users most commonly look up
+- Cmd+K global shortcut for power users; search modal has clear affordance (visible trigger button)
+- Results grouped by entity type with consistent badge colors
+- Minimum 2 characters to avoid excessive queries on partial input
+
+### Task 2.18 — Phase 2 Acceptance Tests (E2E) (2026-05-11)
+
+- [x] `e2e/helpers/api.ts` — added 20 helper functions for Phase 2 endpoints (leads, clients, quotations, projects, tasks, invoices, leaves, expenses, files)
+- [x] `e2e/phase-2-acceptance.spec.ts` — 4 critical E2E flows:
+  - **Flow 1** (Lead→Won→Client→Quotation→Project→Task→Invoice→Payment): Create lead → convert WON (auto-creates client+deal) → create quotation → SEND → create project → advance stage → create task → create invoice → SEND → record payment → PAID
+  - **Flow 2** (Leave→approval→balance): Employee requests annual leave → owner approves → balance deducted (usedDays >= 3)
+  - **Flow 3** (Expense→approval): Create expense > 150K IQD → PENDING → owner approves → APPROVED
+  - **Flow 4** (File upload→preview): Upload small file via multipart → fetch metadata → confirm fields
+  - **Flow 5** (Browser): Dashboard page renders in Arabic with auth
+- [x] `pnpm lint` ✓ | `pnpm typecheck` ✓ | `pnpm test` ✓ (25 suites, 231 tests)
+
+**Key decisions:**
+
+- Quotation `PATCH /quotations/:id/status` ACCEPTED does NOT auto-create project/invoice in internal API (only in public token endpoint) — project and invoice created manually in test
+- File upload uses `FormData` with `Blob` (Node.js 18+ API), no external storage dependency; R2 fallback handles missing credentials gracefully
+- Test setup follows Phase 1 pattern: health check → signup → verify → login → create employee
+- Four critical business flows tested end-to-end covering the full Lead-to-Payment lifecycle
+
 ---
 
 ## 🚧 In Progress
 
-(none — awaiting approval to start next task)
+(none — awaiting approval to start Phase 3)
 
 ---
 
@@ -202,9 +239,9 @@ See `DECISIONS.md` for detailed architectural decisions.
 
 ## ⏭ Next Up
 
-- 2.16 — Dashboard Refinement (widgets, role-based visibility)
-- 2.17 — Search (Postgres FTS)
-- 2.18 — Phase 2 Acceptance Tests
+- 3.1 — Database Schema for Phase 3 (brand briefs, content pieces, assets, equipment, exhibitions)
+- 3.2 — Asset Library
+- 3.3 — Brand Briefs
 
 ---
 

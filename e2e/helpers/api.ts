@@ -123,3 +123,168 @@ export async function getInviteToken() {
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms))
 }
+
+// ─── Phase 2 Helpers ───────────────────────────────────────
+
+// Leads
+export async function createLead(token: string, data: Record<string, unknown>) {
+  return api('/leads', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export async function updateLeadStatus(token: string, id: string, status: string) {
+  return api(`/leads/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+// Clients
+export async function listClients(token: string) {
+  return api('/clients', { headers: { Authorization: `Bearer ${token}` } })
+}
+
+// Quotations
+export async function createQuotation(token: string, data: Record<string, unknown>) {
+  return api('/quotations', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export async function updateQuotationStatus(token: string, id: string, status: string) {
+  return api(`/quotations/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+// Projects
+export async function createProject(token: string, data: Record<string, unknown>) {
+  return api('/projects', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export async function updateProjectStage(token: string, id: string, stage: string) {
+  return api(`/projects/${id}/stage`, {
+    method: 'PATCH',
+    body: JSON.stringify({ stage }),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+// Tasks
+export async function createTask(token: string, data: Record<string, unknown>) {
+  return api('/tasks', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+// Invoices
+export async function createInvoice(token: string, data: Record<string, unknown>) {
+  return api('/invoices', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export async function updateInvoiceStatus(token: string, id: string, status: string) {
+  return api(`/invoices/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export async function createPayment(
+  token: string,
+  invoiceId: string,
+  data: Record<string, unknown>,
+) {
+  return api(`/invoices/${invoiceId}/payments`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+// Leaves
+export async function createLeave(token: string, data: Record<string, unknown>) {
+  return api('/leaves', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export async function approveLeave(token: string, id: string) {
+  return api(`/leaves/${id}/approve`, {
+    method: 'PATCH',
+    body: '{}',
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export async function getLeaveBalance(token: string) {
+  return api('/leaves/balance', { headers: { Authorization: `Bearer ${token}` } })
+}
+
+// Expenses
+export async function createExpense(token: string, data: Record<string, unknown>) {
+  return api('/expenses', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export async function updateExpenseStatus(
+  token: string,
+  id: string,
+  status: string,
+  rejectionReason?: string,
+) {
+  return api(`/expenses/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify(
+      status === 'REJECTED' && rejectionReason ? { status, rejectionReason } : { status },
+    ),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+// Files
+export async function uploadFile(token: string, entityType: string, entityId: string) {
+  const formData = new FormData()
+  formData.append(
+    'file',
+    new Blob(['test file content for e2e'], { type: 'text/plain' }),
+    'e2e-test.txt',
+  )
+  formData.append('entityType', entityType)
+  formData.append('entityId', entityId)
+
+  const res = await fetch(`${API_V1}/files/upload`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  })
+  const body = await res.json().catch(() => ({}))
+  return { status: res.status, body, headers: res.headers }
+}
+
+export async function getFile(token: string, id: string) {
+  return api(`/files/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+}

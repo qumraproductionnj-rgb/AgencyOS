@@ -11,7 +11,7 @@
 | ---------------------------------- | ------ | ------------- | -------------------------------- |
 | Phase 0 — Setup                    | 6      | 6             | 1 week                           |
 | Phase 1 — Foundation ✅            | 14/14  | 14            | 3-4 weeks                        |
-| Phase 2 — Core Operations          | 18     | 18            | 4-5 weeks                        |
+| Phase 2 — Core Operations ✅       | 18/18  | 18            | 4-5 weeks                        |
 | Phase 3 — Creative & Collaboration | 22     | 22            | 5-6 weeks                        |
 | Phase 4 — SaaS Layer               | 12     | 12            | 3 weeks                          |
 | **TOTAL**                          | **72** | **72**        | **~16-19 weeks (~4 months)**     |
@@ -599,7 +599,7 @@
 
 ---
 
-### `[CURRENT]` 2.17 — Search (Postgres FTS)
+### `[DONE]` 2.17 — Search (Postgres FTS)
 
 **Deliverables:**
 
@@ -613,7 +613,7 @@
 
 ---
 
-### `[ ]` 2.18 — Phase 2 Acceptance Tests
+### `[DONE]` 2.18 — Phase 2 Acceptance Tests
 
 **Deliverables:**
 

@@ -31,40 +31,59 @@ model Company {
   createdBy String?   @map("created_by") @db.Uuid
   updatedBy String?   @map("updated_by") @db.Uuid
 
-  onboardingProgress  OnboardingProgress?
-  users               User[]
-  roles               Role[]
-  rolePermissions     RolePermission[]
-  userRoles           UserRole[]
-  sessions            Session[]
-  departments         Department[]
-  employees           Employee[]
-  workLocations       WorkLocation[]
+  onboardingProgress    OnboardingProgress?
+  users                 User[]
+  roles                 Role[]
+  rolePermissions       RolePermission[]
+  userRoles             UserRole[]
+  sessions              Session[]
+  departments           Department[]
+  employees             Employee[]
+  workLocations         WorkLocation[]
   workLocationEmployees WorkLocationEmployee[]
   attendanceRecords     AttendanceRecord[]
-  auditLogs           AuditLog[]
-  leaves              Leave[]
-  leaveBalances       LeaveBalance[]
-  payrollRuns         PayrollRun[]
-  payrollEntries      PayrollEntry[]
-  performanceReviews  PerformanceReview[]
-  leads               Lead[]
-  clients             Client[]
-  contacts            Contact[]
-  deals               Deal[]
-  quotations          Quotation[]
-  invoices            Invoice[]
-  payments            Payment[]
-  expenses            Expense[]
-  campaigns           Campaign[]
-  projects            Project[]
-  revisions           Revision[]
-  tasks               Task[]
-  taskComments        TaskComment[]
-  taskTimeLogs        TaskTimeLog[]
-  files               File[]
-  notifications       Notification[]
-  exchangeRates       ExchangeRate[]
+  auditLogs             AuditLog[]
+  leaves                Leave[]
+  leaveBalances         LeaveBalance[]
+  payrollRuns           PayrollRun[]
+  payrollEntries        PayrollEntry[]
+  performanceReviews    PerformanceReview[]
+  leads                 Lead[]
+  clients               Client[]
+  contacts              Contact[]
+  deals                 Deal[]
+  quotations            Quotation[]
+  invoices              Invoice[]
+  payments              Payment[]
+  expenses              Expense[]
+  campaigns             Campaign[]
+  projects              Project[]
+  revisions             Revision[]
+  tasks                 Task[]
+  taskComments          TaskComment[]
+  taskTimeLogs          TaskTimeLog[]
+  files                 File[]
+  notifications         Notification[]
+  exchangeRates         ExchangeRate[]
+  brandBriefs           BrandBrief[]
+  audiencePersonas      AudiencePersona[]
+  contentPillars        ContentPillar[]
+  contentPlans          ContentPlan[]
+  contentPieces         ContentPiece[]
+  contentRevisions      ContentRevision[]
+  contentTemplates      ContentTemplate[]
+  aiGenerations         AiGeneration[]
+  assetFolders          AssetFolder[]
+  assets                Asset[]
+  assetVersions         AssetVersion[]
+  equipment             Equipment[]
+  equipmentBookings     EquipmentBooking[]
+  equipmentMaintenance  EquipmentMaintenance[]
+  exhibitions           Exhibition[]
+  exhibitionBooths      ExhibitionBooth[]
+  boothInventory        BoothInventory[]
+  exhibitionFinancials  ExhibitionFinancial[]
+  exhibitionSettlements ExhibitionSettlement[]
 
   @@map("companies")
 }
@@ -89,25 +108,31 @@ model User {
   createdBy           String?   @map("created_by") @db.Uuid
   updatedBy           String?   @map("updated_by") @db.Uuid
 
-  company             Company?           @relation(fields: [companyId], references: [id])
-  userRoles           UserRole[]
-  sessions            Session[]
-  employee            Employee?
-  managedDepartments  Department[]       @relation("DepartmentManager")
-  attendanceOverrides AttendanceRecord[] @relation("AttendanceOverrideBy")
-  auditLogs           AuditLog[]
-  approvedLeaves      Leave[]            @relation("LeaveApprover")
-  reviewedPerformance PerformanceReview[] @relation("PerformanceReviewer")
-  assignedLeads       Lead[]             @relation("LeadAssignee")
-  assignedDeals       Deal[]             @relation("DealAssignee")
-  assignedTasks       Task[]             @relation("TaskAssignee")
-  taskComments        TaskComment[]
-  taskTimeLogs        TaskTimeLog[]
-  uploadedFiles       File[]             @relation("FileUploader")
-  notifications       Notification[]
-  requestedRevisions  Revision[]         @relation("RevisionRequestor")
-  approvedExpenses    Expense[]          @relation("ExpenseApprover")
-  processedPayrolls   PayrollRun[]       @relation("PayrollProcessor")
+  company                   Company?              @relation(fields: [companyId], references: [id])
+  userRoles                 UserRole[]
+  sessions                  Session[]
+  employee                  Employee?
+  managedDepartments        Department[]          @relation("DepartmentManager")
+  attendanceOverrides       AttendanceRecord[]    @relation("AttendanceOverrideBy")
+  auditLogs                 AuditLog[]
+  approvedLeaves            Leave[]               @relation("LeaveApprover")
+  reviewedPerformance       PerformanceReview[]   @relation("PerformanceReviewer")
+  assignedLeads             Lead[]                @relation("LeadAssignee")
+  assignedDeals             Deal[]                @relation("DealAssignee")
+  assignedTasks             Task[]                @relation("TaskAssignee")
+  taskComments              TaskComment[]
+  taskTimeLogs              TaskTimeLog[]
+  uploadedFiles             File[]                @relation("FileUploader")
+  notifications             Notification[]
+  requestedRevisions        Revision[]            @relation("RevisionRequestor")
+  approvedExpenses          Expense[]             @relation("ExpenseApprover")
+  processedPayrolls         PayrollRun[]          @relation("PayrollProcessor")
+  aiGenerations             AiGeneration[]
+  requestedContentRevisions ContentRevision[]     @relation("ContentRevisionRequester")
+  resolvedContentRevisions  ContentRevision[]     @relation("ContentRevisionResolver")
+  bookedEquipment           EquipmentBooking[]
+  managedExhibitions        Exhibition[]          @relation("ExhibitionManager")
+  recordedFinancials        ExhibitionFinancial[]
 
   @@index([companyId], name: "idx_users_company_id")
   @@index([email], name: "idx_users_email")
@@ -322,6 +347,7 @@ model Employee {
   payrollEntries        PayrollEntry[]
   performanceReviews    PerformanceReview[]
   expenses              Expense[]
+  heldEquipment         Equipment[]            @relation("EquipmentHolder")
 
   @@unique([companyId, employeeCode])
   @@index([companyId], name: "idx_employees_company_id")
@@ -426,16 +452,16 @@ model AttendanceRecord {
 
 /// Stores onboarding wizard state per company (one record per company).
 model OnboardingProgress {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId   String   @map("company_id") @db.Uuid
-  currentStep Int      @default(1) @map("current_step")
-  isCompleted Boolean  @default(false) @map("is_completed")
-  data        Json     @default("{}")
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId   String    @map("company_id") @db.Uuid
+  currentStep Int       @default(1) @map("current_step")
+  isCompleted Boolean   @default(false) @map("is_completed")
+  data        Json      @default("{}")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz
   deletedAt   DateTime? @map("deleted_at") @db.Timestamptz
-  createdBy   String?  @map("created_by") @db.Uuid
-  updatedBy   String?  @map("updated_by") @db.Uuid
+  createdBy   String?   @map("created_by") @db.Uuid
+  updatedBy   String?   @map("updated_by") @db.Uuid
 
   company Company @relation(fields: [companyId], references: [id])
 
@@ -496,23 +522,23 @@ enum LeaveStatus {
 }
 
 model Leave {
-  id              String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId       String     @map("company_id") @db.Uuid
-  employeeId      String     @map("employee_id") @db.Uuid
-  leaveType       LeaveType  @map("leave_type")
-  startDate       DateTime   @map("start_date") @db.Date
-  endDate         DateTime   @map("end_date") @db.Date
-  durationDays    Int        @map("duration_days")
+  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId       String      @map("company_id") @db.Uuid
+  employeeId      String      @map("employee_id") @db.Uuid
+  leaveType       LeaveType   @map("leave_type")
+  startDate       DateTime    @map("start_date") @db.Date
+  endDate         DateTime    @map("end_date") @db.Date
+  durationDays    Int         @map("duration_days")
   reason          String?
   status          LeaveStatus @default(PENDING)
-  approvedBy      String?    @map("approved_by") @db.Uuid
-  approvedAt      DateTime?  @map("approved_at") @db.Timestamptz
-  rejectionReason String?    @map("rejection_reason")
-  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz
-  deletedAt       DateTime?  @map("deleted_at") @db.Timestamptz
-  createdBy       String?    @map("created_by") @db.Uuid
-  updatedBy       String?    @map("updated_by") @db.Uuid
+  approvedBy      String?     @map("approved_by") @db.Uuid
+  approvedAt      DateTime?   @map("approved_at") @db.Timestamptz
+  rejectionReason String?     @map("rejection_reason")
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt       DateTime?   @map("deleted_at") @db.Timestamptz
+  createdBy       String?     @map("created_by") @db.Uuid
+  updatedBy       String?     @map("updated_by") @db.Uuid
 
   company  Company  @relation(fields: [companyId], references: [id])
   employee Employee @relation(fields: [employeeId], references: [id])
@@ -524,18 +550,18 @@ model Leave {
 }
 
 model LeaveBalance {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId String   @map("company_id") @db.Uuid
-  employeeId String  @map("employee_id") @db.Uuid
-  leaveType LeaveType @map("leave_type")
-  totalDays Int      @map("total_days")
-  usedDays  Int      @default(0) @map("used_days")
-  year      Int
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
-  createdBy String?  @map("created_by") @db.Uuid
-  updatedBy String?  @map("updated_by") @db.Uuid
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId  String    @map("company_id") @db.Uuid
+  employeeId String    @map("employee_id") @db.Uuid
+  leaveType  LeaveType @map("leave_type")
+  totalDays  Int       @map("total_days")
+  usedDays   Int       @default(0) @map("used_days")
+  year       Int
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt  DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy  String?   @map("created_by") @db.Uuid
+  updatedBy  String?   @map("updated_by") @db.Uuid
 
   company  Company  @relation(fields: [companyId], references: [id])
   employee Employee @relation(fields: [employeeId], references: [id])
@@ -558,25 +584,25 @@ enum PayrollRunStatus {
 }
 
 model PayrollRun {
-  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId   String          @map("company_id") @db.Uuid
+  id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId   String           @map("company_id") @db.Uuid
   month       Int
   year        Int
   status      PayrollRunStatus @default(DRAFT)
-  totalAmount BigInt          @default(0) @map("total_amount")
-  currency    String          @default("IQD")
-  processedBy String?         @map("processed_by") @db.Uuid
-  processedAt DateTime?       @map("processed_at") @db.Timestamptz
-  finalizedAt DateTime?       @map("finalized_at") @db.Timestamptz
-  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamptz
-  deletedAt   DateTime?       @map("deleted_at") @db.Timestamptz
-  createdBy   String?         @map("created_by") @db.Uuid
-  updatedBy   String?         @map("updated_by") @db.Uuid
+  totalAmount BigInt           @default(0) @map("total_amount")
+  currency    String           @default("IQD")
+  processedBy String?          @map("processed_by") @db.Uuid
+  processedAt DateTime?        @map("processed_at") @db.Timestamptz
+  finalizedAt DateTime?        @map("finalized_at") @db.Timestamptz
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt   DateTime?        @map("deleted_at") @db.Timestamptz
+  createdBy   String?          @map("created_by") @db.Uuid
+  updatedBy   String?          @map("updated_by") @db.Uuid
 
-  company Company         @relation(fields: [companyId], references: [id])
-  entries PayrollEntry[]
-  processor User?         @relation("PayrollProcessor", fields: [processedBy], references: [id])
+  company   Company        @relation(fields: [companyId], references: [id])
+  entries   PayrollEntry[]
+  processor User?          @relation("PayrollProcessor", fields: [processedBy], references: [id])
 
   @@unique([companyId, month, year])
   @@index([companyId], name: "idx_payroll_runs_company_id")
@@ -584,29 +610,29 @@ model PayrollRun {
 }
 
 model PayrollEntry {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId       String   @map("company_id") @db.Uuid
-  payrollRunId    String   @map("payroll_run_id") @db.Uuid
-  employeeId      String   @map("employee_id") @db.Uuid
-  baseSalary      BigInt   @default(0) @map("base_salary")
-  additions       BigInt   @default(0)
-  deductions      BigInt   @default(0)
-  netAmount       BigInt   @default(0) @map("net_amount")
-  currency        String   @default("IQD")
-  attendanceDays  Int      @default(0) @map("attendance_days")
-  lateDays        Int      @default(0) @map("late_days")
-  absentDays      Int      @default(0) @map("absent_days")
-  overtimeHours   Decimal? @map("overtime_hours") @db.Decimal(5, 2)
-  notes           String?
-  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz
-  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz
-  createdBy       String?  @map("created_by") @db.Uuid
-  updatedBy       String?  @map("updated_by") @db.Uuid
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId      String    @map("company_id") @db.Uuid
+  payrollRunId   String    @map("payroll_run_id") @db.Uuid
+  employeeId     String    @map("employee_id") @db.Uuid
+  baseSalary     BigInt    @default(0) @map("base_salary")
+  additions      BigInt    @default(0)
+  deductions     BigInt    @default(0)
+  netAmount      BigInt    @default(0) @map("net_amount")
+  currency       String    @default("IQD")
+  attendanceDays Int       @default(0) @map("attendance_days")
+  lateDays       Int       @default(0) @map("late_days")
+  absentDays     Int       @default(0) @map("absent_days")
+  overtimeHours  Decimal?  @map("overtime_hours") @db.Decimal(5, 2)
+  notes          String?
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy      String?   @map("created_by") @db.Uuid
+  updatedBy      String?   @map("updated_by") @db.Uuid
 
-  company  Company      @relation(fields: [companyId], references: [id])
+  company    Company    @relation(fields: [companyId], references: [id])
   payrollRun PayrollRun @relation(fields: [payrollRunId], references: [id], onDelete: Cascade)
-  employee Employee     @relation(fields: [employeeId], references: [id])
+  employee   Employee   @relation(fields: [employeeId], references: [id])
 
   @@index([companyId], name: "idx_payroll_entries_company_id")
   @@index([payrollRunId], name: "idx_payroll_entries_run_id")
@@ -618,21 +644,21 @@ model PayrollEntry {
 // ============================================================
 
 model PerformanceReview {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId     String   @map("company_id") @db.Uuid
-  employeeId    String   @map("employee_id") @db.Uuid
-  reviewerId    String   @map("reviewer_id") @db.Uuid
-  reviewDate    DateTime @map("review_date") @db.Date
-  overallScore  Decimal? @map("overall_score") @db.Decimal(3, 1)
-  kpis          Json     @default("[]")
-  strengths     String?
-  improvements  String?
-  notes         String?
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
-  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
-  createdBy     String?  @map("created_by") @db.Uuid
-  updatedBy     String?  @map("updated_by") @db.Uuid
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId    String    @map("company_id") @db.Uuid
+  employeeId   String    @map("employee_id") @db.Uuid
+  reviewerId   String    @map("reviewer_id") @db.Uuid
+  reviewDate   DateTime  @map("review_date") @db.Date
+  overallScore Decimal?  @map("overall_score") @db.Decimal(3, 1)
+  kpis         Json      @default("[]")
+  strengths    String?
+  improvements String?
+  notes        String?
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy    String?   @map("created_by") @db.Uuid
+  updatedBy    String?   @map("updated_by") @db.Uuid
 
   company  Company  @relation(fields: [companyId], references: [id])
   employee Employee @relation(fields: [employeeId], references: [id])
@@ -660,8 +686,8 @@ enum LeadStatus {
 }
 
 model Lead {
-  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId           String    @map("company_id") @db.Uuid
+  id                  String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId           String     @map("company_id") @db.Uuid
   name                String
   companyName         String?    @map("company_name")
   email               String?
@@ -679,9 +705,9 @@ model Lead {
   createdBy           String?    @map("created_by") @db.Uuid
   updatedBy           String?    @map("updated_by") @db.Uuid
 
-  company    Company @relation(fields: [companyId], references: [id])
-  assignee   User?   @relation("LeadAssignee", fields: [assignedTo], references: [id])
-  deals      Deal[]
+  company  Company @relation(fields: [companyId], references: [id])
+  assignee User?   @relation("LeadAssignee", fields: [assignedTo], references: [id])
+  deals    Deal[]
 
   @@index([companyId], name: "idx_leads_company_id")
   @@index([companyId, status], name: "idx_leads_company_status")
@@ -693,30 +719,34 @@ model Lead {
 // ============================================================
 
 model Client {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId     String   @map("company_id") @db.Uuid
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId     String    @map("company_id") @db.Uuid
   name          String
-  nameEn        String?  @map("name_en")
+  nameEn        String?   @map("name_en")
   email         String?
   phone         String?
   address       String?
   website       String?
-  isVip         Boolean  @default(false) @map("is_vip")
-  isBlacklisted Boolean  @default(false) @map("is_blacklisted")
+  isVip         Boolean   @default(false) @map("is_vip")
+  isBlacklisted Boolean   @default(false) @map("is_blacklisted")
   notes         String?
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz
   deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
-  createdBy     String?  @map("created_by") @db.Uuid
-  updatedBy     String?  @map("updated_by") @db.Uuid
+  createdBy     String?   @map("created_by") @db.Uuid
+  updatedBy     String?   @map("updated_by") @db.Uuid
 
-  company    Company    @relation(fields: [companyId], references: [id])
-  contacts   Contact[]
-  deals      Deal[]
-  quotations Quotation[]
-  invoices   Invoice[]
-  campaigns  Campaign[]
-  projects   Project[]
+  company        Company         @relation(fields: [companyId], references: [id])
+  contacts       Contact[]
+  deals          Deal[]
+  quotations     Quotation[]
+  invoices       Invoice[]
+  campaigns      Campaign[]
+  projects       Project[]
+  brandBrief     BrandBrief?
+  contentPillars ContentPillar[]
+  contentPlans   ContentPlan[]
+  contentPieces  ContentPiece[]
 
   @@index([companyId], name: "idx_clients_company_id")
   @@index([companyId, createdAt(sort: Desc)], name: "idx_clients_company_created")
@@ -724,19 +754,19 @@ model Client {
 }
 
 model Contact {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId String   @map("company_id") @db.Uuid
-  clientId  String   @map("client_id") @db.Uuid
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String    @map("company_id") @db.Uuid
+  clientId  String    @map("client_id") @db.Uuid
   name      String
   position  String?
   email     String?
   phone     String?
-  isPrimary Boolean  @default(false) @map("is_primary")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  isPrimary Boolean   @default(false) @map("is_primary")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz
-  createdBy String?  @map("created_by") @db.Uuid
-  updatedBy String?  @map("updated_by") @db.Uuid
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
 
   company Company @relation(fields: [companyId], references: [id])
   client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
@@ -898,8 +928,8 @@ model Invoice {
   createdBy       String?       @map("created_by") @db.Uuid
   updatedBy       String?       @map("updated_by") @db.Uuid
 
-  company   Company   @relation(fields: [companyId], references: [id])
-  client    Client    @relation(fields: [clientId], references: [id])
+  company   Company    @relation(fields: [companyId], references: [id])
+  client    Client     @relation(fields: [clientId], references: [id])
   quotation Quotation? @relation(fields: [quotationId], references: [id])
   payments  Payment[]
 
@@ -910,20 +940,20 @@ model Invoice {
 }
 
 model Payment {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId   String   @map("company_id") @db.Uuid
-  invoiceId   String   @map("invoice_id") @db.Uuid
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId   String    @map("company_id") @db.Uuid
+  invoiceId   String    @map("invoice_id") @db.Uuid
   amount      BigInt
-  currency    String   @default("IQD")
-  method      String   // cash, bank_transfer, stripe, zaincash
-  referenceNo String?  @map("reference_no")
-  paidAt      DateTime @map("paid_at") @db.Timestamptz
+  currency    String    @default("IQD")
+  method      String // cash, bank_transfer, stripe, zaincash
+  referenceNo String?   @map("reference_no")
+  paidAt      DateTime  @map("paid_at") @db.Timestamptz
   notes       String?
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz
   deletedAt   DateTime? @map("deleted_at") @db.Timestamptz
-  createdBy   String?  @map("created_by") @db.Uuid
-  updatedBy   String?  @map("updated_by") @db.Uuid
+  createdBy   String?   @map("created_by") @db.Uuid
+  updatedBy   String?   @map("updated_by") @db.Uuid
 
   company Company @relation(fields: [companyId], references: [id])
   invoice Invoice @relation(fields: [invoiceId], references: [id])
@@ -1008,9 +1038,10 @@ model Campaign {
   createdBy   String?        @map("created_by") @db.Uuid
   updatedBy   String?        @map("updated_by") @db.Uuid
 
-  company  Company   @relation(fields: [companyId], references: [id])
-  client   Client    @relation(fields: [clientId], references: [id])
-  projects Project[]
+  company      Company       @relation(fields: [companyId], references: [id])
+  client       Client        @relation(fields: [clientId], references: [id])
+  projects     Project[]
+  contentPlans ContentPlan[]
 
   @@index([companyId], name: "idx_campaigns_company_id")
   @@map("campaigns")
@@ -1035,12 +1066,12 @@ enum ProjectStage {
 model Project {
   id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   companyId   String       @map("company_id") @db.Uuid
-  campaignId  String?       @map("campaign_id") @db.Uuid
+  campaignId  String?      @map("campaign_id") @db.Uuid
   clientId    String       @map("client_id") @db.Uuid
   name        String
   nameEn      String?      @map("name_en")
-  description   String?
-  stage         ProjectStage @default(BRIEF)
+  description String?
+  stage       ProjectStage @default(BRIEF)
   budget      BigInt       @default(0)
   currency    String       @default("IQD")
   startDate   DateTime     @map("start_date") @db.Date
@@ -1052,11 +1083,13 @@ model Project {
   createdBy   String?      @map("created_by") @db.Uuid
   updatedBy   String?      @map("updated_by") @db.Uuid
 
-  company  Company    @relation(fields: [companyId], references: [id])
-  campaign Campaign?  @relation(fields: [campaignId], references: [id])
-  client   Client     @relation(fields: [clientId], references: [id])
-  tasks    Task[]
-  revisions Revision[]
+  company           Company            @relation(fields: [companyId], references: [id])
+  campaign          Campaign?          @relation(fields: [campaignId], references: [id])
+  client            Client             @relation(fields: [clientId], references: [id])
+  tasks             Task[]
+  revisions         Revision[]
+  contentPieces     ContentPiece[]
+  equipmentBookings EquipmentBooking[]
 
   @@index([companyId], name: "idx_projects_company_id")
   @@index([companyId, stage], name: "idx_projects_company_stage")
@@ -1068,23 +1101,23 @@ model Project {
 // ============================================================
 
 model Revision {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId      String   @map("company_id") @db.Uuid
-  projectId      String?  @map("project_id") @db.Uuid
-  taskId         String?  @map("task_id") @db.Uuid
-  revisionNumber Int      @map("revision_number")
-  requestedBy    String   @map("requested_by") @db.Uuid
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId      String    @map("company_id") @db.Uuid
+  projectId      String?   @map("project_id") @db.Uuid
+  taskId         String?   @map("task_id") @db.Uuid
+  revisionNumber Int       @map("revision_number")
+  requestedBy    String    @map("requested_by") @db.Uuid
   notes          String?
   deliveredAt    DateTime? @map("delivered_at") @db.Timestamptz
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz
   deletedAt      DateTime? @map("deleted_at") @db.Timestamptz
-  createdBy      String?  @map("created_by") @db.Uuid
-  updatedBy      String?  @map("updated_by") @db.Uuid
+  createdBy      String?   @map("created_by") @db.Uuid
+  updatedBy      String?   @map("updated_by") @db.Uuid
 
-  company Company @relation(fields: [companyId], references: [id])
-  project Project? @relation(fields: [projectId], references: [id])
-  requestor User  @relation("RevisionRequestor", fields: [requestedBy], references: [id])
+  company   Company  @relation(fields: [companyId], references: [id])
+  project   Project? @relation(fields: [projectId], references: [id])
+  requestor User     @relation("RevisionRequestor", fields: [requestedBy], references: [id])
 
   @@index([companyId], name: "idx_revisions_company_id")
   @@index([projectId], name: "idx_revisions_project_id")
@@ -1115,33 +1148,33 @@ enum TaskPriority {
 }
 
 model Task {
-  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId       String       @map("company_id") @db.Uuid
-  projectId       String?      @map("project_id") @db.Uuid
-  parentTaskId    String?      @map("parent_task_id") @db.Uuid
-  title           String
-  description     String?
-  status          TaskStatus   @default(TODO)
-  priority        TaskPriority @default(MEDIUM)
-  assignedTo      String?      @map("assigned_to") @db.Uuid
-  startDate       DateTime?    @map("start_date") @db.Date
-  dueDate         DateTime?    @map("due_date") @db.Date
-  completedAt     DateTime?    @map("completed_at") @db.Timestamptz
-  estimatedHours  Decimal?     @map("estimated_hours") @db.Decimal(6, 2)
-  sortOrder       Int          @default(0) @map("sort_order")
-  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamptz
-  deletedAt       DateTime?    @map("deleted_at") @db.Timestamptz
-  createdBy       String?      @map("created_by") @db.Uuid
-  updatedBy       String?      @map("updated_by") @db.Uuid
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId      String       @map("company_id") @db.Uuid
+  projectId      String?      @map("project_id") @db.Uuid
+  parentTaskId   String?      @map("parent_task_id") @db.Uuid
+  title          String
+  description    String?
+  status         TaskStatus   @default(TODO)
+  priority       TaskPriority @default(MEDIUM)
+  assignedTo     String?      @map("assigned_to") @db.Uuid
+  startDate      DateTime?    @map("start_date") @db.Date
+  dueDate        DateTime?    @map("due_date") @db.Date
+  completedAt    DateTime?    @map("completed_at") @db.Timestamptz
+  estimatedHours Decimal?     @map("estimated_hours") @db.Decimal(6, 2)
+  sortOrder      Int          @default(0) @map("sort_order")
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt      DateTime?    @map("deleted_at") @db.Timestamptz
+  createdBy      String?      @map("created_by") @db.Uuid
+  updatedBy      String?      @map("updated_by") @db.Uuid
 
-  company   Company        @relation(fields: [companyId], references: [id])
-  project   Project?       @relation(fields: [projectId], references: [id])
+  company    Company       @relation(fields: [companyId], references: [id])
+  project    Project?      @relation(fields: [projectId], references: [id])
   parentTask Task?         @relation("SubTasks", fields: [parentTaskId], references: [id])
-  subTasks  Task[]         @relation("SubTasks")
-  assignee  User?          @relation("TaskAssignee", fields: [assignedTo], references: [id])
-  comments  TaskComment[]
-  timeLogs  TaskTimeLog[]
+  subTasks   Task[]        @relation("SubTasks")
+  assignee   User?         @relation("TaskAssignee", fields: [assignedTo], references: [id])
+  comments   TaskComment[]
+  timeLogs   TaskTimeLog[]
 
   @@index([companyId], name: "idx_tasks_company_id")
   @@index([companyId, projectId], name: "idx_tasks_company_project")
@@ -1150,17 +1183,17 @@ model Task {
 }
 
 model TaskComment {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId String   @map("company_id") @db.Uuid
-  taskId    String   @map("task_id") @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String    @map("company_id") @db.Uuid
+  taskId    String    @map("task_id") @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
   content   String
-  mentions  Json?    // Array of user IDs mentioned with @
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  mentions  Json? // Array of user IDs mentioned with @
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz
-  createdBy String?  @map("created_by") @db.Uuid
-  updatedBy String?  @map("updated_by") @db.Uuid
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
 
   company Company @relation(fields: [companyId], references: [id])
   task    Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
@@ -1172,19 +1205,19 @@ model TaskComment {
 }
 
 model TaskTimeLog {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId String   @map("company_id") @db.Uuid
-  taskId    String   @map("task_id") @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  startTime DateTime @map("start_time") @db.Timestamptz
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String    @map("company_id") @db.Uuid
+  taskId    String    @map("task_id") @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  startTime DateTime  @map("start_time") @db.Timestamptz
   endTime   DateTime? @map("end_time") @db.Timestamptz
-  duration  Int?     // minutes
+  duration  Int? // minutes
   notes     String?
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz
-  createdBy String?  @map("created_by") @db.Uuid
-  updatedBy String?  @map("updated_by") @db.Uuid
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
 
   company Company @relation(fields: [companyId], references: [id])
   task    Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
@@ -1201,24 +1234,24 @@ model TaskTimeLog {
 // ============================================================
 
 model File {
-  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId         String   @map("company_id") @db.Uuid
-  originalName      String   @map("original_name")
-  storageKey        String   @map("storage_key")
-  mimeType          String   @map("mime_type")
-  sizeBytes         BigInt   @map("size_bytes")
-  entityType        String   @map("entity_type")
-  entityId          String   @map("entity_id") @db.Uuid
-  uploadedBy        String   @map("uploaded_by") @db.Uuid
-  isVisibleToClient Boolean  @default(false) @map("is_visible_to_client")
-  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId         String    @map("company_id") @db.Uuid
+  originalName      String    @map("original_name")
+  storageKey        String    @map("storage_key")
+  mimeType          String    @map("mime_type")
+  sizeBytes         BigInt    @map("size_bytes")
+  entityType        String    @map("entity_type")
+  entityId          String    @map("entity_id") @db.Uuid
+  uploadedBy        String    @map("uploaded_by") @db.Uuid
+  isVisibleToClient Boolean   @default(false) @map("is_visible_to_client")
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
   deletedAt         DateTime? @map("deleted_at") @db.Timestamptz
-  createdBy         String?  @map("created_by") @db.Uuid
-  updatedBy         String?  @map("updated_by") @db.Uuid
+  createdBy         String?   @map("created_by") @db.Uuid
+  updatedBy         String?   @map("updated_by") @db.Uuid
 
-  company   Company @relation(fields: [companyId], references: [id])
-  uploader  User    @relation("FileUploader", fields: [uploadedBy], references: [id])
+  company  Company @relation(fields: [companyId], references: [id])
+  uploader User    @relation("FileUploader", fields: [uploadedBy], references: [id])
 
   @@index([companyId], name: "idx_files_company_id")
   @@index([entityType, entityId], name: "idx_files_entity")
@@ -1253,7 +1286,7 @@ model Notification {
   type      NotificationType
   title     String
   body      String?
-  data      Json?            // payload for deep linking
+  data      Json? // payload for deep linking
   isRead    Boolean          @default(false) @map("is_read")
   readAt    DateTime?        @map("read_at") @db.Timestamptz
   createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz
@@ -1271,22 +1304,863 @@ model Notification {
 // ============================================================
 
 model ExchangeRate {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId    String   @map("company_id") @db.Uuid
-  fromCurrency String   @map("from_currency")
-  toCurrency   String   @map("to_currency")
-  rate         Decimal  @db.Decimal(12, 6)
-  isManual     Boolean  @default(false) @map("is_manual")
-  validFrom    DateTime @map("valid_from") @db.Date
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId    String    @map("company_id") @db.Uuid
+  fromCurrency String    @map("from_currency")
+  toCurrency   String    @map("to_currency")
+  rate         Decimal   @db.Decimal(12, 6)
+  isManual     Boolean   @default(false) @map("is_manual")
+  validFrom    DateTime  @map("valid_from") @db.Date
   validTo      DateTime? @map("valid_to") @db.Date
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz
   deletedAt    DateTime? @map("deleted_at") @db.Timestamptz
-  createdBy    String?  @map("created_by") @db.Uuid
-  updatedBy    String?  @map("updated_by") @db.Uuid
+  createdBy    String?   @map("created_by") @db.Uuid
+  updatedBy    String?   @map("updated_by") @db.Uuid
 
   company Company @relation(fields: [companyId], references: [id])
 
   @@index([companyId], name: "idx_exchange_rates_company_id")
   @@map("exchange_rates")
+}
+
+// ============================================================
+// PHASE 3 — Content Studio: Brand Briefs & Personas
+// ============================================================
+
+model BrandBrief {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String @map("company_id") @db.Uuid
+  clientId  String @unique @map("client_id") @db.Uuid
+
+  brandNameAr String? @map("brand_name_ar")
+  brandNameEn String? @map("brand_name_en")
+  brandStory  String? @map("brand_story")
+  mission     String?
+  vision      String?
+
+  toneOfVoice   String[] @map("tone_of_voice")
+  voiceDos      String[] @map("voice_dos")
+  voiceDonts    String[] @map("voice_donts")
+  brandKeywords String[] @map("brand_keywords")
+  bannedWords   String[] @map("banned_words")
+
+  primaryColors   String[] @map("primary_colors")
+  secondaryColors String[] @map("secondary_colors")
+  fonts           Json?    @map("fonts")
+  visualStyle     String[] @map("visual_style")
+  moodKeywords    String[] @map("mood_keywords")
+
+  culturalContext         String? @map("cultural_context")
+  religiousConsiderations String? @map("religious_considerations")
+
+  activePlatforms  String[] @map("active_platforms")
+  postingFrequency Json?    @map("posting_frequency")
+
+  competitors      Json?
+  defaultPillarIds String[] @map("default_pillar_ids")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company  Company           @relation(fields: [companyId], references: [id])
+  client   Client            @relation(fields: [clientId], references: [id])
+  personas AudiencePersona[]
+
+  @@index([companyId], name: "idx_brand_briefs_company_id")
+  @@index([companyId, createdAt(sort: Desc)], name: "idx_brand_briefs_company_created")
+  @@map("brand_briefs")
+}
+
+model AudiencePersona {
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId    String @map("company_id") @db.Uuid
+  brandBriefId String @map("brand_brief_id") @db.Uuid
+
+  name        String
+  ageRange    String? @map("age_range")
+  gender      String?
+  location    String?
+  occupation  String?
+  incomeLevel String? @map("income_level")
+
+  interests   String[]
+  painPoints  String[] @map("pain_points")
+  goals       String[]
+  objections  String[]
+  motivations String[]
+
+  preferredPlatforms       String[] @map("preferred_platforms")
+  contentConsumptionHabits String?  @map("content_consumption_habits")
+
+  avatarUrl String? @map("avatar_url")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company    Company    @relation(fields: [companyId], references: [id])
+  brandBrief BrandBrief @relation(fields: [brandBriefId], references: [id], onDelete: Cascade)
+
+  @@index([companyId], name: "idx_audience_personas_company_id")
+  @@index([brandBriefId], name: "idx_audience_personas_brief_id")
+  @@map("audience_personas")
+}
+
+// ============================================================
+// PHASE 3 — Content Studio: Content Pillars
+// ============================================================
+
+model ContentPillar {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String @map("company_id") @db.Uuid
+  clientId  String @map("client_id") @db.Uuid
+
+  nameAr             String   @map("name_ar")
+  nameEn             String?  @map("name_en")
+  description        String?
+  color              String?
+  icon               String?
+  percentageTarget   Int?     @map("percentage_target")
+  exampleTopics      String[] @map("example_topics")
+  recommendedFormats String[] @map("recommended_formats")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company Company        @relation(fields: [companyId], references: [id])
+  client  Client         @relation(fields: [clientId], references: [id])
+  pieces  ContentPiece[]
+
+  @@index([companyId], name: "idx_content_pillars_company_id")
+  @@index([companyId, clientId], name: "idx_content_pillars_company_client")
+  @@map("content_pillars")
+}
+
+// ============================================================
+// PHASE 3 — Content Studio: Content Plans
+// ============================================================
+
+enum ContentPlanStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  ACTIVE
+  COMPLETED
+
+  @@map("content_plan_status")
+}
+
+model ContentPlan {
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId  String  @map("company_id") @db.Uuid
+  clientId   String  @map("client_id") @db.Uuid
+  campaignId String? @map("campaign_id") @db.Uuid
+
+  title  String
+  month  Int
+  year   Int
+  status ContentPlanStatus @default(DRAFT)
+
+  monthlyObjectives       Json? @map("monthly_objectives")
+  pillarDistribution      Json? @map("pillar_distribution")
+  contentTypeDistribution Json? @map("content_type_distribution")
+
+  clientApprovalStatus String?   @map("client_approval_status")
+  clientApprovedAt     DateTime? @map("client_approved_at") @db.Timestamptz
+  clientApprovedBy     String?   @map("client_approved_by") @db.Uuid
+  clientRevisionCount  Int       @default(0) @map("client_revision_count")
+  clientRevisionLimit  Int       @default(2) @map("client_revision_limit")
+
+  totalPiecesPlanned   Int @default(0) @map("total_pieces_planned")
+  totalPiecesPublished Int @default(0) @map("total_pieces_published")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company  Company        @relation(fields: [companyId], references: [id])
+  client   Client         @relation(fields: [clientId], references: [id])
+  campaign Campaign?      @relation(fields: [campaignId], references: [id])
+  pieces   ContentPiece[]
+
+  @@unique([companyId, clientId, year, month])
+  @@index([companyId], name: "idx_content_plans_company_id")
+  @@index([companyId, clientId, year, month], name: "idx_content_plans_company_client_month")
+  @@map("content_plans")
+}
+
+// ============================================================
+// PHASE 3 — Content Studio: Content Pieces
+// ============================================================
+
+enum ContentPieceType {
+  VIDEO_LONG
+  REEL
+  STORY
+  STATIC_DESIGN
+  CAROUSEL
+  GIF
+  PODCAST
+  BLOG_POST
+
+  @@map("content_piece_type")
+}
+
+enum ContentPieceStage {
+  IDEA
+  IN_WRITING
+  IN_DESIGN
+  IN_PRODUCTION
+  INTERNAL_REVIEW
+  CLIENT_REVIEW
+  REVISION
+  APPROVED
+  SCHEDULED
+  PUBLISHED
+  FAILED
+
+  @@map("content_piece_stage")
+}
+
+model ContentPiece {
+  id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId     String  @map("company_id") @db.Uuid
+  contentPlanId String  @map("content_plan_id") @db.Uuid
+  pillarId      String? @map("pillar_id") @db.Uuid
+  clientId      String  @map("client_id") @db.Uuid
+  projectId     String? @map("project_id") @db.Uuid
+
+  title     String
+  type      ContentPieceType
+  platforms String[]
+
+  bigIdea       String? @map("big_idea")
+  frameworkUsed String? @map("framework_used")
+  frameworkData Json?   @map("framework_data")
+
+  components Json?
+
+  captionAr String?  @map("caption_ar")
+  captionEn String?  @map("caption_en")
+  hashtags  String[]
+  ctaText   String?  @map("cta_text")
+  ctaLink   String?  @map("cta_link")
+
+  linkedAssets    String[] @map("linked_assets")
+  inspirationRefs Json?    @map("inspiration_refs")
+
+  stage       ContentPieceStage @default(IDEA)
+  scheduledAt DateTime?         @map("scheduled_at") @db.Timestamptz
+  publishedAt DateTime?         @map("published_at") @db.Timestamptz
+
+  internalApproverId   String?   @map("internal_approver_id") @db.Uuid
+  internalApprovedAt   DateTime? @map("internal_approved_at") @db.Timestamptz
+  clientApprovalStatus String?   @map("client_approval_status")
+  clientApprovedAt     DateTime? @map("client_approved_at") @db.Timestamptz
+
+  metrics Json?
+
+  revisions ContentRevision[]
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company      Company        @relation(fields: [companyId], references: [id])
+  plan         ContentPlan    @relation(fields: [contentPlanId], references: [id], onDelete: Cascade)
+  pillar       ContentPillar? @relation(fields: [pillarId], references: [id])
+  client       Client         @relation(fields: [clientId], references: [id])
+  project      Project?       @relation(fields: [projectId], references: [id])
+  AiGeneration AiGeneration[]
+
+  @@index([companyId], name: "idx_content_pieces_company_id")
+  @@index([contentPlanId], name: "idx_content_pieces_plan_id")
+  @@index([companyId, stage], name: "idx_content_pieces_company_stage")
+  @@map("content_pieces")
+}
+
+// ============================================================
+// PHASE 3 — Content Studio: Content Revisions
+// ============================================================
+
+enum RevisionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+
+  @@map("content_revision_status")
+}
+
+model ContentRevision {
+  id             String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId      String @map("company_id") @db.Uuid
+  contentPieceId String @map("content_piece_id") @db.Uuid
+
+  roundNumber         Int            @map("round_number")
+  requestedBy         String         @map("requested_by_user_id") @db.Uuid
+  requestedByRole     String?        @map("requested_by_role")
+  feedbackText        String?        @map("feedback_text")
+  feedbackAnnotations Json?          @map("feedback_annotations")
+  attachedFiles       String[]       @map("attached_files")
+  status              RevisionStatus @default(PENDING)
+  resolvedBy          String?        @map("resolved_by") @db.Uuid
+  resolvedAt          DateTime?      @map("resolved_at") @db.Timestamptz
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company   Company      @relation(fields: [companyId], references: [id])
+  piece     ContentPiece @relation(fields: [contentPieceId], references: [id], onDelete: Cascade)
+  requester User         @relation("ContentRevisionRequester", fields: [requestedBy], references: [id])
+  resolver  User?        @relation("ContentRevisionResolver", fields: [resolvedBy], references: [id])
+
+  @@index([companyId], name: "idx_content_revisions_company_id")
+  @@index([contentPieceId], name: "idx_content_revisions_piece_id")
+  @@map("content_revisions")
+}
+
+// ============================================================
+// PHASE 3 — Frameworks Library (global, no company_id)
+// ============================================================
+
+model Framework {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code                String   @unique
+  nameAr              String?  @map("name_ar")
+  nameEn              String?  @map("name_en")
+  description         String?
+  category            String?
+  bestForContentTypes String[] @map("best_for_content_types")
+  fieldsSchema        Json?    @map("fields_schema")
+  exampleInput        Json?    @map("example_input")
+  exampleOutput       String?  @map("example_output")
+  isGlobal            Boolean  @default(true) @map("is_global")
+
+  @@map("frameworks")
+}
+
+// ============================================================
+// PHASE 3 — Content Templates (company-specific)
+// ============================================================
+
+model ContentTemplate {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String @map("company_id") @db.Uuid
+
+  name                  String
+  description           String?
+  type                  String
+  frameworkUsed         String? @map("framework_used")
+  frameworkDataTemplate Json?   @map("framework_data_template")
+  componentsTemplate    Json?   @map("components_template")
+  useCount              Int     @default(0) @map("use_count")
+  isFavorite            Boolean @default(false) @map("is_favorite")
+  createdFromPieceId    String? @map("created_from_piece_id") @db.Uuid
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([companyId], name: "idx_content_templates_company_id")
+  @@map("content_templates")
+}
+
+// ============================================================
+// PHASE 3 — AI Generations Log
+// ============================================================
+
+model AiGeneration {
+  id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId      String  @map("company_id") @db.Uuid
+  userId         String  @map("user_id") @db.Uuid
+  contentPieceId String? @map("content_piece_id") @db.Uuid
+
+  toolType        String   @map("tool_type")
+  frameworkUsed   String?  @map("framework_used")
+  inputData       Json     @map("input_data")
+  outputData      Json     @map("output_data")
+  modelUsed       String?  @map("model_used")
+  tokensInput     Int?     @map("tokens_input")
+  tokensOutput    Int?     @map("tokens_output")
+  costEstimateUsd Decimal? @map("cost_estimate_usd") @db.Decimal(10, 6)
+  userRating      Int?     @map("user_rating")
+  wasUsed         Boolean  @default(false) @map("was_used")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company Company       @relation(fields: [companyId], references: [id])
+  user    User          @relation(fields: [userId], references: [id])
+  piece   ContentPiece? @relation(fields: [contentPieceId], references: [id])
+
+  @@index([companyId], name: "idx_ai_generations_company_id")
+  @@index([userId], name: "idx_ai_generations_user_id")
+  @@map("ai_generations")
+}
+
+// ============================================================
+// PHASE 3 — Asset Library
+// ============================================================
+
+model AssetFolder {
+  id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId      String  @map("company_id") @db.Uuid
+  parentFolderId String? @map("parent_folder_id") @db.Uuid
+  name           String
+  path           String?
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company  Company       @relation(fields: [companyId], references: [id])
+  parent   AssetFolder?  @relation("AssetSubFolders", fields: [parentFolderId], references: [id])
+  children AssetFolder[] @relation("AssetSubFolders")
+  assets   Asset[]
+
+  @@index([companyId], name: "idx_asset_folders_company_id")
+  @@map("asset_folders")
+}
+
+enum AssetType {
+  IMAGE
+  VIDEO
+  LOGO
+  BRAND_KIT
+  MUSIC
+  FONT
+  TEMPLATE
+  DOCUMENT
+
+  @@map("asset_type")
+}
+
+model Asset {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String  @map("company_id") @db.Uuid
+  folderId  String? @map("folder_id") @db.Uuid
+
+  name            String
+  description     String?
+  type            AssetType
+  fileUrl         String?   @map("file_url")
+  thumbnailUrl    String?   @map("thumbnail_url")
+  previewUrl      String?   @map("preview_url")
+  fileSizeBytes   BigInt?   @map("file_size_bytes")
+  mimeType        String?   @map("mime_type")
+  durationSeconds Decimal?  @map("duration_seconds") @db.Decimal(8, 2)
+  widthPx         Int?      @map("width_px")
+  heightPx        Int?      @map("height_px")
+
+  tags             String[]
+  linkedProjectIds String[] @map("linked_project_ids")
+  linkedClientIds  String[] @map("linked_client_ids")
+
+  isVisibleToClients Boolean @default(false) @map("is_visible_to_clients")
+  currentVersionId   String? @map("current_version_id") @db.Uuid
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company  Company        @relation(fields: [companyId], references: [id])
+  folder   AssetFolder?   @relation(fields: [folderId], references: [id])
+  versions AssetVersion[]
+
+  @@index([companyId], name: "idx_assets_company_id")
+  @@index([folderId], name: "idx_assets_folder_id")
+  @@map("assets")
+}
+
+model AssetVersion {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String @map("company_id") @db.Uuid
+  assetId   String @map("asset_id") @db.Uuid
+
+  versionNumber Int      @map("version_number")
+  fileUrl       String   @map("file_url")
+  fileSize      BigInt   @map("file_size")
+  uploadedBy    String   @map("uploaded_by") @db.Uuid
+  uploadedAt    DateTime @map("uploaded_at") @db.Timestamptz
+  changeNotes   String?  @map("change_notes")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company Company @relation(fields: [companyId], references: [id])
+  asset   Asset   @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([assetId, versionNumber])
+  @@index([companyId], name: "idx_asset_versions_company_id")
+  @@index([assetId], name: "idx_asset_versions_asset_id")
+  @@map("asset_versions")
+}
+
+// ============================================================
+// PHASE 3 — Equipment Management
+// ============================================================
+
+enum EquipmentCategory {
+  CAMERA
+  LENS
+  LIGHTING
+  AUDIO
+  GRIP
+  COMPUTER
+  OTHER
+
+  @@map("equipment_category")
+}
+
+enum EquipmentStatus {
+  AVAILABLE
+  IN_USE
+  MAINTENANCE
+  RETIRED
+  LOST
+
+  @@map("equipment_status")
+}
+
+enum EquipmentCondition {
+  EXCELLENT
+  GOOD
+  FAIR
+  POOR
+
+  @@map("equipment_condition")
+}
+
+model Equipment {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String @map("company_id") @db.Uuid
+
+  name             String
+  category         EquipmentCategory
+  brand            String?
+  model            String?
+  serialNumber     String?            @map("serial_number")
+  purchaseDate     DateTime?          @map("purchase_date") @db.Date
+  purchasePrice    BigInt?            @map("purchase_price")
+  currency         String?            @default("IQD")
+  currentStatus    EquipmentStatus    @default(AVAILABLE) @map("current_status")
+  condition        EquipmentCondition @default(GOOD)
+  currentHolderId  String?            @map("current_holder_id") @db.Uuid
+  currentProjectId String?            @map("current_project_id") @db.Uuid
+  qrCodeUrl        String?            @map("qr_code_url")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company     Company                @relation(fields: [companyId], references: [id])
+  holder      Employee?              @relation("EquipmentHolder", fields: [currentHolderId], references: [id])
+  bookings    EquipmentBooking[]
+  maintenance EquipmentMaintenance[]
+
+  @@index([companyId], name: "idx_equipment_company_id")
+  @@index([companyId, currentStatus], name: "idx_equipment_company_status")
+  @@map("equipment")
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_OUT
+  RETURNED
+  OVERDUE
+
+  @@map("booking_status")
+}
+
+model EquipmentBooking {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId   String  @map("company_id") @db.Uuid
+  equipmentId String  @map("equipment_id") @db.Uuid
+  projectId   String? @map("project_id") @db.Uuid
+  bookedBy    String  @map("booked_by_user_id") @db.Uuid
+
+  bookingStart         DateTime      @map("booking_start") @db.Timestamptz
+  bookingEnd           DateTime      @map("booking_end") @db.Timestamptz
+  status               BookingStatus @default(PENDING)
+  checkoutAt           DateTime?     @map("checkout_at") @db.Timestamptz
+  returnAt             DateTime?     @map("return_at") @db.Timestamptz
+  returnConditionNotes String?       @map("return_condition_notes")
+  returnPhotos         String[]      @map("return_photos")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company   Company   @relation(fields: [companyId], references: [id])
+  equipment Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  project   Project?  @relation(fields: [projectId], references: [id])
+  booker    User      @relation(fields: [bookedBy], references: [id])
+
+  @@index([companyId], name: "idx_equipment_bookings_company_id")
+  @@index([equipmentId], name: "idx_equipment_bookings_equipment_id")
+  @@index([projectId], name: "idx_equipment_bookings_project_id")
+  @@map("equipment_bookings")
+}
+
+enum MaintenanceType {
+  ROUTINE
+  REPAIR
+  CALIBRATION
+
+  @@map("maintenance_type")
+}
+
+model EquipmentMaintenance {
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId   String @map("company_id") @db.Uuid
+  equipmentId String @map("equipment_id") @db.Uuid
+
+  maintenanceDate     DateTime        @map("maintenance_date") @db.Date
+  type                MaintenanceType
+  description         String?
+  cost                BigInt?
+  currency            String?         @default("IQD")
+  performedBy         String?         @map("performed_by")
+  nextMaintenanceDate DateTime?       @map("next_maintenance_date") @db.Date
+  receiptUrl          String?         @map("receipt_url")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company   Company   @relation(fields: [companyId], references: [id])
+  equipment Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+
+  @@index([companyId], name: "idx_equipment_maintenance_company_id")
+  @@index([equipmentId], name: "idx_equipment_maintenance_equipment_id")
+  @@map("equipment_maintenance")
+}
+
+// ============================================================
+// PHASE 3 — Exhibition & Booth Management
+// ============================================================
+
+enum ExhibitionStatus {
+  PLANNING
+  ACTIVE
+  CONCLUDED
+  SETTLED
+
+  @@map("exhibition_status")
+}
+
+model Exhibition {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String @map("company_id") @db.Uuid
+
+  name               String
+  locationAddress    String?          @map("location_address")
+  city               String?
+  country            String?
+  startDate          DateTime         @map("start_date") @db.Date
+  endDate            DateTime         @map("end_date") @db.Date
+  organizingClientId String?          @map("organizing_client_id") @db.Uuid
+  managerId          String?          @map("manager_id") @db.Uuid
+  status             ExhibitionStatus @default(PLANNING)
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company    Company               @relation(fields: [companyId], references: [id])
+  manager    User?                 @relation("ExhibitionManager", fields: [managerId], references: [id])
+  booths     ExhibitionBooth[]
+  financials ExhibitionFinancial[]
+  settlement ExhibitionSettlement?
+
+  @@index([companyId], name: "idx_exhibitions_company_id")
+  @@map("exhibitions")
+}
+
+model ExhibitionBooth {
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId    String @map("company_id") @db.Uuid
+  exhibitionId String @map("exhibition_id") @db.Uuid
+
+  brandName          String  @map("brand_name")
+  brandLogoUrl       String? @map("brand_logo_url")
+  boothNumber        String? @map("booth_number")
+  boothSize          String? @map("booth_size")
+  clientCompanyId    String? @map("client_company_id") @db.Uuid
+  designStatus       String  @default("pending") @map("design_status")
+  setupStatus        String  @default("pending") @map("setup_status")
+  dailyVisitorsCount Json?   @map("daily_visitors_count")
+  notes              String?
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company    Company          @relation(fields: [companyId], references: [id])
+  exhibition Exhibition       @relation(fields: [exhibitionId], references: [id], onDelete: Cascade)
+  inventory  BoothInventory[]
+
+  @@index([companyId], name: "idx_exhibition_booths_company_id")
+  @@index([exhibitionId], name: "idx_exhibition_booths_exhibition_id")
+  @@map("exhibition_booths")
+}
+
+enum BoothInventoryCategory {
+  SIGNAGE
+  GIVEAWAY
+  DISPLAY
+  ELECTRONICS
+  FURNITURE
+  CONSUMABLE
+
+  @@map("booth_inventory_category")
+}
+
+model BoothInventory {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String @map("company_id") @db.Uuid
+  boothId   String @map("booth_id") @db.Uuid
+
+  itemName         String                 @map("item_name")
+  category         BoothInventoryCategory
+  quantitySent     Int                    @default(0) @map("quantity_sent")
+  quantityConsumed Int                    @default(0) @map("quantity_consumed")
+  quantityReturned Int                    @default(0) @map("quantity_returned")
+  quantityDamaged  Int                    @default(0) @map("quantity_damaged")
+  unitCost         BigInt?                @map("unit_cost")
+  currency         String?                @default("IQD")
+  totalCost        BigInt?                @map("total_cost")
+  notes            String?
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company Company         @relation(fields: [companyId], references: [id])
+  booth   ExhibitionBooth @relation(fields: [boothId], references: [id], onDelete: Cascade)
+
+  @@index([companyId], name: "idx_booth_inventory_company_id")
+  @@index([boothId], name: "idx_booth_inventory_booth_id")
+  @@map("booth_inventory")
+}
+
+enum FinancialType {
+  INCOME
+  EXPENSE
+
+  @@map("financial_type")
+}
+
+enum ExhibitionFinancialCategory {
+  CLIENT_PAYMENT
+  VENUE_RENTAL
+  CONSTRUCTION
+  LOGISTICS
+  STAFF
+  CONSUMABLES
+  FREELANCER
+  OTHER
+
+  @@map("exhibition_financial_category")
+}
+
+model ExhibitionFinancial {
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId    String @map("company_id") @db.Uuid
+  exhibitionId String @map("exhibition_id") @db.Uuid
+
+  type            FinancialType
+  category        ExhibitionFinancialCategory
+  description     String?
+  amount          BigInt
+  currency        String                      @default("IQD")
+  transactionDate DateTime                    @map("transaction_date") @db.Date
+  receiptUrl      String?                     @map("receipt_url")
+  recordedBy      String?                     @map("recorded_by") @db.Uuid
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company    Company    @relation(fields: [companyId], references: [id])
+  exhibition Exhibition @relation(fields: [exhibitionId], references: [id], onDelete: Cascade)
+  recorder   User?      @relation(fields: [recordedBy], references: [id])
+
+  @@index([companyId], name: "idx_exhibition_financials_company_id")
+  @@index([exhibitionId], name: "idx_exhibition_financials_exhibition_id")
+  @@map("exhibition_financials")
+}
+
+model ExhibitionSettlement {
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId    String @map("company_id") @db.Uuid
+  exhibitionId String @unique @map("exhibition_id") @db.Uuid
+
+  totalIncomeIqd        BigInt    @default(0) @map("total_income_iqd")
+  totalIncomeUsd        BigInt    @default(0) @map("total_income_usd")
+  totalExpenseIqd       BigInt    @default(0) @map("total_expense_iqd")
+  totalExpenseUsd       BigInt    @default(0) @map("total_expense_usd")
+  netProfitIqd          BigInt    @default(0) @map("net_profit_iqd")
+  netProfitUsd          BigInt    @default(0) @map("net_profit_usd")
+  clientOutstanding     Json?     @map("client_outstanding")
+  settledAt             DateTime? @map("settled_at") @db.Timestamptz
+  settledBy             String?   @map("settled_by") @db.Uuid
+  settlementDocumentUrl String?   @map("settlement_document_url")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company    Company    @relation(fields: [companyId], references: [id])
+  exhibition Exhibition @relation(fields: [exhibitionId], references: [id], onDelete: Cascade)
+
+  @@index([companyId], name: "idx_exhibition_settlements_company_id")
+  @@map("exhibition_settlements")
 }

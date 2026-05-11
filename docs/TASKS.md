@@ -12,7 +12,7 @@
 | Phase 0 — Setup                    | 6      | 6             | 1 week                           |
 | Phase 1 — Foundation ✅            | 14/14  | 14            | 3-4 weeks                        |
 | Phase 2 — Core Operations ✅       | 18/18  | 18            | 4-5 weeks                        |
-| Phase 3 — Creative & Collaboration | 22     | 22            | 5-6 weeks                        |
+| Phase 3 — Creative & Collaboration | 1/22   | 22            | 5-6 weeks                        |
 | Phase 4 — SaaS Layer               | 12     | 12            | 3 weeks                          |
 | **TOTAL**                          | **72** | **72**        | **~16-19 weeks (~4 months)**     |
 
@@ -634,18 +634,20 @@
 
 ---
 
-### `[ ]` 3.1 — Database Schema for Phase 3
+### `[DONE]` 3.1 — Database Schema for Phase 3
 
 **Deliverables:**
 
 - Migrations: `brand_briefs`, `audience_personas`, `content_pillars`, `content_plans`, `content_pieces`, `content_revisions`, `frameworks`, `content_templates`, `ai_generations`, `assets`, `asset_folders`, `asset_versions`, `equipment`, `equipment_bookings`, `equipment_maintenance`, `exhibitions`, `exhibition_booths`, `booth_inventory`, `exhibition_financials`, `exhibition_settlement`
-- Seed Frameworks library (40+ frameworks from ContentStudio spec)
+- 20 Prisma models + 14 enums + relations on Company/Client/Campaign/Project/User/Employee
+- Migration SQL with RLS + GRANTs
+- Seed Frameworks library (40+ frameworks from ContentStudio spec) — **deferred to 3.15 when frameworks service is built**
 
 **Acceptance:** All migrations apply. Frameworks seeded.
 
 ---
 
-### `[ ]` 3.2 — Asset Library
+### `[CURRENT]` 3.2 — Asset Library
 
 **Deliverables:**
 

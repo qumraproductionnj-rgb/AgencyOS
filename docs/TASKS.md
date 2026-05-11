@@ -7,14 +7,14 @@
 
 ## 📊 Summary
 
-| Phase                              | Tasks  | Est. Sessions | Real Calendar Time (2-4 hrs/day) |
-| ---------------------------------- | ------ | ------------- | -------------------------------- |
-| Phase 0 — Setup                    | 6      | 6             | 1 week                           |
-| Phase 1 — Foundation ✅            | 14/14  | 14            | 3-4 weeks                        |
-| Phase 2 — Core Operations ✅       | 18/18  | 18            | 4-5 weeks                        |
-| Phase 3 — Creative & Collaboration | 2/22   | 22            | 5-6 weeks                        |
-| Phase 4 — SaaS Layer               | 12     | 12            | 3 weeks                          |
-| **TOTAL**                          | **72** | **72**        | **~16-19 weeks (~4 months)**     |
+| Phase                              | Tasks     | Est. Sessions | Real Calendar Time (2-4 hrs/day) |
+| ---------------------------------- | --------- | ------------- | -------------------------------- |
+| Phase 0 — Setup                    | 6         | 6             | 1 week                           |
+| Phase 1 — Foundation ✅            | 14/14     | 14            | 3-4 weeks                        |
+| Phase 2 — Core Operations ✅       | 18/18     | 18            | 4-5 weeks                        |
+| Phase 3 — Creative & Collaboration | 10/22     | 22            | 5-6 weeks                        |
+| Phase 4 — SaaS Layer               | 12        | 12            | 3 weeks                          |
+| **TOTAL**                          | **48/72** | **72**        | **~16-19 weeks (~4 months)**     |
 
 ---
 
@@ -758,7 +758,7 @@
 
 ---
 
-### `[CURRENT]` 3.9 — Content Editor: Static Design
+### `[DONE]` 3.9 — Content Editor: Static Design
 
 **Deliverables:**
 
@@ -771,19 +771,20 @@
 
 ---
 
-### `[ ]` 3.10 — Content Editor: Story
+### `[DONE]` 3.10 — Content Editor: Story
 
 **Deliverables:**
 
 - Frame sequence builder (3-7 frames)
 - Per-frame: visual, text, sticker, interactive element
 - Duration per frame
+- AI story sequence generator button
 
 **Acceptance:** Build 5-frame story sequence.
 
 ---
 
-### `[ ]` 3.11 — Content Editor: Carousel
+### `[CURRENT]` 3.11 — Content Editor: Carousel
 
 **Deliverables:**
 

@@ -745,7 +745,7 @@
 
 ---
 
-### `[CURRENT]` 3.8 — Content Editor: Video / Reel
+### `[DONE]` 3.8 — Content Editor: Video / Reel
 
 **Deliverables:**
 
@@ -758,7 +758,7 @@
 
 ---
 
-### `[ ]` 3.9 — Content Editor: Static Design
+### `[CURRENT]` 3.9 — Content Editor: Static Design
 
 **Deliverables:**
 

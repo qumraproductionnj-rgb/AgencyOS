@@ -921,6 +921,26 @@
     "trackName": "Track Name",
     "artist": "Artist",
     "mood": "Mood",
-    "referenceUrl": "Reference URL"
+    "referenceUrl": "Reference URL",
+    "headline": "Headline",
+    "subheading": "Subheading",
+    "body": "Body Text",
+    "layout": "Layout",
+    "colorPalette": "Color Palette",
+    "primary": "Primary",
+    "secondary": "Secondary",
+    "accent": "Accent",
+    "visualDirection": "Visual Direction",
+    "aiTestHeadlines": "AI Test Headlines",
+    "aiHeadlines": "Suggested Headlines",
+    "aiWriteBody": "AI Write Body",
+    "aiDirection": "AI Direction",
+    "aiPalette": "AI Palette",
+    "layout_fPattern": "F-Pattern",
+    "layout_zPattern": "Z-Pattern",
+    "layout_centered": "Centered",
+    "layout_split": "Split",
+    "layout_fullBleed": "Full Bleed",
+    "layout_grid": "Grid"
   }
 }

@@ -65,6 +65,8 @@ const SHOT_TYPES = [
   'slowMotion',
 ] as const
 
+const LAYOUT_TYPES = ['fPattern', 'zPattern', 'centered', 'split', 'fullBleed', 'grid'] as const
+
 // ─── Main Editor Component ────────────────────────────
 
 interface Props {
@@ -291,8 +293,28 @@ export function ContentPieceEditor({ pieceId }: Props) {
             />
           )}
           {activeTab === 'caption' && <TabCaption piece={piece} patch={patch} t={t} />}
-          {activeTab === 'texts' && <TabTexts piece={piece} patch={patch} t={t} />}
-          {activeTab === 'visual' && <TabVisual piece={piece} patch={patch} t={t} />}
+          {activeTab === 'texts' && (
+            <TabTexts
+              piece={piece}
+              _patch={patch}
+              t={t}
+              _tCommon={tCommon}
+              components={mergedComponents}
+              setComponent={setComponent}
+              aiGenerate={aiGenerate}
+            />
+          )}
+          {activeTab === 'visual' && (
+            <TabVisual
+              piece={piece}
+              _patch={patch}
+              t={t}
+              _tCommon={tCommon}
+              components={mergedComponents}
+              setComponent={setComponent}
+              aiGenerate={aiGenerate}
+            />
+          )}
           {activeTab === 'frames' && <TabFrames piece={piece} patch={patch} t={t} />}
           {activeTab === 'slides' && <TabSlides piece={piece} patch={patch} t={t} />}
           {activeTab === 'content' && <TabContent piece={piece} patch={patch} t={t} />}
@@ -1352,31 +1374,128 @@ function TabCaption({
 
 function TabTexts({
   piece,
-  patch,
+  _patch,
   t,
+  _tCommon,
+  components,
+  setComponent,
+  aiGenerate,
 }: {
   piece: ContentPieceDetail
-  patch: (k: string, v: unknown) => void
+  _patch: (k: string, v: unknown) => void
   t: (key: string) => string
+  _tCommon: (key: string) => string
+  components: Record<string, unknown>
+  setComponent: (key: string, value: unknown) => void
+  aiGenerate?: (toolType: string, prompt: string, systemPrompt?: string) => Promise<string>
 }) {
+  const texts = (components['texts'] as Record<string, string> | undefined) ?? {}
+  const [aiBusy, setAiBusy] = useState<string | null>(null)
+
+  const patchText = (field: string, value: string) => {
+    setComponent('texts', { ...texts, [field]: value })
+  }
+
+  const handleAiHeadline = async () => {
+    if (!aiGenerate) return
+    setAiBusy('headline')
+    try {
+      const content = await aiGenerate(
+        'headline_tester',
+        `Generate and score headlines for:\nBrand: ${piece.client?.name ?? ''}\nBig Idea: ${piece.bigIdea ?? ''}\nType: ${piece.type}`,
+        'You are a headline specialist. Generate 5 headlines with scores (1-10) for engagement and clarity. Return as JSON array: [{ "headline": "...", "score": 8, "reason": "..." }]',
+      )
+      setComponent('texts', { ...texts, aiHeadlines: content })
+    } finally {
+      setAiBusy(null)
+    }
+  }
+
+  const handleAiBody = async () => {
+    if (!aiGenerate) return
+    setAiBusy('body')
+    try {
+      const content = await aiGenerate(
+        'body_copy_writer',
+        `Write body copy for:\nBrand: ${piece.client?.name ?? ''}\nBig Idea: ${piece.bigIdea ?? ''}\nHeadline: ${texts['headline'] ?? ''}\nSubheading: ${texts['subheading'] ?? ''}`,
+        'You are a copywriter. Write compelling body copy (3-5 sentences) that drives action. Return ONLY the body text.',
+      )
+      patchText('body', content)
+    } finally {
+      setAiBusy(null)
+    }
+  }
+
   return (
     <div className="mx-auto max-w-2xl space-y-5">
-      <h2 className="text-lg font-semibold">{t('texts')}</h2>
-      <Field label={t('components')}>
-        <textarea
-          defaultValue={piece.components ? JSON.stringify(piece.components, null, 2) : ''}
-          onChange={(e) => {
-            try {
-              patch('components', JSON.parse(e.target.value || 'null'))
-            } catch {
-              /* invalid */
-            }
-          }}
-          rows={10}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm text-xs"
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{t('texts')}</h2>
+        <div className="flex gap-2">
+          {aiGenerate && (
+            <button
+              onClick={handleAiHeadline}
+              disabled={aiBusy !== null}
+              className="rounded-md border px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:opacity-50"
+            >
+              {aiBusy === 'headline' ? t('aiGenerating') : t('aiTestHeadlines')}
+            </button>
+          )}
+        </div>
+      </div>
+
+      <Field label={t('headline')}>
+        <input
+          value={texts['headline'] ?? ''}
+          onChange={(e) => patchText('headline', e.target.value)}
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
           dir="auto"
         />
       </Field>
+
+      <Field label={t('subheading')}>
+        <input
+          value={texts['subheading'] ?? ''}
+          onChange={(e) => patchText('subheading', e.target.value)}
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          dir="auto"
+        />
+      </Field>
+
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-semibold text-gray-700">{t('body')}</span>
+        {aiGenerate && (
+          <button
+            onClick={handleAiBody}
+            disabled={aiBusy !== null}
+            className="rounded-md border px-2 py-0.5 text-xs text-blue-600 hover:bg-blue-50 disabled:opacity-50"
+          >
+            {aiBusy === 'body' ? t('aiGenerating') : t('aiWriteBody')}
+          </button>
+        )}
+      </div>
+      <textarea
+        value={texts['body'] ?? ''}
+        onChange={(e) => patchText('body', e.target.value)}
+        rows={6}
+        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+        dir="auto"
+      />
+
+      <Field label={t('ctaText')}>
+        <input
+          value={texts['cta'] ?? ''}
+          onChange={(e) => patchText('cta', e.target.value)}
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          dir="auto"
+        />
+      </Field>
+
+      {texts['aiHeadlines'] && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+          <h3 className="mb-2 text-sm font-semibold text-blue-800">{t('aiHeadlines')}</h3>
+          <pre className="whitespace-pre-wrap text-xs text-blue-700">{texts['aiHeadlines']}</pre>
+        </div>
+      )}
     </div>
   )
 }
@@ -1385,32 +1504,190 @@ function TabTexts({
 
 function TabVisual({
   piece,
-  patch,
+  _patch,
   t,
+  _tCommon,
+  components,
+  setComponent,
+  aiGenerate,
 }: {
   piece: ContentPieceDetail
-  patch: (k: string, v: unknown) => void
+  _patch: (k: string, v: unknown) => void
   t: (key: string) => string
+  _tCommon: (key: string) => string
+  components: Record<string, unknown>
+  setComponent: (key: string, value: unknown) => void
+  aiGenerate?: (toolType: string, prompt: string, systemPrompt?: string) => Promise<string>
 }) {
+  const visual =
+    (components['visual'] as Record<string, string | Record<string, string>> | undefined) ?? {}
+  const colors = (visual['colors'] as Record<string, string> | undefined) ?? {}
+  const [aiBusy, setAiBusy] = useState<string | null>(null)
+
+  const patchVisual = (field: string, value: string | Record<string, string>) => {
+    setComponent('visual', { ...visual, [field]: value })
+  }
+
+  const patchColor = (field: string, value: string) => {
+    setComponent('visual', { ...visual, colors: { ...colors, [field]: value } })
+  }
+
+  const handleAiDirection = async () => {
+    if (!aiGenerate) return
+    setAiBusy('direction')
+    try {
+      const content = await aiGenerate(
+        'visual_direction',
+        `Create visual direction for:\nTitle: ${piece.title}\nBig Idea: ${piece.bigIdea ?? ''}\nLayout: ${(visual['layout'] as string) ?? 'none'}\nType: ${piece.type}`,
+        'You are a creative director. Write detailed visual direction covering: color palette, typography, imagery style, layout notes, and mood. Return as markdown.',
+      )
+      patchVisual('direction', content)
+    } finally {
+      setAiBusy(null)
+    }
+  }
+
+  const handleAiPalette = async () => {
+    if (!aiGenerate) return
+    setAiBusy('palette')
+    try {
+      const content = await aiGenerate(
+        'color_palette',
+        `Suggest a color palette for:\nTitle: ${piece.title}\nBig Idea: ${piece.bigIdea ?? ''}\nBrand: ${piece.client?.name ?? ''}`,
+        'You are a color specialist. Suggest a 3-color palette (primary, secondary, accent) with hex codes. Return as JSON: { "primary": "#...", "secondary": "#...", "accent": "#..." }',
+      )
+      try {
+        const parsed = JSON.parse(content) as Record<string, string>
+        setComponent('visual', { ...visual, colors: { ...colors, ...parsed } })
+      } catch {
+        patchVisual('aiPaletteSuggestion', content)
+      }
+    } finally {
+      setAiBusy(null)
+    }
+  }
+
   return (
     <div className="mx-auto max-w-2xl space-y-5">
-      <h2 className="text-lg font-semibold">{t('visual')}</h2>
-      <p className="text-sm text-gray-500">{t('visualDesc')}</p>
-      <Field label={t('components')}>
-        <textarea
-          defaultValue={piece.components ? JSON.stringify(piece.components, null, 2) : ''}
-          onChange={(e) => {
-            try {
-              patch('components', JSON.parse(e.target.value || 'null'))
-            } catch {
-              /* invalid */
-            }
-          }}
-          rows={10}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm text-xs"
-          dir="auto"
-        />
-      </Field>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{t('visual')}</h2>
+        <div className="flex gap-2">
+          {aiGenerate && (
+            <>
+              <button
+                onClick={handleAiDirection}
+                disabled={aiBusy !== null}
+                className="rounded-md border px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:opacity-50"
+              >
+                {aiBusy === 'direction' ? t('aiGenerating') : t('aiDirection')}
+              </button>
+              <button
+                onClick={handleAiPalette}
+                disabled={aiBusy !== null}
+                className="rounded-md border px-3 py-1 text-sm text-purple-600 hover:bg-purple-50 disabled:opacity-50"
+              >
+                {aiBusy === 'palette' ? t('aiGenerating') : t('aiPalette')}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-gray-200 bg-white p-4">
+        <h3 className="mb-3 text-sm font-semibold text-gray-700">{t('layout')}</h3>
+        <div className="grid grid-cols-3 gap-2">
+          {LAYOUT_TYPES.map((l) => (
+            <button
+              key={l}
+              onClick={() => patchVisual('layout', l)}
+              className={`rounded-md border px-3 py-2 text-sm transition-colors ${
+                visual['layout'] === l
+                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                  : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              {t(`layout_${l}`)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-gray-200 bg-white p-4">
+        <h3 className="mb-3 text-sm font-semibold text-gray-700">{t('colorPalette')}</h3>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-600">{t('primary')}</label>
+            <div className="flex gap-2">
+              <input
+                type="color"
+                value={(colors['primary'] as string) ?? '#000000'}
+                onChange={(e) => patchColor('primary', e.target.value)}
+                className="h-8 w-8 cursor-pointer rounded border"
+              />
+              <input
+                value={(colors['primary'] as string) ?? ''}
+                onChange={(e) => patchColor('primary', e.target.value)}
+                className="flex-1 rounded border border-gray-200 px-2 py-1 font-mono text-sm"
+                placeholder="#000000"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-600">{t('secondary')}</label>
+            <div className="flex gap-2">
+              <input
+                type="color"
+                value={(colors['secondary'] as string) ?? '#000000'}
+                onChange={(e) => patchColor('secondary', e.target.value)}
+                className="h-8 w-8 cursor-pointer rounded border"
+              />
+              <input
+                value={(colors['secondary'] as string) ?? ''}
+                onChange={(e) => patchColor('secondary', e.target.value)}
+                className="flex-1 rounded border border-gray-200 px-2 py-1 font-mono text-sm"
+                placeholder="#000000"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-600">{t('accent')}</label>
+            <div className="flex gap-2">
+              <input
+                type="color"
+                value={(colors['accent'] as string) ?? '#000000'}
+                onChange={(e) => patchColor('accent', e.target.value)}
+                className="h-8 w-8 cursor-pointer rounded border"
+              />
+              <input
+                value={(colors['accent'] as string) ?? ''}
+                onChange={(e) => patchColor('accent', e.target.value)}
+                className="flex-1 rounded border border-gray-200 px-2 py-1 font-mono text-sm"
+                placeholder="#000000"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-semibold text-gray-700">{t('visualDirection')}</span>
+        {aiGenerate && (
+          <button
+            onClick={handleAiDirection}
+            disabled={aiBusy !== null}
+            className="rounded-md border px-2 py-0.5 text-xs text-blue-600 hover:bg-blue-50 disabled:opacity-50"
+          >
+            {aiBusy === 'direction' ? t('aiGenerating') : t('aiDirection')}
+          </button>
+        )}
+      </div>
+      <textarea
+        value={(visual['direction'] as string) ?? ''}
+        onChange={(e) => patchVisual('direction', e.target.value)}
+        rows={6}
+        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+        dir="auto"
+      />
     </div>
   )
 }

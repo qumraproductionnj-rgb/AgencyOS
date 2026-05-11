@@ -921,6 +921,26 @@
     "trackName": "اسم المقطع",
     "artist": "الفنان",
     "mood": "المزاج",
-    "referenceUrl": "رابط المرجع"
+    "referenceUrl": "رابط المرجع",
+    "headline": "العنوان الرئيسي",
+    "subheading": "العنوان الفرعي",
+    "body": "النص الأساسي",
+    "layout": "التخطيط",
+    "colorPalette": "لوحة الألوان",
+    "primary": "أساسي",
+    "secondary": "ثانوي",
+    "accent": "مميز",
+    "visualDirection": "الاتجاه البصري",
+    "aiTestHeadlines": "اختبار العناوين",
+    "aiHeadlines": "العناوين المقترحة",
+    "aiWriteBody": "كتابة النص",
+    "aiDirection": "توليد اتجاه بصري",
+    "aiPalette": "توليد لوحة ألوان",
+    "layout_fPattern": "F-Pattern",
+    "layout_zPattern": "Z-Pattern",
+    "layout_centered": "مركزي",
+    "layout_split": "منقسم",
+    "layout_fullBleed": "كامل",
+    "layout_grid": "شبكي"
   }
 }

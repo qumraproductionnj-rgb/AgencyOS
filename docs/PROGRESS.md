@@ -7,7 +7,7 @@
 ## 📍 Current State
 
 **Phase:** Phase 3 — Creative & Collaboration
-**Current Task:** 3.13 — AI Tools Library (Round 2: Video)
+**Current Task:** 3.14 — AI Tools Library (Round 3: Design + Story + Carousel + Final)
 **Last Updated:** 2026-05-11
 
 ---
@@ -18,10 +18,10 @@
 Phase 0 — Setup:                    [██████] 6/6 ✅
 Phase 1 — Foundation:               [████████████████] 14/14 ✅
 Phase 2 — Core Operations:          [████████████████████████████████████████████] 18/18 ✅
-Phase 3 — Creative & Collaboration: [████████████████████████████████████████████░░] 12/22
+Phase 3 — Creative & Collaboration: [██████████████████████████████████████████████████████░░] 13/22
 Phase 4 — SaaS Layer:               [░░░░░░░░] 0/12
 
-TOTAL:                              [████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] 50/72
+TOTAL:                              [██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] 51/72
 ```
 
 ---
@@ -289,6 +289,31 @@ TOTAL:                              [██████████████�
 
 ---
 
+### Task 3.13 — AI Tools Library Round 2: Video (2026-05-11)
+
+- [x] 7 standalone video tool components leveraging `<AiToolPanel>` + `useAiTool`:
+  - ScriptWriter (topic, duration, tone, hook, framework selector with 8 frameworks)
+  - StoryboardBuilder (script, mood, shot count → shot-by-shot breakdown)
+  - VoiceoverPolisher (script, tone, duration → polished delivery with pacing notes)
+  - MusicMoodSuggester (content type, mood, pace, duration → 3-5 track suggestions)
+  - BRollPlanner (topic, script, available locations → per-section B-roll coverage)
+  - ThumbnailConceptGenerator (title, topic, style → 3 concepts with composition details)
+  - VideoPromptGenerator (scene description, duration, style → Seedance-compatible JSON prompt)
+- [x] `AiToolsList` updated to include 7 new tools in grid + routing
+- [x] AR/EN translations: 30+ new keys (tool names, descriptions, framework labels, field labels/placeholders)
+- [x] `pnpm lint` ✓ | `pnpm typecheck` ✓ | `pnpm test` ✓ (32 suites, 324 tests)
+
+**Key decisions:**
+
+- ScriptWriter includes 8 common video frameworks (AIDA, PAS, Hook-Story-Offer, etc.) selectable from dropdown
+- `SHOT_TYPES` constant omitted from StoryboardBuilder to keep component lean (AI handles shot type suggestions)
+- VideoPromptGenerator system prompt requests bilingual JSON (EN + ZH) per Seedance spec
+- Framework labels use `framework_` prefix in aiTools namespace (no conflict with contentPieces)
+- Polish button label used for VoiceoverPolisher (semantically clearer than "Generate")
+- Existing prompt registry templates matched where available (script_writer, video_prompt_generator)
+
+---
+
 - **3.5 — AI Service Layer**: Created `packages/ai/` shared package + `apps/api/src/ai/` NestJS module:
   - `packages/ai/src/anthropic-client.ts` — Anthropic SDK wrapper (sonnet/opus, error handling)
   - `packages/ai/src/cost-calculator.ts` — Token-based cost estimation
@@ -391,8 +416,8 @@ See `DECISIONS.md` for detailed architectural decisions.
 
 ## ⏭ Next Up
 
-- 3.13 — AI Tools Library (Round 2: Video)
 - 3.14 — AI Tools Library (Round 3: Design + Story + Carousel + Final)
+- 3.15 — Frameworks Library
 
 ---
 

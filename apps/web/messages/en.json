@@ -949,6 +949,15 @@
     "sticker": "Sticker",
     "interactive": "Interactive Element",
     "interactivePlaceholder": "Poll, link, swipe-up...",
-    "aiStorySequence": "AI Story Sequence"
+    "aiStorySequence": "AI Story Sequence",
+    "addSlide": "+ Add Slide",
+    "noSlides": "No slides yet. Add a slide or use AI to generate.",
+    "slide": "Slide",
+    "hookSlide": "Hook Slide",
+    "ctaSlide": "CTA Slide",
+    "cta": "CTA",
+    "visualBrief": "Visual Brief",
+    "visualBriefPlaceholder": "Describe the visual for this slide...",
+    "aiCarouselOutline": "AI Carousel Outline"
   }
 }

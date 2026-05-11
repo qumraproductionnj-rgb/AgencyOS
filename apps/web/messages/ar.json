@@ -949,6 +949,15 @@
     "sticker": "ملصق",
     "interactive": "عنصر تفاعلي",
     "interactivePlaceholder": "استفتاء، رابط، تحويلة...",
-    "aiStorySequence": "توليد تسلسل القصة"
+    "aiStorySequence": "توليد تسلسل القصة",
+    "addSlide": "+ إضافة شريحة",
+    "noSlides": "لا توجد شرائح بعد. أضف شريحة أو استخدم الذكاء الاصطناعي.",
+    "slide": "شريحة",
+    "hookSlide": "شريحة الخطاف",
+    "ctaSlide": "شريحة الدعوة",
+    "cta": "دعوة",
+    "visualBrief": "ملخص بصري",
+    "visualBriefPlaceholder": "صف الشكل البصري لهذه الشريحة...",
+    "aiCarouselOutline": "توليد هيكل الكاروسيل"
   }
 }

@@ -326,7 +326,17 @@ export function ContentPieceEditor({ pieceId }: Props) {
               aiGenerate={aiGenerate}
             />
           )}
-          {activeTab === 'slides' && <TabSlides piece={piece} patch={patch} t={t} />}
+          {activeTab === 'slides' && (
+            <TabSlides
+              piece={piece}
+              _patch={patch}
+              t={t}
+              _tCommon={tCommon}
+              components={mergedComponents}
+              setComponent={setComponent}
+              aiGenerate={aiGenerate}
+            />
+          )}
           {activeTab === 'content' && <TabContent piece={piece} patch={patch} t={t} />}
         </div>
       </main>
@@ -1877,36 +1887,162 @@ function TabFrames({
   )
 }
 
-// ─── Tab: Slides ──────────────────────────────────────
+// ─── Tab: Slides (Carousel) ───────────────────────────
 
 function TabSlides({
   piece,
-  patch,
+  _patch,
   t,
+  _tCommon,
+  components,
+  setComponent,
+  aiGenerate,
 }: {
   piece: ContentPieceDetail
-  patch: (k: string, v: unknown) => void
+  _patch: (k: string, v: unknown) => void
   t: (key: string) => string
+  _tCommon: (key: string) => string
+  components: Record<string, unknown>
+  setComponent: (key: string, value: unknown) => void
+  aiGenerate?: (toolType: string, prompt: string, systemPrompt?: string) => Promise<string>
 }) {
+  const slides =
+    (components['slides'] as
+      | { headline: string; body: string; visualBrief: string }[]
+      | undefined) ?? []
+  const [aiBusy, setAiBusy] = useState(false)
+
+  const updateSlide = (index: number, field: string, value: string) => {
+    const updated = [...slides]
+    updated[index] = { ...updated[index]!, [field]: value }
+    setComponent('slides', updated)
+  }
+
+  const addSlide = () => {
+    if (slides.length >= 10) return
+    setComponent('slides', [...slides, { headline: '', body: '', visualBrief: '' }])
+  }
+
+  const removeSlide = (index: number) => {
+    setComponent(
+      'slides',
+      slides.filter((_, i) => i !== index),
+    )
+  }
+
+  const handleAiCarousel = async () => {
+    if (!aiGenerate) return
+    setAiBusy(true)
+    try {
+      const context = slides
+        .map(
+          (s, i) =>
+            `Slide ${i + 1}${i === 0 ? ' (HOOK)' : ''}${i === slides.length - 1 ? ' (CTA)' : ''}: ${s.headline || '(empty)'}`,
+        )
+        .join('\n')
+      const content = await aiGenerate(
+        'carousel_outliner',
+        `Create a carousel outline (2-10 slides) for:\nTitle: ${piece.title}\nBig Idea: ${piece.bigIdea ?? ''}\n\nExisting slides:\n${context || 'None yet'}`,
+        'You are a social media carousel creator. Create a slide-by-slide carousel outline. First slide is HOOK, last slide is CTA. Return as JSON array: [{ "headline": "...", "body": "...", "visualBrief": "..." }]',
+      )
+      try {
+        const parsed = JSON.parse(content)
+        if (Array.isArray(parsed)) {
+          setComponent('slides', parsed)
+        }
+      } catch {
+        // fallback
+      }
+    } finally {
+      setAiBusy(false)
+    }
+  }
+
   return (
-    <div className="mx-auto max-w-2xl space-y-5">
-      <h2 className="text-lg font-semibold">{t('slides')}</h2>
-      <p className="text-sm text-gray-500">{t('slidesDesc')}</p>
-      <Field label={t('components')}>
-        <textarea
-          defaultValue={piece.components ? JSON.stringify(piece.components, null, 2) : ''}
-          onChange={(e) => {
-            try {
-              patch('components', JSON.parse(e.target.value || 'null'))
-            } catch {
-              /* invalid */
-            }
-          }}
-          rows={10}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm text-xs"
-          dir="auto"
-        />
-      </Field>
+    <div className="mx-auto max-w-3xl space-y-5">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{t('slides')}</h2>
+        <div className="flex gap-2">
+          {aiGenerate && (
+            <button
+              onClick={handleAiCarousel}
+              disabled={aiBusy}
+              className="rounded-md border px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:opacity-50"
+            >
+              {aiBusy ? t('aiGenerating') : t('aiCarouselOutline')}
+            </button>
+          )}
+          <button
+            onClick={addSlide}
+            disabled={slides.length >= 10}
+            className="rounded-md border px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-30"
+          >
+            {t('addSlide')} ({slides.length}/10)
+          </button>
+        </div>
+      </div>
+
+      {slides.length === 0 && <p className="text-sm italic text-gray-400">{t('noSlides')}</p>}
+
+      <div className="space-y-4">
+        {slides.map((slide, i) => (
+          <div key={i} className="rounded-lg border border-gray-200 bg-white p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-gray-700">
+                  {i === 0 ? t('hookSlide') : i === slides.length - 1 ? t('ctaSlide') : t('slide')}{' '}
+                  {i + 1}
+                </span>
+                {i === 0 && (
+                  <span className="rounded bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-700">
+                    {t('hook')}
+                  </span>
+                )}
+                {i === slides.length - 1 && slides.length > 1 && (
+                  <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs font-medium text-green-700">
+                    {t('cta')}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={() => removeSlide(i)}
+                className="text-xs text-red-500 hover:text-red-700"
+              >
+                {_tCommon('remove')}
+              </button>
+            </div>
+            <div className="space-y-3">
+              <Field label={t('headline')}>
+                <input
+                  value={slide.headline}
+                  onChange={(e) => updateSlide(i, 'headline', e.target.value)}
+                  className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+                  dir="auto"
+                />
+              </Field>
+              <Field label={t('body')}>
+                <textarea
+                  value={slide.body}
+                  onChange={(e) => updateSlide(i, 'body', e.target.value)}
+                  rows={3}
+                  className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+                  dir="auto"
+                />
+              </Field>
+              <Field label={t('visualBrief')}>
+                <textarea
+                  value={slide.visualBrief}
+                  onChange={(e) => updateSlide(i, 'visualBrief', e.target.value)}
+                  rows={2}
+                  className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+                  dir="auto"
+                  placeholder={t('visualBriefPlaceholder')}
+                />
+              </Field>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

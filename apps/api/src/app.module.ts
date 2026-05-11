@@ -33,6 +33,12 @@ import { ExchangeRatesModule } from './exchange-rates/exchange-rate.module'
 import { DashboardModule } from './dashboard/dashboard.module'
 import { SearchModule } from './search/search.module'
 import { OnboardingModule } from './onboarding/onboarding.module'
+import { AssetsModule } from './assets/asset.module'
+import { BrandBriefsModule } from './brand-briefs/brand-brief.module'
+import { ContentPillarsModule } from './content-pillars/content-pillar.module'
+import { AiModule } from './ai/ai.module'
+import { ContentPlansModule } from './content-plans/content-plan.module'
+import { ContentPiecesModule } from './content-pieces/content-piece.module'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
 import { PermissionsGuard } from './common/guards/permission.guard'
 import { RolesGuard } from './common/guards/role.guard'
@@ -98,6 +104,12 @@ import { envSchema } from './config/env.validation'
     DashboardModule,
     SearchModule,
     OnboardingModule,
+    AssetsModule,
+    BrandBriefsModule,
+    ContentPillarsModule,
+    AiModule,
+    ContentPlansModule,
+    ContentPiecesModule,
     HealthModule,
   ],
   controllers: [AppController],

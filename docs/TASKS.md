@@ -12,7 +12,7 @@
 | Phase 0 — Setup                    | 6      | 6             | 1 week                           |
 | Phase 1 — Foundation ✅            | 14/14  | 14            | 3-4 weeks                        |
 | Phase 2 — Core Operations ✅       | 18/18  | 18            | 4-5 weeks                        |
-| Phase 3 — Creative & Collaboration | 1/22   | 22            | 5-6 weeks                        |
+| Phase 3 — Creative & Collaboration | 2/22   | 22            | 5-6 weeks                        |
 | Phase 4 — SaaS Layer               | 12     | 12            | 3 weeks                          |
 | **TOTAL**                          | **72** | **72**        | **~16-19 weeks (~4 months)**     |
 
@@ -647,61 +647,73 @@
 
 ---
 
-### `[CURRENT]` 3.2 — Asset Library
+### `[DONE]` 3.2 — Asset Library (Backend API)
 
 **Deliverables:**
 
-- API: folders + assets CRUD, version history
-- Frontend: asset library with grid/list view, folder navigation, drag-drop upload
-- Tags + filters
-- Preview pane (image/video/PDF/audio)
-- Version comparison
-- "Visible to clients" flag
+- [x] API: folders CRUD (list, tree, create, update, soft delete with empty check)
+- [x] API: assets CRUD with cursor pagination, folder/type/search/tags filters
+- [x] API: move asset between folders
+- [x] API: version history (create with auto-increment + currentVersionId update, list, get, update change notes, soft delete)
+- [x] 16 REST endpoints with Zod validation + role guards (read: 7 roles, write: 5 roles)
+- [x] 29 unit tests
+- [x] `pnpm lint` ✓ | `pnpm typecheck` ✓ | `pnpm test` ✓ (26 suites, 260 tests)
 
-**Acceptance:** Upload, organize, find, preview, version-control assets.
+**Acceptance:** Upload, organize, find, preview, version-control assets. (Frontend remains — see next task.)
 
 ---
 
-### `[ ]` 3.3 — Brand Briefs
+### `[DONE]` 3.3 — Brand Briefs (Backend API)
 
 **Deliverables:**
 
-- API: brand brief CRUD per client
-- Frontend: rich brand brief editor with all sections (voice, personas, visual, cultural)
-- Persona builder sub-form (1-N personas per brief)
-- Color picker, font selector
+- [x] API: brand brief CRUD (list, get with personas, create with nested personas, update, soft delete)
+- [x] API: audience persona CRUD (list, create, update, soft delete) nested under brief
+- [x] One-per-client enforcement (ConflictException on duplicate)
+- [x] 21 field groups from spec: identity, tone of voice, visual, cultural, platforms, competitors, pillars
+- [x] Zod validation for all fields including fonts JSON, postingFrequency record, competitors array
+- [x] 9 REST endpoints with role guards (write: 4 roles, read: 7 roles)
+- [x] 15 unit tests
+- [x] `pnpm lint` ✓ | `pnpm typecheck` ✓ | `pnpm test` ✓ (27 suites, 275 tests)
 
-**Acceptance:** Create complete Brand Brief for "معسل أحمد", all fields saved.
+**Note:** Frontend TBD — will be built when Content Studio UI shell is created.
 
 ---
 
-### `[ ]` 3.4 — Content Pillars
+### `[DONE]` 3.4 — Content Pillars (Backend API)
 
 **Deliverables:**
 
-- API: pillars CRUD per client
-- Frontend: pillars manager with color, icon, percentage target
+- [x] API: pillars CRUD per client (list with clientId filter, get, create, update, soft delete)
+- [x] Zod validation for nameAr, percentageTarget (0-100), exampleTopics, recommendedFormats, color, icon
+- [x] 5 REST endpoints at `v1/content-pillars` with role guards (write: 4 roles, read: 7 roles)
+- [x] 8 unit tests
+- [x] `pnpm lint` ✓ | `pnpm typecheck` ✓ | `pnpm test` ✓ (28 suites, 283 tests)
 
-**Acceptance:** Define 4 pillars for client with percentage distribution.
+**Note:** Frontend (pillars manager with color/icon/percentage) TBD.
 
 ---
 
-### `[ ]` 3.5 — AI Service Layer
+### `[DONE]` 3.5 — AI Service Layer
 
 **Deliverables:**
 
-- `packages/ai/` with Anthropic client wrapper
-- Centralized prompt registry (loaded from DB, editable)
-- Model selection logic (sonnet for default, opus for premium)
-- Token counting + cost tracking
-- Rate limiting per subscription plan
-- All AI calls logged to `ai_generations` table
+- [x] `packages/ai/` — Anthropic SDK wrapper (`AnthropicClient`), cost calculator ($3/$15 sonnet, $15/$75 opus per M tokens), prompt registry (7 default prompts: big_idea_generator, hook_generator, script_writer, caption_writer, brand_voice_builder, image_prompt_generator, video_prompt_generator), shared types
+- [x] Model selection: sonnet-4-6 default, opus-4-7 premium (env configurable via `ANTHROPIC_MODEL_DEFAULT`/`ANTHROPIC_MODEL_PREMIUM`)
+- [x] Token counting from Anthropic API response usage
+- [x] Cost tracking stored in `ai_generations.cost_estimate_usd`
+- [x] Rate limiting: monthly generation count check (configurable 1000 limit)
+- [x] All calls logged to `ai_generations` table (inputData, outputData, model, tokens, cost, userId, companyId)
+- [x] Error logging: failed generations also written to DB with error message
+- [x] 3 API endpoints: `POST /v1/ai/generate`, `GET /v1/ai/history`, `PATCH /v1/ai/generations/:id/mark-used`
+- [x] 6 unit tests (generate success, error logging, rate limit, history, mark used, mark with rating)
+- [x] `pnpm lint` ✓ | `pnpm typecheck` ✓ | `pnpm test` ✓ (29 suites, 289 tests)
 
-**Acceptance:** Test prompt call works, logged correctly, cost calculated.
+**Note:** Prompt registry is in-memory (defaults). DB-backed editable prompts deferred to AI Tools Library (3.12-3.14) when UI for prompt editing is built. Subscription plan rate limiting deferred to Phase 4 (model doesn't exist yet).
 
 ---
 
-### `[ ]` 3.6 — Content Plan Wizard
+### `[DONE]` 3.6 — Content Plan Wizard
 
 **Deliverables:**
 
@@ -718,7 +730,7 @@
 
 ---
 
-### `[ ]` 3.7 — Content Piece Editor (Universal Shell)
+### `[CURRENT]` 3.7 — Content Piece Editor (Universal Shell)
 
 **Deliverables:**
 

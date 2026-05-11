@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import {
   useContentPiece,
@@ -12,6 +12,7 @@ import {
   type UpdateContentPieceDto,
 } from '@/hooks/use-content-pieces'
 import { useBrandBriefs } from '@/hooks/use-brand-briefs'
+import { api } from '@/lib/api'
 
 // ─── Stage colors ─────────────────────────────────────
 
@@ -30,8 +31,8 @@ const STAGE_COLORS: Record<string, string> = {
 }
 
 const PIECE_TYPE_TABS: Record<string, string[]> = {
-  VIDEO_LONG: ['overview', 'idea', 'hook', 'script', 'caption'],
-  REEL: ['overview', 'idea', 'hook', 'script', 'caption'],
+  VIDEO_LONG: ['overview', 'idea', 'hook', 'script', 'storyboard', 'music', 'caption'],
+  REEL: ['overview', 'idea', 'hook', 'script', 'storyboard', 'music', 'caption'],
   STORY: ['overview', 'idea', 'frames', 'caption'],
   STATIC_DESIGN: ['overview', 'texts', 'visual', 'caption'],
   CAROUSEL: ['overview', 'slides', 'caption'],
@@ -39,6 +40,30 @@ const PIECE_TYPE_TABS: Record<string, string[]> = {
   PODCAST: ['overview', 'idea', 'script', 'caption'],
   BLOG_POST: ['overview', 'content', 'caption'],
 }
+
+const HOOK_PATTERNS = [
+  'patternInterrupt',
+  'boldClaim',
+  'curiosityGap',
+  'visualSurprise',
+  'directQuestion',
+  'numberTease',
+] as const
+
+const SHOT_TYPES = [
+  'wide',
+  'medium',
+  'closeUp',
+  'extremeCloseUp',
+  'overTheShoulder',
+  'pointOfView',
+  'aerial',
+  'tracking',
+  'handheld',
+  'drone',
+  'timeLapse',
+  'slowMotion',
+] as const
 
 // ─── Main Editor Component ────────────────────────────
 
@@ -105,6 +130,34 @@ export function ContentPieceEditor({ pieceId }: Props) {
   const patch = useCallback((key: string, value: unknown) => {
     setDraft((prev) => ({ ...prev, [key]: value }))
   }, [])
+
+  const mergedComponents = useMemo(() => {
+    if (!piece) return {}
+    return {
+      ...((piece.components as Record<string, unknown>) ?? {}),
+      ...((draft.components as Record<string, unknown>) ?? {}),
+    }
+  }, [piece, draft])
+
+  const setComponent = useCallback(
+    (key: string, value: unknown) => {
+      patch('components', { ...mergedComponents, [key]: value })
+    },
+    [mergedComponents, patch],
+  )
+
+  const aiGenerate = useCallback(
+    async (toolType: string, prompt: string, systemPrompt?: string) => {
+      const res = await api.post<{ content: string }>('/v1/ai/generate', {
+        toolType,
+        prompt,
+        systemPrompt,
+        contentPieceId: pieceId,
+      })
+      return res.content
+    },
+    [pieceId],
+  )
 
   const handleStageTransition = async (target: string) => {
     if (!pieceId) return
@@ -190,9 +243,53 @@ export function ContentPieceEditor({ pieceId }: Props) {
         {/* Tab content */}
         <div className="flex-1 overflow-y-auto p-6">
           {activeTab === 'overview' && <TabOverview piece={piece} patch={patch} t={t} />}
-          {activeTab === 'idea' && <TabIdea piece={piece} patch={patch} t={t} />}
-          {activeTab === 'hook' && <TabHook piece={piece} patch={patch} t={t} />}
-          {activeTab === 'script' && <TabScript piece={piece} patch={patch} t={t} />}
+          {activeTab === 'idea' && (
+            <TabIdea piece={piece} patch={patch} t={t} aiGenerate={aiGenerate} />
+          )}
+          {activeTab === 'hook' && (
+            <TabHook
+              piece={piece}
+              _patch={patch}
+              t={t}
+              _tCommon={tCommon}
+              components={mergedComponents}
+              setComponent={setComponent}
+              aiGenerate={aiGenerate}
+            />
+          )}
+          {activeTab === 'script' && (
+            <TabScript
+              piece={piece}
+              _patch={patch}
+              t={t}
+              tCommon={tCommon}
+              components={mergedComponents}
+              setComponent={setComponent}
+              aiGenerate={aiGenerate}
+            />
+          )}
+          {activeTab === 'storyboard' && (
+            <TabStoryboard
+              piece={piece}
+              _patch={patch}
+              t={t}
+              tCommon={tCommon}
+              components={mergedComponents}
+              setComponent={setComponent}
+              aiGenerate={aiGenerate}
+            />
+          )}
+          {activeTab === 'music' && (
+            <TabMusic
+              piece={piece}
+              _patch={patch}
+              t={t}
+              tCommon={tCommon}
+              components={mergedComponents}
+              setComponent={setComponent}
+              aiGenerate={aiGenerate}
+            />
+          )}
           {activeTab === 'caption' && <TabCaption piece={piece} patch={patch} t={t} />}
           {activeTab === 'texts' && <TabTexts piece={piece} patch={patch} t={t} />}
           {activeTab === 'visual' && <TabVisual piece={piece} patch={patch} t={t} />}
@@ -511,14 +608,44 @@ function TabIdea({
   piece,
   patch,
   t,
+  aiGenerate,
 }: {
   piece: ContentPieceDetail
   patch: (k: string, v: unknown) => void
   t: (key: string) => string
+  aiGenerate?: (toolType: string, prompt: string, systemPrompt?: string) => Promise<string>
 }) {
+  const [aiBusy, setAiBusy] = useState(false)
+
+  const handleAiExpand = async () => {
+    if (!aiGenerate) return
+    setAiBusy(true)
+    try {
+      const content = await aiGenerate(
+        'idea_expander',
+        `Expand on this content idea:\n${piece.bigIdea ?? 'No big idea yet'}\n\nType: ${piece.type}\nPlatforms: ${piece.platforms.join(', ')}`,
+        'You are a creative content strategist. Expand the given idea with angles, hooks, and audience insights.',
+      )
+      patch('bigIdea', content)
+    } finally {
+      setAiBusy(false)
+    }
+  }
+
   return (
     <div className="mx-auto max-w-2xl space-y-5">
-      <h2 className="text-lg font-semibold">{t('idea')}</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{t('idea')}</h2>
+        {aiGenerate && (
+          <button
+            onClick={handleAiExpand}
+            disabled={aiBusy}
+            className="rounded-md border px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:opacity-50"
+          >
+            {aiBusy ? t('aiGenerating') : t('aiExpand')}
+          </button>
+        )}
+      </div>
       <Field label={t('bigIdea')}>
         <textarea
           defaultValue={piece.bigIdea ?? ''}
@@ -539,7 +666,7 @@ function TabIdea({
             }
           }}
           rows={4}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm text-xs"
+          className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm"
           dir="auto"
         />
       </Field>
@@ -551,64 +678,603 @@ function TabIdea({
 
 function TabHook({
   piece,
-  patch,
+  _patch,
   t,
+  _tCommon,
+  components,
+  setComponent,
+  aiGenerate,
 }: {
   piece: ContentPieceDetail
-  patch: (k: string, v: unknown) => void
+  _patch: (k: string, v: unknown) => void
   t: (key: string) => string
+  _tCommon: (key: string) => string
+  components: Record<string, unknown>
+  setComponent: (key: string, value: unknown) => void
+  aiGenerate?: (toolType: string, prompt: string, systemPrompt?: string) => Promise<string>
 }) {
+  const hook = (components['hook'] as Record<string, string> | undefined) ?? {}
+  const [aiBusy, setAiBusy] = useState<'hook' | 'full' | null>(null)
+
+  const patchHook = (field: string, value: string) => {
+    setComponent('hook', { ...hook, [field]: value })
+  }
+
+  const handleAiHook = async () => {
+    if (!aiGenerate) return
+    setAiBusy('hook')
+    try {
+      const content = await aiGenerate(
+        'hook_generator',
+        `Generate a hook for:\nTitle: ${piece.title}\nBig Idea: ${piece.bigIdea ?? ''}\nType: ${piece.type}\nPlatforms: ${piece.platforms.join(', ')}`,
+        'You are a hook specialist. Generate a powerful opening hook (2-5 seconds) for short-form video. Return ONLY the hook text, no explanations.',
+      )
+      patchHook('hookText', content)
+    } finally {
+      setAiBusy(null)
+    }
+  }
+
+  const handleAiFull = async () => {
+    if (!aiGenerate) return
+    setAiBusy('full')
+    try {
+      const content = await aiGenerate(
+        'hook_hold_payoff',
+        `Create a Hook-Hold-Payoff structure for:\nTitle: ${piece.title}\nBig Idea: ${piece.bigIdea ?? ''}\nType: ${piece.type}\nPlatforms: ${piece.platforms.join(', ')}`,
+        'You are a video structure specialist. Create a complete Hook-Hold-Payoff structure. Return as JSON with keys: hookText, hookType, holdText, payoffText.',
+      )
+      try {
+        const parsed = JSON.parse(content)
+        setComponent('hook', { ...hook, ...parsed })
+      } catch {
+        patchHook('hookText', content)
+      }
+    } finally {
+      setAiBusy(null)
+    }
+  }
+
   return (
-    <div className="mx-auto max-w-2xl space-y-5">
-      <h2 className="text-lg font-semibold">{t('hook')}</h2>
-      <Field label={t('components')}>
-        <textarea
-          defaultValue={piece.components ? JSON.stringify(piece.components, null, 2) : ''}
-          onChange={(e) => {
-            try {
-              patch('components', JSON.parse(e.target.value || 'null'))
-            } catch {
-              /* invalid */
-            }
-          }}
-          rows={8}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm text-xs"
-          dir="auto"
-        />
-      </Field>
+    <div className="mx-auto max-w-2xl space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{t('hook')}</h2>
+        <div className="flex gap-2">
+          {aiGenerate && (
+            <>
+              <button
+                onClick={handleAiHook}
+                disabled={aiBusy !== null}
+                className="rounded-md border px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:opacity-50"
+              >
+                {aiBusy === 'hook' ? t('aiGenerating') : t('aiHook')}
+              </button>
+              <button
+                onClick={handleAiFull}
+                disabled={aiBusy !== null}
+                className="rounded-md border px-3 py-1 text-sm text-purple-600 hover:bg-purple-50 disabled:opacity-50"
+              >
+                {aiBusy === 'full' ? t('aiGenerating') : t('aiHookHoldPayoff')}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+        <h3 className="mb-2 text-sm font-semibold text-blue-800">
+          {t('hookSection')} <span className="text-xs font-normal">(0-3s)</span>
+        </h3>
+        <div className="space-y-3">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-blue-700">
+              {t('hookPattern')}
+            </label>
+            <select
+              value={hook['hookType'] ?? ''}
+              onChange={(e) => patchHook('hookType', e.target.value)}
+              className="w-full rounded-md border border-blue-200 bg-white px-3 py-2 text-sm"
+            >
+              <option value="">{t('selectPattern')}</option>
+              {HOOK_PATTERNS.map((p) => (
+                <option key={p} value={p}>
+                  {t(`hookPattern_${p}`)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Field label={t('hookText')}>
+            <textarea
+              value={hook['hookText'] ?? ''}
+              onChange={(e) => patchHook('hookText', e.target.value)}
+              rows={3}
+              className="w-full rounded-md border border-blue-200 bg-white px-3 py-2 text-sm"
+              dir="auto"
+            />
+          </Field>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-4">
+        <h3 className="mb-2 text-sm font-semibold text-indigo-800">
+          {t('holdSection')} <span className="text-xs font-normal">(3-20s)</span>
+        </h3>
+        <Field label={t('holdText')}>
+          <textarea
+            value={hook['holdText'] ?? ''}
+            onChange={(e) => patchHook('holdText', e.target.value)}
+            rows={5}
+            className="w-full rounded-md border border-indigo-200 bg-white px-3 py-2 text-sm"
+            dir="auto"
+          />
+        </Field>
+      </div>
+
+      <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+        <h3 className="mb-2 text-sm font-semibold text-green-800">
+          {t('payoffSection')} <span className="text-xs font-normal">(20-30s)</span>
+        </h3>
+        <Field label={t('payoffText')}>
+          <textarea
+            value={hook['payoffText'] ?? ''}
+            onChange={(e) => patchHook('payoffText', e.target.value)}
+            rows={3}
+            className="w-full rounded-md border border-green-200 bg-white px-3 py-2 text-sm"
+            dir="auto"
+          />
+        </Field>
+      </div>
     </div>
   )
 }
 
-// ─── Tab: Script ──────────────────────────────────────
+// ─── Tab: Script ───────────────────────────────────────
 
 function TabScript({
   piece,
-  patch,
+  _patch,
   t,
+  tCommon,
+  components,
+  setComponent,
+  aiGenerate,
 }: {
   piece: ContentPieceDetail
-  patch: (k: string, v: unknown) => void
+  _patch: (k: string, v: unknown) => void
   t: (key: string) => string
+  tCommon: (key: string) => string
+  components: Record<string, unknown>
+  setComponent: (key: string, value: unknown) => void
+  aiGenerate?: (toolType: string, prompt: string, systemPrompt?: string) => Promise<string>
 }) {
+  const script = (components['script'] as { actTitle: string; content: string }[] | undefined) ?? []
+  const [aiBusy, setAiBusy] = useState(false)
+
+  const updateAct = (index: number, field: 'actTitle' | 'content', value: string) => {
+    const updated = [...script]
+    updated[index] = { ...updated[index]!, [field]: value }
+    setComponent('script', updated)
+  }
+
+  const addAct = () => {
+    setComponent('script', [...script, { actTitle: '', content: '' }])
+  }
+
+  const removeAct = (index: number) => {
+    setComponent(
+      'script',
+      script.filter((_, i) => i !== index),
+    )
+  }
+
+  const handleAiScript = async () => {
+    if (!aiGenerate) return
+    setAiBusy(true)
+    try {
+      const context = script.map((a) => `[${a.actTitle || 'Untitled'}]\n${a.content}`).join('\n\n')
+      const content = await aiGenerate(
+        'script_writer',
+        `Write a script for:\nTitle: ${piece.title}\nBig Idea: ${piece.bigIdea ?? ''}\nType: ${piece.type}\nPlatforms: ${piece.platforms.join(', ')}\n\nCurrent draft:\n${context || 'No existing script'}`,
+        'You are a scriptwriter. Write a structured script with acts/sections. Return as JSON array: [{ "actTitle": "...", "content": "..." }]',
+      )
+      try {
+        const parsed = JSON.parse(content)
+        if (Array.isArray(parsed)) {
+          setComponent('script', parsed)
+        }
+      } catch {
+        setComponent('script', [...script, { actTitle: 'AI Generated', content }])
+      }
+    } finally {
+      setAiBusy(false)
+    }
+  }
+
   return (
     <div className="mx-auto max-w-2xl space-y-5">
-      <h2 className="text-lg font-semibold">{t('script')}</h2>
-      <Field label={t('components')}>
-        <textarea
-          defaultValue={piece.components ? JSON.stringify(piece.components, null, 2) : ''}
-          onChange={(e) => {
-            try {
-              patch('components', JSON.parse(e.target.value || 'null'))
-            } catch {
-              /* invalid */
-            }
-          }}
-          rows={12}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm text-xs"
-          dir="auto"
-        />
-      </Field>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{t('script')}</h2>
+        <div className="flex gap-2">
+          {aiGenerate && (
+            <button
+              onClick={handleAiScript}
+              disabled={aiBusy}
+              className="rounded-md border px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:opacity-50"
+            >
+              {aiBusy ? t('aiGenerating') : t('aiWriteScript')}
+            </button>
+          )}
+          <button
+            onClick={addAct}
+            className="rounded-md border px-3 py-1 text-sm text-gray-600 hover:bg-gray-50"
+          >
+            {t('addAct')}
+          </button>
+        </div>
+      </div>
+
+      {script.length === 0 && <p className="text-sm italic text-gray-400">{t('noScriptActs')}</p>}
+
+      {script.map((act, i) => (
+        <div key={i} className="rounded-lg border border-gray-200 bg-white p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <input
+              value={act.actTitle}
+              onChange={(e) => updateAct(i, 'actTitle', e.target.value)}
+              placeholder={t('actTitlePlaceholder')}
+              className="flex-1 rounded border border-gray-200 px-2 py-1 text-sm font-medium"
+              dir="auto"
+            />
+            <button
+              onClick={() => removeAct(i)}
+              className="mr-2 text-xs text-red-500 hover:text-red-700"
+            >
+              {tCommon('remove')}
+            </button>
+          </div>
+          <textarea
+            value={act.content}
+            onChange={(e) => updateAct(i, 'content', e.target.value)}
+            rows={6}
+            className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm"
+            dir="auto"
+          />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─── Tab: Storyboard ───────────────────────────────────
+
+function TabStoryboard({
+  piece,
+  _patch,
+  t,
+  tCommon,
+  components,
+  setComponent,
+  aiGenerate,
+}: {
+  piece: ContentPieceDetail
+  _patch: (k: string, v: unknown) => void
+  t: (key: string) => string
+  tCommon: (key: string) => string
+  components: Record<string, unknown>
+  setComponent: (key: string, value: unknown) => void
+  aiGenerate?: (toolType: string, prompt: string, systemPrompt?: string) => Promise<string>
+}) {
+  const storyboard =
+    (components['storyboard'] as
+      | {
+          shotNumber: number
+          shotType: string
+          duration: number
+          description: string
+          notes: string
+        }[]
+      | undefined) ?? []
+  const [aiBusy, setAiBusy] = useState(false)
+
+  const updateShot = (index: number, field: string, value: unknown) => {
+    const updated = [...storyboard]
+    updated[index] = { ...updated[index]!, [field]: value }
+    setComponent('storyboard', updated)
+  }
+
+  const addShot = () => {
+    const nextNum = storyboard.length > 0 ? Math.max(...storyboard.map((s) => s.shotNumber)) + 1 : 1
+    setComponent('storyboard', [
+      ...storyboard,
+      { shotNumber: nextNum, shotType: 'medium', duration: 3, description: '', notes: '' },
+    ])
+  }
+
+  const removeShot = (index: number) => {
+    setComponent(
+      'storyboard',
+      storyboard.filter((_, i) => i !== index),
+    )
+  }
+
+  const handleAiStoryboard = async () => {
+    if (!aiGenerate) return
+    setAiBusy(true)
+    try {
+      const content = await aiGenerate(
+        'storyboard_generator',
+        `Create a storyboard for:\nTitle: ${piece.title}\nBig Idea: ${piece.bigIdea ?? ''}\nScript: ${JSON.stringify(components['script'] ?? '')}\nType: ${piece.type}\nPlatforms: ${piece.platforms.join(', ')}`,
+        'You are a video director. Create a shot-by-shot storyboard. Return as JSON array: [{ "shotNumber": 1, "shotType": "medium", "duration": 5, "description": "...", "notes": "..." }]',
+      )
+      try {
+        const parsed = JSON.parse(content)
+        if (Array.isArray(parsed)) {
+          setComponent('storyboard', parsed)
+        }
+      } catch {
+        // fallback
+      }
+    } finally {
+      setAiBusy(false)
+    }
+  }
+
+  return (
+    <div className="mx-auto max-w-3xl space-y-5">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{t('storyboard')}</h2>
+        <div className="flex gap-2">
+          {aiGenerate && (
+            <button
+              onClick={handleAiStoryboard}
+              disabled={aiBusy}
+              className="rounded-md border px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:opacity-50"
+            >
+              {aiBusy ? t('aiGenerating') : t('aiStoryboard')}
+            </button>
+          )}
+          <button
+            onClick={addShot}
+            className="rounded-md border px-3 py-1 text-sm text-gray-600 hover:bg-gray-50"
+          >
+            {t('addShot')}
+          </button>
+        </div>
+      </div>
+
+      {storyboard.length === 0 && <p className="text-sm italic text-gray-400">{t('noShots')}</p>}
+
+      <div className="space-y-3">
+        {storyboard.map((shot, i) => (
+          <div key={shot.shotNumber} className="rounded-lg border border-gray-200 bg-white p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-500">
+                {t('shot')} #{shot.shotNumber}
+              </span>
+              <button
+                onClick={() => removeShot(i)}
+                className="text-xs text-red-500 hover:text-red-700"
+              >
+                {tCommon('remove')}
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-600">
+                  {t('shotType')}
+                </label>
+                <select
+                  value={shot.shotType}
+                  onChange={(e) => updateShot(i, 'shotType', e.target.value)}
+                  className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+                >
+                  {SHOT_TYPES.map((st) => (
+                    <option key={st} value={st}>
+                      {t(`shotType_${st}`)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-600">
+                  {t('duration')} (s)
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  max={60}
+                  value={shot.duration}
+                  onChange={(e) => updateShot(i, 'duration', parseInt(e.target.value, 10) || 3)}
+                  className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-600">{t('notes')}</label>
+                <input
+                  value={shot.notes}
+                  onChange={(e) => updateShot(i, 'notes', e.target.value)}
+                  className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+                  dir="auto"
+                />
+              </div>
+            </div>
+            <div className="mt-2">
+              <label className="mb-1 block text-xs font-medium text-gray-600">
+                {t('description')}
+              </label>
+              <textarea
+                value={shot.description}
+                onChange={(e) => updateShot(i, 'description', e.target.value)}
+                rows={2}
+                className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+                dir="auto"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {storyboard.length > 0 && (
+        <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">
+          {t('totalDuration')}: {storyboard.reduce((sum, s) => sum + (s.duration ?? 0), 0)}s (
+          {storyboard.length} {t('shots')})
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Tab: Music ────────────────────────────────────────
+
+function TabMusic({
+  piece,
+  _patch,
+  t,
+  tCommon,
+  components,
+  setComponent,
+  aiGenerate,
+}: {
+  piece: ContentPieceDetail
+  _patch: (k: string, v: unknown) => void
+  t: (key: string) => string
+  tCommon: (key: string) => string
+  components: Record<string, unknown>
+  setComponent: (key: string, value: unknown) => void
+  aiGenerate?: (toolType: string, prompt: string, systemPrompt?: string) => Promise<string>
+}) {
+  const music =
+    (components['music'] as
+      | { track: string; mood: string; artist: string; notes: string; referenceUrl: string }[]
+      | undefined) ?? []
+  const [aiBusy, setAiBusy] = useState(false)
+
+  const updateTrack = (index: number, field: string, value: string) => {
+    const updated = [...music]
+    updated[index] = { ...updated[index]!, [field]: value }
+    setComponent('music', updated)
+  }
+
+  const addTrack = () => {
+    setComponent('music', [
+      ...music,
+      { track: '', mood: '', artist: '', notes: '', referenceUrl: '' },
+    ])
+  }
+
+  const removeTrack = (index: number) => {
+    setComponent(
+      'music',
+      music.filter((_, i) => i !== index),
+    )
+  }
+
+  const handleAiMusic = async () => {
+    if (!aiGenerate) return
+    setAiBusy(true)
+    try {
+      const content = await aiGenerate(
+        'music_suggestion',
+        `Suggest music/sound for:\nTitle: ${piece.title}\nBig Idea: ${piece.bigIdea ?? ''}\nType: ${piece.type}\nPlatforms: ${piece.platforms.join(', ')}\n\nCurrent music list: ${JSON.stringify(music)}`,
+        'You are a music supervisor. Suggest background music tracks that fit the content mood. Return as JSON array: [{ "track": "...", "mood": "...", "artist": "...", "notes": "..." }]',
+      )
+      try {
+        const parsed = JSON.parse(content)
+        if (Array.isArray(parsed)) {
+          setComponent('music', parsed)
+        }
+      } catch {
+        // fallback
+      }
+    } finally {
+      setAiBusy(false)
+    }
+  }
+
+  return (
+    <div className="mx-auto max-w-2xl space-y-5">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{t('music')}</h2>
+        <div className="flex gap-2">
+          {aiGenerate && (
+            <button
+              onClick={handleAiMusic}
+              disabled={aiBusy}
+              className="rounded-md border px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:opacity-50"
+            >
+              {aiBusy ? t('aiGenerating') : t('aiMusic')}
+            </button>
+          )}
+          <button
+            onClick={addTrack}
+            className="rounded-md border px-3 py-1 text-sm text-gray-600 hover:bg-gray-50"
+          >
+            {t('addTrack')}
+          </button>
+        </div>
+      </div>
+
+      {music.length === 0 && <p className="text-sm italic text-gray-400">{t('noMusicTracks')}</p>}
+
+      {music.map((track, i) => (
+        <div key={i} className="rounded-lg border border-gray-200 bg-white p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-500">
+              {t('track')} #{i + 1}
+            </span>
+            <button
+              onClick={() => removeTrack(i)}
+              className="text-xs text-red-500 hover:text-red-700"
+            >
+              {tCommon('remove')}
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label={t('trackName')}>
+              <input
+                value={track.track}
+                onChange={(e) => updateTrack(i, 'track', e.target.value)}
+                className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+                dir="auto"
+              />
+            </Field>
+            <Field label={t('artist')}>
+              <input
+                value={track.artist}
+                onChange={(e) => updateTrack(i, 'artist', e.target.value)}
+                className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+                dir="auto"
+              />
+            </Field>
+            <Field label={t('mood')}>
+              <input
+                value={track.mood}
+                onChange={(e) => updateTrack(i, 'mood', e.target.value)}
+                className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+                dir="auto"
+              />
+            </Field>
+            <Field label={t('referenceUrl')}>
+              <input
+                value={track.referenceUrl}
+                onChange={(e) => updateTrack(i, 'referenceUrl', e.target.value)}
+                className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+              />
+            </Field>
+          </div>
+          <div className="mt-2">
+            <Field label={t('notes')}>
+              <textarea
+                value={track.notes}
+                onChange={(e) => updateTrack(i, 'notes', e.target.value)}
+                rows={2}
+                className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+                dir="auto"
+              />
+            </Field>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }

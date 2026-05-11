@@ -7,7 +7,7 @@
 ## 📍 Current State
 
 **Phase:** Phase 3 — Creative & Collaboration
-**Current Task:** 3.7 — Universal Content Piece Editor
+**Current Task:** 3.8 — Content Editor: Video / Reel
 **Last Updated:** 2026-05-11
 
 ---
@@ -18,10 +18,10 @@
 Phase 0 — Setup:                    [██████] 6/6 ✅
 Phase 1 — Foundation:               [████████████████] 14/14 ✅
 Phase 2 — Core Operations:          [████████████████████████████████████████████] 18/18 ✅
-Phase 3 — Creative & Collaboration: [███████████████████████░] 6.5/22
+Phase 3 — Creative & Collaboration: [████████████████████████░░] 7/22
 Phase 4 — SaaS Layer:               [░░░░░░░░] 0/12
 
-TOTAL:                              [███████████████████████████████████████████████████████████████████████████████████████████████████████░] 44.5/72
+TOTAL:                              [████████████████████████████████████████████████████████████████████████████████████████████████████████] 45/72
 ```
 
 ---
@@ -288,6 +288,29 @@ TOTAL:                              [██████████████�
 
 ---
 
+### Task 3.8 — Content Editor: Video / Reel (2026-05-11)
+
+- [x] Added `storyboard` + `music` tabs to VIDEO_LONG and REEL tab sets
+- [x] **TabHook**: Full Hook-Hold-Payoff framework editor with hook pattern selector (Pattern Interrupt, Bold Claim, Curiosity Gap, etc.), three color-coded sections (Hook 0-3s, Hold 3-20s, Payoff 20-30s), AI buttons for hook generation and full structure generation
+- [x] **TabScript**: Structured acts/sections editor with add/remove, AI script generation that returns structured acts via JSON
+- [x] **TabStoryboard**: Shot list with shot type, duration, description, notes per shot; add/remove shots; total duration summary; AI storyboard generation
+- [x] **TabMusic**: Track list with track name, artist, mood, notes, reference URL; add/remove tracks; AI music suggestion
+- [x] **TabIdea**: Enhanced with AI expand button to generate richer ideas
+- [x] AI assistant buttons on all tabs using `POST /v1/ai/generate` endpoint with tool-specific prompts and system prompts
+- [x] AR/EN translations for all new keys: hook patterns, shot types, storyboard/music UI, AI button labels, tab names
+- [x] Fixed type errors: `null` safety with `| undefined` cast, bracket notation for index-signature access (`components['key']`), non-null assertions for array spreads (`updated[index]!`)
+- [x] `pnpm lint` ✓ | `pnpm typecheck` ✓ | `pnpm test` ✓ (32 suites, 324 tests)
+
+**Key decisions:**
+
+- All structural data (hook, script, storyboard, music) stored in `components` JSON field as sub-keys to keep ContentPiece model generic
+- Each tab receives `components` (merged piece+draft) + `setComponent(key, value)` helper instead of direct `patch` access
+- AI buttons use inline async handlers with loading state; content parsed as JSON when API returns structured data, falls back to raw string
+- Shared `aiGenerate` callback in parent prevents duplicate API client setup per tab
+- `_patch` prefix used for unused `patch` prop in tabs that use `setComponent` instead
+
+---
+
 ## 🚫 Blockers
 
 (none currently)
@@ -308,8 +331,8 @@ See `DECISIONS.md` for detailed architectural decisions.
 
 ## ⏭ Next Up
 
-- 3.7 — Content Piece Editor (refine per-type tabs, asset picker, stage UI polish)
-- 3.8 — Content Calendar View
+- 3.9 — Content Editor: Static Design
+- 3.10 — Content Editor: Story
 
 ---
 

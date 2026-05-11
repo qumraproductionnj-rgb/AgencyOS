@@ -730,7 +730,7 @@
 
 ---
 
-### `[CURRENT]` 3.7 — Content Piece Editor (Universal Shell)
+### `[DONE]` 3.7 — Content Piece Editor (Universal Shell)
 
 **Deliverables:**
 
@@ -745,7 +745,7 @@
 
 ---
 
-### `[ ]` 3.8 — Content Editor: Video / Reel
+### `[CURRENT]` 3.8 — Content Editor: Video / Reel
 
 **Deliverables:**
 

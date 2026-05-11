@@ -941,6 +941,14 @@
     "layout_centered": "Centered",
     "layout_split": "Split",
     "layout_fullBleed": "Full Bleed",
-    "layout_grid": "Grid"
+    "layout_grid": "Grid",
+    "addFrame": "+ Add Frame",
+    "noFrames": "No frames yet. Add a frame or use AI to generate.",
+    "frame": "Frame",
+    "frameText": "Text",
+    "sticker": "Sticker",
+    "interactive": "Interactive Element",
+    "interactivePlaceholder": "Poll, link, swipe-up...",
+    "aiStorySequence": "AI Story Sequence"
   }
 }

@@ -315,7 +315,17 @@ export function ContentPieceEditor({ pieceId }: Props) {
               aiGenerate={aiGenerate}
             />
           )}
-          {activeTab === 'frames' && <TabFrames piece={piece} patch={patch} t={t} />}
+          {activeTab === 'frames' && (
+            <TabFrames
+              piece={piece}
+              _patch={patch}
+              t={t}
+              _tCommon={tCommon}
+              components={mergedComponents}
+              setComponent={setComponent}
+              aiGenerate={aiGenerate}
+            />
+          )}
           {activeTab === 'slides' && <TabSlides piece={piece} patch={patch} t={t} />}
           {activeTab === 'content' && <TabContent piece={piece} patch={patch} t={t} />}
         </div>
@@ -1696,32 +1706,173 @@ function TabVisual({
 
 function TabFrames({
   piece,
-  patch,
+  _patch,
   t,
+  _tCommon,
+  components,
+  setComponent,
+  aiGenerate,
 }: {
   piece: ContentPieceDetail
-  patch: (k: string, v: unknown) => void
+  _patch: (k: string, v: unknown) => void
   t: (key: string) => string
+  _tCommon: (key: string) => string
+  components: Record<string, unknown>
+  setComponent: (key: string, value: unknown) => void
+  aiGenerate?: (toolType: string, prompt: string, systemPrompt?: string) => Promise<string>
 }) {
+  const frames =
+    (components['frames'] as {
+      visual: string
+      text: string
+      sticker: string
+      interactive: string
+      duration: number
+    }[]) ?? []
+  const [aiBusy, setAiBusy] = useState(false)
+
+  const updateFrame = (index: number, field: string, value: unknown) => {
+    const updated = [...frames]
+    updated[index] = { ...updated[index]!, [field]: value }
+    setComponent('frames', updated)
+  }
+
+  const addFrame = () => {
+    if (frames.length >= 7) return
+    setComponent('frames', [
+      ...frames,
+      { visual: '', text: '', sticker: '', interactive: '', duration: 3 },
+    ])
+  }
+
+  const removeFrame = (index: number) => {
+    setComponent(
+      'frames',
+      frames.filter((_, i) => i !== index),
+    )
+  }
+
+  const handleAiStory = async () => {
+    if (!aiGenerate) return
+    setAiBusy(true)
+    try {
+      const context = frames.map((f, i) => `Frame ${i + 1}: ${f.visual || '(empty)'}`).join('\n')
+      const content = await aiGenerate(
+        'story_sequence',
+        `Create a story sequence (3-7 frames) for:\nTitle: ${piece.title}\nBig Idea: ${piece.bigIdea ?? ''}\n\nExisting frames:\n${context || 'None yet'}`,
+        'You are a social media story creator. Create a frame-by-frame story sequence. Return as JSON array: [{ "visual": "...", "text": "...", "sticker": "...", "interactive": "...", "duration": 3 }]',
+      )
+      try {
+        const parsed = JSON.parse(content)
+        if (Array.isArray(parsed)) {
+          setComponent('frames', parsed)
+        }
+      } catch {
+        // fallback
+      }
+    } finally {
+      setAiBusy(false)
+    }
+  }
+
   return (
-    <div className="mx-auto max-w-2xl space-y-5">
-      <h2 className="text-lg font-semibold">{t('frames')}</h2>
-      <p className="text-sm text-gray-500">{t('framesDesc')}</p>
-      <Field label={t('components')}>
-        <textarea
-          defaultValue={piece.components ? JSON.stringify(piece.components, null, 2) : ''}
-          onChange={(e) => {
-            try {
-              patch('components', JSON.parse(e.target.value || 'null'))
-            } catch {
-              /* invalid */
-            }
-          }}
-          rows={10}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm text-xs"
-          dir="auto"
-        />
-      </Field>
+    <div className="mx-auto max-w-3xl space-y-5">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{t('frames')}</h2>
+        <div className="flex gap-2">
+          {aiGenerate && (
+            <button
+              onClick={handleAiStory}
+              disabled={aiBusy}
+              className="rounded-md border px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:opacity-50"
+            >
+              {aiBusy ? t('aiGenerating') : t('aiStorySequence')}
+            </button>
+          )}
+          <button
+            onClick={addFrame}
+            disabled={frames.length >= 7}
+            className="rounded-md border px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-30"
+          >
+            {t('addFrame')} ({frames.length}/7)
+          </button>
+        </div>
+      </div>
+
+      {frames.length === 0 && <p className="text-sm italic text-gray-400">{t('noFrames')}</p>}
+
+      <div className="space-y-4">
+        {frames.map((frame, i) => (
+          <div key={i} className="rounded-lg border border-indigo-200 bg-white p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-sm font-semibold text-indigo-700">
+                {t('frame')} {i + 1}
+              </span>
+              <button
+                onClick={() => removeFrame(i)}
+                className="text-xs text-red-500 hover:text-red-700"
+              >
+                {_tCommon('remove')}
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label={t('visualDirection')}>
+                <textarea
+                  value={frame.visual}
+                  onChange={(e) => updateFrame(i, 'visual', e.target.value)}
+                  rows={2}
+                  className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+                  dir="auto"
+                />
+              </Field>
+              <Field label={t('frameText')}>
+                <textarea
+                  value={frame.text}
+                  onChange={(e) => updateFrame(i, 'text', e.target.value)}
+                  rows={2}
+                  className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+                  dir="auto"
+                />
+              </Field>
+              <Field label={t('sticker')}>
+                <input
+                  value={frame.sticker}
+                  onChange={(e) => updateFrame(i, 'sticker', e.target.value)}
+                  className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+                  dir="auto"
+                />
+              </Field>
+              <Field label={t('interactive')}>
+                <input
+                  value={frame.interactive}
+                  onChange={(e) => updateFrame(i, 'interactive', e.target.value)}
+                  className="w-full rounded border border-gray-200 px-2 py-1 text-sm"
+                  dir="auto"
+                  placeholder={t('interactivePlaceholder')}
+                />
+              </Field>
+            </div>
+            <div className="mt-2">
+              <Field label={t('duration')}>(s)</Field>
+              <input
+                type="number"
+                min={1}
+                max={15}
+                value={frame.duration}
+                onChange={(e) => updateFrame(i, 'duration', parseInt(e.target.value, 10) || 3)}
+                className="w-20 rounded border border-gray-200 px-2 py-1 text-sm"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {frames.length > 0 && (
+        <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">
+          {t('totalDuration')}: {frames.reduce((sum, f) => sum + (f.duration ?? 0), 0)}s (
+          {frames.length} {t('frames')})
+        </div>
+      )}
     </div>
   )
 }

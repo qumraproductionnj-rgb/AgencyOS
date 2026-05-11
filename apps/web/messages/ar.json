@@ -941,6 +941,14 @@
     "layout_centered": "مركزي",
     "layout_split": "منقسم",
     "layout_fullBleed": "كامل",
-    "layout_grid": "شبكي"
+    "layout_grid": "شبكي",
+    "addFrame": "+ إضافة إطار",
+    "noFrames": "لا توجد إطارات بعد. أضف إطاراً أو استخدم الذكاء الاصطناعي.",
+    "frame": "إطار",
+    "frameText": "النص",
+    "sticker": "ملصق",
+    "interactive": "عنصر تفاعلي",
+    "interactivePlaceholder": "استفتاء، رابط، تحويلة...",
+    "aiStorySequence": "توليد تسلسل القصة"
   }
 }

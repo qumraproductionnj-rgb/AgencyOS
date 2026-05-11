@@ -707,6 +707,12 @@
     "noData": "No data available",
     "completedTasks": "{{count}} tasks completed"
   },
+  "search": {
+    "search": "Search",
+    "placeholder": "Search clients, projects, tasks...",
+    "minChars": "Type at least 2 characters to search",
+    "noResults": "No results found"
+  },
   "exchangeRates": {
     "title": "Exchange Rates",
     "description": "Manage currency exchange rates used in invoices and expenses",

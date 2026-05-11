@@ -3,6 +3,7 @@
 import { LanguageSwitcher } from './language-switcher'
 import { ThemeToggle } from './theme-toggle'
 import { NotificationBell } from './notifications/notification-bell'
+import { SearchTrigger } from './search/search-modal'
 
 export function AppTopNav() {
   return (
@@ -12,7 +13,8 @@ export function AppTopNav() {
           <span className="text-lg font-bold tracking-tight">AgencyOS</span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <SearchTrigger />
           <NotificationBell />
           <LanguageSwitcher />
           <ThemeToggle />

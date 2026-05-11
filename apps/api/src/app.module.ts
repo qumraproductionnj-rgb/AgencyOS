@@ -31,6 +31,7 @@ import { NotificationsModule } from './notifications/notification.module'
 import { ExpensesModule } from './expenses/expense.module'
 import { ExchangeRatesModule } from './exchange-rates/exchange-rate.module'
 import { DashboardModule } from './dashboard/dashboard.module'
+import { SearchModule } from './search/search.module'
 import { OnboardingModule } from './onboarding/onboarding.module'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
 import { PermissionsGuard } from './common/guards/permission.guard'
@@ -95,6 +96,7 @@ import { envSchema } from './config/env.validation'
     ExpensesModule,
     ExchangeRatesModule,
     DashboardModule,
+    SearchModule,
     OnboardingModule,
     HealthModule,
   ],

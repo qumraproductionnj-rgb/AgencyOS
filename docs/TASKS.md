@@ -580,7 +580,7 @@
 
 ---
 
-### `[CURRENT]` 2.16 — Dashboard Refinement
+### `[DONE]` 2.16 — Dashboard Refinement
 
 **Deliverables:**
 
@@ -599,7 +599,7 @@
 
 ---
 
-### `[ ]` 2.17 — Search (Postgres FTS)
+### `[CURRENT]` 2.17 — Search (Postgres FTS)
 
 **Deliverables:**
 

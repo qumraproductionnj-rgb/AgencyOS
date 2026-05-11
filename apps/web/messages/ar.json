@@ -691,6 +691,22 @@
     "welcomeMessage": "كل شيء جاهز! مرحباً بك في AgencyOS.",
     "redirecting": "جاري التوجيه إلى لوحة التحكم..."
   },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "subtitle": "نظرة عامة على أداء مؤسستك",
+    "loading": "جاري التحميل...",
+    "error": "تعذر تحميل البيانات",
+    "revenueThisMonth": "إيرادات هذا الشهر",
+    "activeProjects": "المشاريع النشطة",
+    "overdueTasks": "المهام المتأخرة",
+    "pendingInvoices": "الفواتير المعلقة",
+    "pipelineValue": "قيمة الصفقات",
+    "todayAttendance": "الحضور اليوم",
+    "lateCount": "متأخر: {{count}}",
+    "topPerformers": "الأفضل أداءً",
+    "noData": "لا توجد بيانات",
+    "completedTasks": "{{count}} مهمة مكتملة"
+  },
   "exchangeRates": {
     "title": "أسعار الصرف",
     "description": "إدارة أسعار صرف العملات المستخدمة في الفواتير والمصروفات",

@@ -568,7 +568,7 @@
 
 ---
 
-### `[CURRENT]` 2.15 — Exchange Rates Management
+### `[DONE]` 2.15 — Exchange Rates Management
 
 **Deliverables:**
 
@@ -580,7 +580,7 @@
 
 ---
 
-### `[ ]` 2.16 — Dashboard Refinement
+### `[CURRENT]` 2.16 — Dashboard Refinement
 
 **Deliverables:**
 

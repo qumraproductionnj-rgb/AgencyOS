@@ -691,6 +691,22 @@
     "welcomeMessage": "You're all set! Welcome to AgencyOS.",
     "redirecting": "Redirecting to dashboard..."
   },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Overview of your agency's performance",
+    "loading": "Loading...",
+    "error": "Failed to load data",
+    "revenueThisMonth": "Revenue This Month",
+    "activeProjects": "Active Projects",
+    "overdueTasks": "Overdue Tasks",
+    "pendingInvoices": "Pending Invoices",
+    "pipelineValue": "Pipeline Value",
+    "todayAttendance": "Today's Attendance",
+    "lateCount": "Late: {{count}}",
+    "topPerformers": "Top Performers",
+    "noData": "No data available",
+    "completedTasks": "{{count}} tasks completed"
+  },
   "exchangeRates": {
     "title": "Exchange Rates",
     "description": "Manage currency exchange rates used in invoices and expenses",

@@ -15,6 +15,17 @@ import { MusicMoodSuggester } from './music-mood-suggester'
 import { BRollPlanner } from './b-roll-planner'
 import { ThumbnailConceptGenerator } from './thumbnail-concept-generator'
 import { VideoPromptGenerator } from './video-prompt-generator'
+import { VisualDirectionGenerator } from './visual-direction-generator'
+import { ColorPaletteGenerator } from './color-palette-generator'
+import { TypographyPairSuggester } from './typography-pair-suggester'
+import { ImagePromptGenerator } from './image-prompt-generator'
+import { StorySequenceBuilder } from './story-sequence-builder'
+import { CarouselOutliner } from './carousel-outliner'
+import { CaptionWriter } from './caption-writer'
+import { HashtagResearcher } from './hashtag-researcher'
+import { CtaGenerator } from './cta-generator'
+import { ToneChecker } from './tone-checker'
+import { CulturalSensitivityCheck } from './cultural-sensitivity-check'
 
 const TOOLS = [
   { key: 'brand_voice_builder', icon: '🎙️' },
@@ -30,6 +41,17 @@ const TOOLS = [
   { key: 'b_roll_planner', icon: '🎥' },
   { key: 'thumbnail_concept_generator', icon: '🖼️' },
   { key: 'video_prompt_generator', icon: '🤖' },
+  { key: 'visual_direction_generator', icon: '🎨' },
+  { key: 'color_palette_generator', icon: '🌈' },
+  { key: 'typography_pair_suggester', icon: '🔤' },
+  { key: 'image_prompt_generator', icon: '🖌️' },
+  { key: 'story_sequence_builder', icon: '📖' },
+  { key: 'carousel_outliner', icon: '🔄' },
+  { key: 'caption_writer', icon: '✍️' },
+  { key: 'hashtag_researcher', icon: '#️⃣' },
+  { key: 'cta_generator', icon: '🎯' },
+  { key: 'tone_checker', icon: '📐' },
+  { key: 'cultural_sensitivity_check', icon: '🌍' },
 ] as const
 
 export function AiToolsList() {
@@ -81,6 +103,17 @@ export function AiToolsList() {
           {activeTool === 'b_roll_planner' && <BRollPlanner t={t} />}
           {activeTool === 'thumbnail_concept_generator' && <ThumbnailConceptGenerator t={t} />}
           {activeTool === 'video_prompt_generator' && <VideoPromptGenerator t={t} />}
+          {activeTool === 'visual_direction_generator' && <VisualDirectionGenerator t={t} />}
+          {activeTool === 'color_palette_generator' && <ColorPaletteGenerator t={t} />}
+          {activeTool === 'typography_pair_suggester' && <TypographyPairSuggester t={t} />}
+          {activeTool === 'image_prompt_generator' && <ImagePromptGenerator t={t} />}
+          {activeTool === 'story_sequence_builder' && <StorySequenceBuilder t={t} />}
+          {activeTool === 'carousel_outliner' && <CarouselOutliner t={t} />}
+          {activeTool === 'caption_writer' && <CaptionWriter t={t} />}
+          {activeTool === 'hashtag_researcher' && <HashtagResearcher t={t} />}
+          {activeTool === 'cta_generator' && <CtaGenerator t={t} />}
+          {activeTool === 'tone_checker' && <ToneChecker t={t} />}
+          {activeTool === 'cultural_sensitivity_check' && <CulturalSensitivityCheck t={t} />}
         </div>
       )}
     </div>

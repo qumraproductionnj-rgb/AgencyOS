@@ -12,9 +12,9 @@
 | Phase 0 — Setup                    | 6         | 6             | 1 week                           |
 | Phase 1 — Foundation ✅            | 14/14     | 14            | 3-4 weeks                        |
 | Phase 2 — Core Operations ✅       | 18/18     | 18            | 4-5 weeks                        |
-| Phase 3 — Creative & Collaboration | 11/22     | 22            | 5-6 weeks                        |
+| Phase 3 — Creative & Collaboration | 12/22     | 22            | 5-6 weeks                        |
 | Phase 4 — SaaS Layer               | 12        | 12            | 3 weeks                          |
-| **TOTAL**                          | **49/72** | **72**        | **~16-19 weeks (~4 months)**     |
+| **TOTAL**                          | **50/72** | **72**        | **~16-19 weeks (~4 months)**     |
 
 ---
 
@@ -797,7 +797,7 @@
 
 ---
 
-### `[CURRENT]` 3.12 — AI Tools Library (Round 1: Strategic + Ideation)
+### `[DONE]` 3.12 — AI Tools Library (Round 1: Strategic + Ideation)
 
 **Deliverables (each as a standalone tool with prompt template):**
 
@@ -812,7 +812,7 @@
 
 ---
 
-### `[ ]` 3.13 — AI Tools Library (Round 2: Video)
+### `[CURRENT]` 3.13 — AI Tools Library (Round 2: Video)
 
 **Deliverables:**
 

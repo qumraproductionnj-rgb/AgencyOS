@@ -8,6 +8,13 @@ import { ContentPillarsDesigner } from './content-pillars-designer'
 import { BigIdeaGenerator } from './big-idea-generator'
 import { HookLab } from './hook-lab'
 import { HeadlineTester } from './headline-tester'
+import { ScriptWriter } from './script-writer'
+import { StoryboardBuilder } from './storyboard-builder'
+import { VoiceoverPolisher } from './voiceover-polisher'
+import { MusicMoodSuggester } from './music-mood-suggester'
+import { BRollPlanner } from './b-roll-planner'
+import { ThumbnailConceptGenerator } from './thumbnail-concept-generator'
+import { VideoPromptGenerator } from './video-prompt-generator'
 
 const TOOLS = [
   { key: 'brand_voice_builder', icon: '🎙️' },
@@ -16,6 +23,13 @@ const TOOLS = [
   { key: 'big_idea_generator', icon: '💡' },
   { key: 'hook_lab', icon: '🪝' },
   { key: 'headline_tester', icon: '📝' },
+  { key: 'script_writer', icon: '📜' },
+  { key: 'storyboard_builder', icon: '🎬' },
+  { key: 'voiceover_polisher', icon: '🎤' },
+  { key: 'music_mood_suggester', icon: '🎵' },
+  { key: 'b_roll_planner', icon: '🎥' },
+  { key: 'thumbnail_concept_generator', icon: '🖼️' },
+  { key: 'video_prompt_generator', icon: '🤖' },
 ] as const
 
 export function AiToolsList() {
@@ -60,6 +74,13 @@ export function AiToolsList() {
           {activeTool === 'big_idea_generator' && <BigIdeaGenerator t={t} />}
           {activeTool === 'hook_lab' && <HookLab t={t} />}
           {activeTool === 'headline_tester' && <HeadlineTester t={t} />}
+          {activeTool === 'script_writer' && <ScriptWriter t={t} />}
+          {activeTool === 'storyboard_builder' && <StoryboardBuilder t={t} />}
+          {activeTool === 'voiceover_polisher' && <VoiceoverPolisher t={t} />}
+          {activeTool === 'music_mood_suggester' && <MusicMoodSuggester t={t} />}
+          {activeTool === 'b_roll_planner' && <BRollPlanner t={t} />}
+          {activeTool === 'thumbnail_concept_generator' && <ThumbnailConceptGenerator t={t} />}
+          {activeTool === 'video_prompt_generator' && <VideoPromptGenerator t={t} />}
         </div>
       )}
     </div>

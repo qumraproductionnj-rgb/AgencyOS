@@ -12,9 +12,9 @@
 | Phase 0 — Setup                    | 6         | 6             | 1 week                           |
 | Phase 1 — Foundation ✅            | 14/14     | 14            | 3-4 weeks                        |
 | Phase 2 — Core Operations ✅       | 18/18     | 18            | 4-5 weeks                        |
-| Phase 3 — Creative & Collaboration | 14/22     | 22            | 5-6 weeks                        |
+| Phase 3 — Creative & Collaboration | 15/22     | 22            | 5-6 weeks                        |
 | Phase 4 — SaaS Layer               | 12        | 12            | 3 weeks                          |
-| **TOTAL**                          | **52/72** | **72**        | **~16-19 weeks (~4 months)**     |
+| **TOTAL**                          | **53/72** | **72**        | **~16-19 weeks (~4 months)**     |
 
 ---
 
@@ -848,7 +848,7 @@
 
 ---
 
-### `[CURRENT]` 3.15 — Frameworks Library (Interactive)
+### `[DONE]` 3.15 — Frameworks Library (Interactive)
 
 **Deliverables:**
 
@@ -861,7 +861,11 @@
 
 ---
 
-### `[ ]` 3.16 — Smart Integrations (Phase 3 cross-module)
+### `[DONE]` 3.16 — Smart Integrations (Phase 3 cross-module)
+
+---
+
+### `[CURRENT]` 3.17 — Content Calendar (Module replacement)
 
 **Deliverables:**
 

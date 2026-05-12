@@ -2,6 +2,8 @@ import { Test } from '@nestjs/testing'
 import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { ContentPieceService } from './content-piece.service'
 import { PrismaService } from '../database/prisma.service'
+import { IntegrationService } from '../integrations/integration.service'
+import { NotificationService } from '../notifications/notification.service'
 
 function mockPrisma() {
   return {
@@ -88,7 +90,18 @@ describe('ContentPieceService', () => {
     prisma = mockPrisma()
 
     const module = await Test.createTestingModule({
-      providers: [ContentPieceService, { provide: PrismaService, useValue: prisma }],
+      providers: [
+        ContentPieceService,
+        { provide: PrismaService, useValue: prisma },
+        {
+          provide: IntegrationService,
+          useValue: {
+            onPieceApproved: jest.fn().mockResolvedValue(undefined),
+            onPieceScheduled: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        { provide: NotificationService, useValue: { create: jest.fn() } },
+      ],
     }).compile()
 
     service = module.get<ContentPieceService>(ContentPieceService)

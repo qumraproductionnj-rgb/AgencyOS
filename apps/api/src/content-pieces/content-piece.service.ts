@@ -7,12 +7,16 @@ import type {
   UpdateRevisionDto,
 } from './content-piece.dto'
 import { VALID_CONTENT_STAGE_TRANSITIONS } from './content-piece.dto'
+import { IntegrationService } from '../integrations/integration.service'
 
 @Injectable()
 export class ContentPieceService {
   private readonly logger = new Logger(ContentPieceService.name)
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly integration: IntegrationService,
+  ) {}
 
   async findOne(companyId: string, id: string) {
     const piece = await this.prisma.tenant.contentPiece.findFirst({
@@ -92,6 +96,19 @@ export class ContentPieceService {
     })
 
     this.logger.log(`Content piece ${id} stage: ${currentStage} → ${targetStage}`)
+
+    if (targetStage === 'APPROVED') {
+      this.integration.onPieceApproved(companyId, id, userId).catch((err) => {
+        this.logger.error(`Integration hook failed for piece ${id}: ${(err as Error).message}`)
+      })
+    }
+
+    if (targetStage === 'SCHEDULED') {
+      this.integration.onPieceScheduled(companyId, id, userId).catch((err) => {
+        this.logger.error(`Integration hook failed for piece ${id}: ${(err as Error).message}`)
+      })
+    }
+
     return updated
   }
 

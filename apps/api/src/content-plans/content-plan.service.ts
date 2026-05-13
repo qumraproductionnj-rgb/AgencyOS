@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common'
 import { PrismaService } from '../database/prisma.service'
 import { AiGenerationService } from '../ai/ai-generation.service'
+import { IntegrationService } from '../integrations/integration.service'
 import type {
   CreateContentPlanDto,
   UpdateContentPlanDto,
@@ -31,6 +32,7 @@ export class ContentPlanService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly ai: AiGenerationService,
+    private readonly integration: IntegrationService,
   ) {}
 
   async findAll(companyId: string, query?: ContentPlanQueryDto) {
@@ -155,6 +157,13 @@ export class ContentPlanService {
     })
 
     this.logger.log(`Content plan ${id} → ${dto.status}`)
+
+    if (dto.status === 'ACTIVE') {
+      this.integration.onPlanActivated(companyId, id, userId).catch((err) => {
+        this.logger.error(`Integration hook failed for plan ${id}: ${(err as Error).message}`)
+      })
+    }
+
     return updated
   }
 

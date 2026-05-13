@@ -3,6 +3,11 @@ import { ConflictException, NotFoundException, BadRequestException } from '@nest
 import { ContentPlanService } from './content-plan.service'
 import { PrismaService } from '../database/prisma.service'
 import { AiGenerationService } from '../ai/ai-generation.service'
+import { IntegrationService } from '../integrations/integration.service'
+
+function mockIntegration() {
+  return { onPlanActivated: jest.fn(), onPieceApproved: jest.fn(), getCalendar: jest.fn() }
+}
 
 function mockPrisma() {
   return {
@@ -58,16 +63,19 @@ describe('ContentPlanService', () => {
   let service: ContentPlanService
   let prisma: ReturnType<typeof mockPrisma>
   let ai: ReturnType<typeof mockAi>
+  let integration: ReturnType<typeof mockIntegration>
 
   beforeEach(async () => {
     prisma = mockPrisma()
     ai = mockAi()
+    integration = mockIntegration()
 
     const module = await Test.createTestingModule({
       providers: [
         ContentPlanService,
         { provide: PrismaService, useValue: prisma },
         { provide: AiGenerationService, useValue: ai },
+        { provide: IntegrationService, useValue: integration },
       ],
     }).compile()
 

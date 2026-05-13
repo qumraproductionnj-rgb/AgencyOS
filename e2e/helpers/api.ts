@@ -288,3 +288,167 @@ export async function uploadFile(token: string, entityType: string, entityId: st
 export async function getFile(token: string, id: string) {
   return api(`/files/${id}`, { headers: { Authorization: `Bearer ${token}` } })
 }
+
+// ─── Phase 3 Helpers ───────────────────────────────────────
+
+// Clients (for portal enable)
+export async function enableClientPortal(token: string, clientId: string) {
+  return api(`/clients/${clientId}/enable-portal`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export async function createPortalUser(
+  token: string,
+  clientId: string,
+  data: Record<string, unknown>,
+) {
+  return api(`/clients/${clientId}/portal-users`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+// Brand Briefs
+export async function createBrandBrief(token: string, data: Record<string, unknown>) {
+  return api('/brand-briefs', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export async function getBrandBriefs(token: string, clientId?: string) {
+  const qs = clientId ? `?clientId=${clientId}` : ''
+  return api(`/brand-briefs${qs}`, { headers: { Authorization: `Bearer ${token}` } })
+}
+
+export async function deleteBrandBrief(token: string, id: string) {
+  return api(`/brand-briefs/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+// Content Pillars
+export async function createContentPillar(token: string, data: Record<string, unknown>) {
+  return api('/content-pillars', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+// Content Plans
+export async function createContentPlan(token: string, data: Record<string, unknown>) {
+  return api('/content-plans', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export async function getContentPlan(token: string, id: string) {
+  return api(`/content-plans/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+}
+
+export async function generateIdeas(token: string, planId: string, data: Record<string, unknown>) {
+  return api(`/content-plans/${planId}/generate-ideas`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export async function finalizePlan(token: string, planId: string, data: Record<string, unknown>) {
+  return api(`/content-plans/${planId}/finalize`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+// Content Pieces
+export async function updateContentPiece(token: string, id: string, data: Record<string, unknown>) {
+  return api(`/content-pieces/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export async function updateContentPieceStage(token: string, id: string, stage: string) {
+  return api(`/content-pieces/${id}/stage`, {
+    method: 'PATCH',
+    body: JSON.stringify({ stage }),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export async function createRevision(
+  token: string,
+  pieceId: string,
+  data: Record<string, unknown>,
+) {
+  return api(`/content-pieces/${pieceId}/revisions`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+// Equipment
+export async function createEquipment(token: string, data: Record<string, unknown>) {
+  return api('/equipment', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export async function createEquipmentBooking(token: string, data: Record<string, unknown>) {
+  return api('/equipment/bookings', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+// AI
+export async function generateAi(token: string, data: Record<string, unknown>) {
+  return api('/ai/generate', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+// Portal (external user)
+export async function portalLogin(email: string, password: string) {
+  return api('/portal/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  })
+}
+
+export async function portalGetDashboard(token: string) {
+  return api('/portal/dashboard', { headers: { Authorization: `Bearer ${token}` } })
+}
+
+export async function portalGetFiles(token: string) {
+  return api('/portal/files', { headers: { Authorization: `Bearer ${token}` } })
+}
+
+export async function portalRequestRevision(token: string, fileId: string, feedback: string) {
+  return api(`/portal/files/${fileId}/request-revision`, {
+    method: 'POST',
+    body: JSON.stringify({ feedback }),
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+export async function portalGetContentPieces(token: string) {
+  return api('/portal/content-pieces', { headers: { Authorization: `Bearer ${token}` } })
+}

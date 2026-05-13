@@ -12,6 +12,8 @@ import type { CurrentUserPayload } from '../decorators/current-user.decorator'
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator'
 import { REQUIRED_TIERS_KEY } from '../decorators/require-tier.decorator'
 
+const VALID_TIERS: Tier[] = ['TENANT', 'PLATFORM_ADMIN', 'EXTERNAL']
+
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(
@@ -34,8 +36,10 @@ export class JwtAuthGuard implements CanActivate {
     const token = auth.slice(7).trim()
     if (!token) throw new UnauthorizedException('Empty bearer token')
 
-    // Phase 1.3 supports TENANT tier only. Future: detect tier from header/audience.
-    const tier: Tier = 'TENANT'
+    // Detect tier from X-Tier header (set by portal/admin apps), fallback to TENANT
+    const rawTier = (req.headers['x-tier'] as string | undefined) ?? 'TENANT'
+    const tier: Tier = VALID_TIERS.includes(rawTier as Tier) ? (rawTier as Tier) : 'TENANT'
+
     let claims
     try {
       claims = await this.tokens.verifyAccessToken(token, tier)

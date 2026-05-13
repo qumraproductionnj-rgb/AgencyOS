@@ -4,6 +4,7 @@ import { PrismaService } from '../database/prisma.service'
 import { PasswordService } from '../auth/services/password.service'
 import { EmailService } from '../auth/services/email.service'
 import { RedisService } from '../redis/redis.service'
+import { SubscriptionService } from '../subscriptions/subscription.service'
 import { inviteEmployeeAr, inviteEmployeeEn } from '../auth/templates/auth-emails'
 import type { CreateEmployeeDto, UpdateEmployeeDto } from './employee.dto'
 
@@ -19,6 +20,7 @@ export class EmployeeService {
     private readonly password: PasswordService,
     private readonly email: EmailService,
     private readonly redis: RedisService,
+    private readonly subscriptionService: SubscriptionService,
   ) {}
 
   async findAll(companyId: string, filters?: Record<string, string>) {
@@ -58,6 +60,7 @@ export class EmployeeService {
     if (existing) throw new ConflictException('An employee with this email already exists')
 
     const count = await this.prisma.tenant.employee.count({ where: { companyId } })
+    await this.subscriptionService.requireNumericLimit(companyId, count, 'maxUsers', 'Employee')
     const employeeCode = `EMP-${String(count + 1).padStart(5, '0')}`
 
     const placeholderHash = await this.password.hash(randomBytes(16).toString('hex'))

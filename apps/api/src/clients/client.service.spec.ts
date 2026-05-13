@@ -2,6 +2,7 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import { NotFoundException } from '@nestjs/common'
 import { ClientService } from './client.service'
 import { PrismaService } from '../database/prisma.service'
+import { PasswordService } from '../auth/services/password.service'
 
 describe('ClientService', () => {
   let service: ClientService
@@ -61,6 +62,12 @@ describe('ClientService', () => {
           provide: PrismaService,
           useValue: {
             tenant: { client, contact, deal },
+          },
+        },
+        {
+          provide: PasswordService,
+          useValue: {
+            hash: jest.fn().mockResolvedValue('hashed-password'),
           },
         },
       ],

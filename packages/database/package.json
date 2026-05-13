@@ -19,7 +19,9 @@
     "@prisma/client": "5.22.0"
   },
   "devDependencies": {
+    "@agencyos/shared": "workspace:*",
     "@types/node": "^20.17.0",
+    "argon2": "^0.41.1",
     "prisma": "5.22.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",

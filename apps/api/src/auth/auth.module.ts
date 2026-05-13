@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { Global, Module } from '@nestjs/common'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 import { PasswordService } from './services/password.service'
@@ -8,6 +8,7 @@ import { EmailService } from './services/email.service'
 import { VerificationService } from './services/verification.service'
 import { PermissionModule } from '../permissions/permission.module'
 
+@Global()
 @Module({
   imports: [PermissionModule],
   controllers: [AuthController],

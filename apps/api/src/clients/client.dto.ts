@@ -44,3 +44,11 @@ export type CreateClientDto = z.infer<typeof CreateClientSchema>
 export type UpdateClientDto = z.infer<typeof UpdateClientSchema>
 export type CreateContactDto = z.infer<typeof CreateContactSchema>
 export type UpdateContactDto = z.infer<typeof UpdateContactSchema>
+
+export const CreatePortalUserSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8).max(128),
+  name: z.string().min(1).max(200),
+})
+
+export type CreatePortalUserDto = z.infer<typeof CreatePortalUserSchema>

@@ -1,17 +1,22 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../database/prisma.service'
+import { PasswordService } from '../auth/services/password.service'
 import type {
   CreateClientDto,
   UpdateClientDto,
   CreateContactDto,
   UpdateContactDto,
+  CreatePortalUserDto,
 } from './client.dto'
 
 @Injectable()
 export class ClientService {
   private readonly logger = new Logger(ClientService.name)
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly password: PasswordService,
+  ) {}
 
   async findAll(
     companyId: string,
@@ -214,5 +219,96 @@ export class ClientService {
     })
 
     this.logger.log(`Contact deleted: ${contactId}`)
+  }
+
+  async enablePortal(companyId: string, clientId: string, userId: string): Promise<void> {
+    const client = await this.prisma.tenant.client.findFirst({
+      where: { id: clientId, companyId, deletedAt: null },
+    })
+    if (!client) throw new NotFoundException('Client not found')
+
+    await this.prisma.tenant.client.update({
+      where: { id: clientId },
+      data: { portalEnabled: true, updatedBy: userId },
+    })
+    this.logger.log(`Portal enabled for client ${clientId}`)
+  }
+
+  async disablePortal(companyId: string, clientId: string, userId: string): Promise<void> {
+    const client = await this.prisma.tenant.client.findFirst({
+      where: { id: clientId, companyId, deletedAt: null },
+    })
+    if (!client) throw new NotFoundException('Client not found')
+
+    await this.prisma.tenant.client.update({
+      where: { id: clientId },
+      data: { portalEnabled: false, updatedBy: userId },
+    })
+    this.logger.log(`Portal disabled for client ${clientId}`)
+  }
+
+  async createPortalUser(
+    companyId: string,
+    clientId: string,
+    dto: CreatePortalUserDto,
+    userId: string,
+  ) {
+    const client = await this.prisma.tenant.client.findFirst({
+      where: { id: clientId, companyId, deletedAt: null },
+    })
+    if (!client) throw new NotFoundException('Client not found')
+
+    const existing = await this.prisma.system.user.findUnique({ where: { email: dto.email } })
+    if (existing) {
+      throw new ConflictException('A user with this email already exists')
+    }
+
+    const passwordHash = await this.password.hash(dto.password)
+    const user = await this.prisma.system.user.create({
+      data: {
+        companyId,
+        email: dto.email,
+        passwordHash,
+        tier: 'EXTERNAL' as never,
+        preferredLanguage: 'ar',
+        timezone: 'Asia/Baghdad',
+        createdBy: userId,
+      },
+    })
+
+    await this.prisma.system.clientPortalUser.create({
+      data: {
+        companyId,
+        clientId,
+        userId: user.id,
+      },
+    })
+
+    // Enable portal for the client if not already
+    if (!client.portalEnabled) {
+      await this.prisma.tenant.client.update({
+        where: { id: clientId },
+        data: { portalEnabled: true, updatedBy: userId },
+      })
+    }
+
+    this.logger.log(`Portal user created for client ${clientId}: ${user.id}`)
+    return { userId: user.id, email: dto.email }
+  }
+
+  async listPortalUsers(companyId: string, clientId: string) {
+    const client = await this.prisma.tenant.client.findFirst({
+      where: { id: clientId, companyId, deletedAt: null },
+    })
+    if (!client) throw new NotFoundException('Client not found')
+
+    return this.prisma.tenant.clientPortalUser.findMany({
+      where: { companyId, clientId, deletedAt: null },
+      include: {
+        user: {
+          select: { id: true, email: true, isActive: true, lastLoginAt: true, createdAt: true },
+        },
+      },
+    })
   }
 }

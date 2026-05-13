@@ -84,6 +84,20 @@ model Company {
   boothInventory        BoothInventory[]
   exhibitionFinancials  ExhibitionFinancial[]
   exhibitionSettlements ExhibitionSettlement[]
+  clientPortalUsers     ClientPortalUser[]
+  fileAnnotations       FileAnnotation[]
+  notificationPreferences NotificationPreference[]
+  subscription          Subscription?
+  paymentIntents        PaymentIntent[]
+  webhookSubscriptions  WebhookSubscription[]
+  supportTickets        SupportTicket[]
+
+  // Phase 4.9 — white-label (Agency plan feature)
+  customSubdomain     String?  @unique @map("custom_subdomain")
+  customDomain        String?  @unique @map("custom_domain")
+  brandPrimaryColor   String?  @map("brand_primary_color")
+  brandSecondaryColor String?  @map("brand_secondary_color")
+  hidePoweredBy       Boolean  @default(false) @map("hide_powered_by")
 
   @@map("companies")
 }
@@ -133,6 +147,11 @@ model User {
   bookedEquipment           EquipmentBooking[]
   managedExhibitions        Exhibition[]          @relation("ExhibitionManager")
   recordedFinancials        ExhibitionFinancial[]
+  clientPortal              ClientPortalUser?     @relation("PortalUser")
+  fileAnnotations           FileAnnotation[]
+  telegramChatId            String?                @map("telegram_chat_id")
+  telegramLinkedAt          DateTime?              @map("telegram_linked_at") @db.Timestamptz
+  notificationPreferences   NotificationPreference[]
 
   @@index([companyId], name: "idx_users_company_id")
   @@index([email], name: "idx_users_email")
@@ -234,7 +253,8 @@ model UserRole {
 /// Phase 1: tenant users only (company_id NOT NULL).
 model Session {
   id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  companyId        String    @map("company_id") @db.Uuid
+  // Nullable so PLATFORM_ADMIN sessions (no tenant) can be tracked here too.
+  companyId        String?   @map("company_id") @db.Uuid
   userId           String    @map("user_id") @db.Uuid
   refreshTokenHash String    @map("refresh_token_hash")
   deviceInfo       Json?     @map("device_info")
@@ -244,8 +264,8 @@ model Session {
   revokedAt        DateTime? @map("revoked_at") @db.Timestamptz
   createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
-  company Company @relation(fields: [companyId], references: [id])
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company? @relation(fields: [companyId], references: [id])
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([companyId], name: "idx_sessions_company_id")
   @@index([userId], name: "idx_sessions_user_id")
@@ -729,6 +749,7 @@ model Client {
   website       String?
   isVip         Boolean   @default(false) @map("is_vip")
   isBlacklisted Boolean   @default(false) @map("is_blacklisted")
+  portalEnabled Boolean   @default(false) @map("portal_enabled")
   notes         String?
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz
@@ -736,7 +757,7 @@ model Client {
   createdBy     String?   @map("created_by") @db.Uuid
   updatedBy     String?   @map("updated_by") @db.Uuid
 
-  company        Company         @relation(fields: [companyId], references: [id])
+  company        Company            @relation(fields: [companyId], references: [id])
   contacts       Contact[]
   deals          Deal[]
   quotations     Quotation[]
@@ -747,10 +768,69 @@ model Client {
   contentPillars ContentPillar[]
   contentPlans   ContentPlan[]
   contentPieces  ContentPiece[]
+  portalUsers    ClientPortalUser[]
 
   @@index([companyId], name: "idx_clients_company_id")
   @@index([companyId, createdAt(sort: Desc)], name: "idx_clients_company_created")
   @@map("clients")
+}
+
+/// Links a User (tier: EXTERNAL) to a Client for portal access.
+model ClientPortalUser {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String   @map("company_id") @db.Uuid
+  clientId  String   @map("client_id") @db.Uuid
+  userId    String   @unique @map("user_id") @db.Uuid
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+
+  company Company @relation(fields: [companyId], references: [id])
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user    User    @relation("PortalUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, userId])
+  @@index([companyId, clientId], name: "idx_cpu_company_client")
+  @@index([companyId, userId], name: "idx_cpu_company_user")
+  @@map("client_portal_users")
+}
+
+/// File annotations for client review (video timestamps, image coords, PDF page+region).
+model FileAnnotation {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String   @map("company_id") @db.Uuid
+  fileId    String   @map("file_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+
+  annotationType String @map("annotation_type") // timestamp | region | page_region | text
+  content        String // the comment text
+
+  // Timestamp annotation (for video)
+  timestampSeconds Int? @map("timestamp_seconds")
+
+  // Region annotation (for images)
+  regionX  Int? @map("region_x")
+  regionY  Int? @map("region_y")
+  regionW  Int? @map("region_w")
+  regionH  Int? @map("region_h")
+
+  // Page annotation (for PDF)
+  pageNumber Int?   @map("page_number")
+  pageRegion Json?  @map("page_region") // { x, y, w, h }
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+
+  company Company @relation(fields: [companyId], references: [id])
+  file    File    @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@index([companyId], name: "idx_file_annotations_company_id")
+  @@index([fileId], name: "idx_file_annotations_file_id")
+  @@index([fileId, userId], name: "idx_file_annotations_file_user")
+  @@map("file_annotations")
 }
 
 model Contact {
@@ -1244,14 +1324,16 @@ model File {
   entityId          String    @map("entity_id") @db.Uuid
   uploadedBy        String    @map("uploaded_by") @db.Uuid
   isVisibleToClient Boolean   @default(false) @map("is_visible_to_client")
+  clientReviewStatus String?  @map("client_review_status") // pending_review | approved | revision_requested
   createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
   deletedAt         DateTime? @map("deleted_at") @db.Timestamptz
   createdBy         String?   @map("created_by") @db.Uuid
   updatedBy         String?   @map("updated_by") @db.Uuid
 
-  company  Company @relation(fields: [companyId], references: [id])
-  uploader User    @relation("FileUploader", fields: [uploadedBy], references: [id])
+  company     Company          @relation(fields: [companyId], references: [id])
+  uploader    User             @relation("FileUploader", fields: [uploadedBy], references: [id])
+  annotations FileAnnotation[]
 
   @@index([companyId], name: "idx_files_company_id")
   @@index([entityType, entityId], name: "idx_files_entity")
@@ -1297,6 +1379,55 @@ model Notification {
   @@index([companyId, userId, createdAt(sort: Desc)], name: "idx_notifications_user_created")
   @@index([isRead], name: "idx_notifications_unread")
   @@map("notifications")
+}
+
+/// Per-user notification channel preferences.
+/// Stores which channels (in_app, email, telegram) are enabled for each trigger type.
+model NotificationPreference {
+  id        String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String             @map("company_id") @db.Uuid
+  userId    String             @map("user_id") @db.Uuid
+  trigger   NotificationTrigger
+  channel   NotificationChannel
+  enabled   Boolean            @default(true)
+  createdAt DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime           @updatedAt @map("updated_at") @db.Timestamptz
+
+  company Company @relation(fields: [companyId], references: [id])
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, userId, trigger, channel])
+  @@index([companyId, userId], name: "idx_notif_prefs_user")
+  @@map("notification_preferences")
+}
+
+/// Notification trigger types (events that generate notifications).
+enum NotificationTrigger {
+  TASK_ASSIGNED
+  TASK_OVERDUE
+  CLIENT_APPROVED
+  CLIENT_REJECTED
+  REVISION_REQUESTED
+  FILE_UPLOADED
+  INVOICE_PAID
+  INVOICE_OVERDUE
+  LATE_CHECK_IN
+  LEAVE_REQUESTED
+  PROJECT_DEADLINE_48H
+  SUBSCRIPTION_EXPIRING
+  EQUIPMENT_CONFLICT
+  GENERAL
+
+  @@map("notification_trigger")
+}
+
+/// Notification delivery channels.
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  TELEGRAM
+
+  @@map("notification_channel")
 }
 
 // ============================================================
@@ -2163,4 +2294,316 @@ model ExhibitionSettlement {
 
   @@index([companyId], name: "idx_exhibition_settlements_company_id")
   @@map("exhibition_settlements")
+}
+
+// ============================================================
+// PHASE 4 — SaaS Layer: Subscription Plans & Billing
+// ============================================================
+
+/// System-wide subscription plans (not tenant-specific, no RLS)
+model SubscriptionPlan {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key       String   @unique // starter, professional, agency, enterprise
+  nameAr    String   @map("name_ar")
+  nameEn    String   @map("name_en")
+  description String?
+
+  // Numeric limits
+  maxUsers                Int @default(5) @map("max_users")
+  maxStorageMb            Int @default(10240) @map("max_storage_mb")
+  maxAiGenerationsPerMonth Int @default(0) @map("max_ai_generations_per_month")
+  maxClients              Int @default(10) @map("max_clients")
+  maxProjects             Int @default(20) @map("max_projects")
+
+  // Module access flags stored as JSON — keys like "exhibitions", "equipment", "ai"
+  features   Json   @default("{}")
+
+  // Pricing in smallest currency unit (cents USD / fils IQD)
+  priceMonthly  BigInt @default(0) @map("price_monthly")
+  priceYearly   BigInt @default(0) @map("price_yearly")
+  currency      String @default("USD")
+
+  // Stripe Product/Price linkage (USD billing only; IQD plans handled via local gateway in Phase 4.3)
+  stripeProductId      String? @map("stripe_product_id")
+  stripePriceIdMonthly String? @map("stripe_price_id_monthly")
+  stripePriceIdYearly  String? @map("stripe_price_id_yearly")
+
+  // IQD pricing (Phase 4.3 — local Iraqi gateways: FIB / ZainCash / FastPay + manual bank transfer)
+  // Stored as BigInt fils (smallest IQD unit). 0 = not available in IQD.
+  priceMonthlyIqd BigInt @default(0) @map("price_monthly_iqd")
+  priceYearlyIqd  BigInt @default(0) @map("price_yearly_iqd")
+  // Provider-specific product/SKU refs keyed by gateway code (e.g. { fib: "PRD_xxx" }).
+  gatewayProductRefs Json @default("{}") @map("gateway_product_refs")
+
+  sortOrder Int     @default(0) @map("sort_order")
+  isActive  Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  subscriptions  Subscription[]
+  paymentIntents PaymentIntent[]
+
+  @@map("subscription_plans")
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+  READ_ONLY    // grace state — UI reads only, writes blocked
+  SUSPENDED    // no API access; data preserved
+  ANONYMIZED   // PII scrubbed for legal retention
+
+  @@map("subscription_status")
+}
+
+/// Per-tenant subscription. One per company.
+model Subscription {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String   @unique @map("company_id") @db.Uuid
+  planId    String   @map("plan_id") @db.Uuid
+
+  status      SubscriptionStatus @default(TRIAL)
+  trialEndsAt DateTime?          @map("trial_ends_at") @db.Timestamptz
+
+  currentPeriodStart DateTime? @map("current_period_start") @db.Timestamptz
+  currentPeriodEnd   DateTime? @map("current_period_end") @db.Timestamptz
+
+  stripeCustomerId     String? @map("stripe_customer_id")
+  stripeSubscriptionId String? @map("stripe_subscription_id")
+  stripePriceId        String? @map("stripe_price_id")
+  paymentMethodLast4   String? @map("payment_method_last4")
+  paymentMethodBrand   String? @map("payment_method_brand")
+  billingInterval      String? @map("billing_interval") // month | year
+
+  cancelAtPeriodEnd Boolean   @default(false) @map("cancel_at_period_end")
+  cancelledAt       DateTime? @map("cancelled_at") @db.Timestamptz
+
+  // Lifecycle (Phase 4.4) — when this subscription entered each terminal-ish stage.
+  readOnlyAt   DateTime? @map("read_only_at") @db.Timestamptz
+  suspendedAt  DateTime? @map("suspended_at") @db.Timestamptz
+  anonymizedAt DateTime? @map("anonymized_at") @db.Timestamptz
+  // Last warning email sent (3-day, 1-day, expiry). Avoids duplicate sends on cron retries.
+  lastWarningStage Int? @map("last_warning_stage")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company Company          @relation(fields: [companyId], references: [id])
+  plan    SubscriptionPlan @relation(fields: [planId], references: [id])
+
+  @@index([companyId], name: "idx_subscriptions_company_id")
+  @@map("subscriptions")
+}
+
+/// Stripe webhook events — idempotency log to prevent double-processing.
+model WebhookEvent {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider    String   @default("stripe")
+  eventId     String   @map("event_id")
+  eventType   String   @map("event_type")
+  payload     Json
+  processedAt DateTime @default(now()) @map("processed_at") @db.Timestamptz
+
+  @@unique([provider, eventId], name: "uniq_webhook_provider_event")
+  @@index([eventType])
+  @@map("webhook_events")
+}
+
+// ============================================================
+// PHASE 4.8 — External Webhooks (tenant-registered integrations)
+// ============================================================
+
+/// Tenant-registered outbound webhook subscriptions.
+/// Events are delivered with HMAC-SHA256 signature over the JSON body.
+model WebhookSubscription {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String  @map("company_id") @db.Uuid
+  url       String
+  events    String[] // ["task.created", "invoice.paid", ...] — or ["*"] for all
+  secret    String   // HMAC secret (32-byte hex)
+  isActive  Boolean  @default(true) @map("is_active")
+  lastDeliveryAt     DateTime? @map("last_delivery_at") @db.Timestamptz
+  lastDeliveryStatus String?   @map("last_delivery_status")
+  failureCount       Int       @default(0) @map("failure_count")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company   Company             @relation(fields: [companyId], references: [id])
+  deliveries WebhookDelivery[]
+
+  @@index([companyId], name: "idx_webhook_subs_company_id")
+  @@map("webhook_subscriptions")
+}
+
+/// Audit log of every webhook delivery attempt + retry.
+model WebhookDelivery {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subscriptionId String   @map("subscription_id") @db.Uuid
+  eventType      String   @map("event_type")
+  payload        Json
+  attempt        Int      @default(1)
+  statusCode     Int?     @map("status_code")
+  responseBody   String?  @map("response_body")
+  errorMessage   String?  @map("error_message")
+  succeeded      Boolean  @default(false)
+  nextRetryAt    DateTime? @map("next_retry_at") @db.Timestamptz
+  deliveredAt    DateTime? @map("delivered_at") @db.Timestamptz
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  subscription WebhookSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId], name: "idx_webhook_deliveries_sub_id")
+  @@index([succeeded, nextRetryAt], name: "idx_webhook_deliveries_retry")
+  @@map("webhook_deliveries")
+}
+
+// ============================================================
+// PHASE 4.3 — Local Payment Gateways (FIB / ZainCash / FastPay) + Manual Bank Transfer
+// ============================================================
+
+enum PaymentIntentStatus {
+  PENDING                 // created, awaiting user payment action
+  AWAITING_VERIFICATION   // manual only — receipt submitted, awaiting super-admin review
+  PAID                    // terminal: subscription activated
+  FAILED                  // terminal: gateway reported failure
+  EXPIRED                 // terminal: TTL exceeded without payment
+  CANCELLED               // terminal: user cancelled
+  REJECTED                // terminal: manual review rejected
+
+  @@map("payment_intent_status")
+}
+
+/// Subscription payment intents created via local gateways or manual bank transfer.
+/// State transitions enforced in PaymentIntentService; terminal states are immutable.
+model PaymentIntent {
+  id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId      String  @map("company_id") @db.Uuid
+  subscriptionId String? @map("subscription_id") @db.Uuid
+  planId         String  @map("plan_id") @db.Uuid
+
+  provider    String // 'fib' | 'zaincash' | 'fastpay' | 'manual_bank_transfer'
+  providerRef String? @map("provider_ref")
+
+  amount   BigInt
+  currency String @default("IQD")
+  interval String // 'month' | 'year'
+
+  status PaymentIntentStatus @default(PENDING)
+
+  // Provider artifacts
+  qrCode      String? @map("qr_code") // base64 PNG data URL for QR-based flows
+  redirectUrl String? @map("redirect_url")
+
+  // Manual flow artifacts
+  receiptFileId   String? @map("receipt_file_id") @db.Uuid
+  bankReference   String? @map("bank_reference")
+  verifiedById    String? @map("verified_by_id") @db.Uuid
+  verifiedAt      DateTime? @map("verified_at") @db.Timestamptz
+  rejectionReason String? @map("rejection_reason")
+
+  expiresAt DateTime? @map("expires_at") @db.Timestamptz
+
+  metadata Json @default("{}")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+
+  company Company          @relation(fields: [companyId], references: [id])
+  plan    SubscriptionPlan @relation(fields: [planId], references: [id])
+
+  @@index([companyId], name: "idx_payment_intents_company_id")
+  @@index([status], name: "idx_payment_intents_status")
+  @@index([provider, providerRef], name: "idx_payment_intents_provider_ref")
+  @@map("payment_intents")
+}
+
+// ============================================================
+// PHASE 4.10 — Help Center + Support Tickets
+// ============================================================
+
+enum SupportTicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_USER
+  RESOLVED
+  CLOSED
+
+  @@map("support_ticket_status")
+}
+
+enum SupportTicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+
+  @@map("support_ticket_priority")
+}
+
+model HelpArticle {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug        String   @unique
+  titleAr     String   @map("title_ar")
+  titleEn     String   @map("title_en")
+  bodyAr      String   @map("body_ar")
+  bodyEn      String   @map("body_en")
+  category    String
+  tags        String[]
+  isPublished Boolean  @default(true) @map("is_published")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([category])
+  @@index([slug])
+  @@map("help_articles")
+}
+
+model SupportTicket {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId String @map("company_id") @db.Uuid
+  userId    String @map("user_id") @db.Uuid
+  subject   String
+  body      String
+  status    SupportTicketStatus   @default(OPEN)
+  priority  SupportTicketPriority @default(NORMAL)
+  category  String?
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+
+  company  Company                @relation(fields: [companyId], references: [id])
+  messages SupportTicketMessage[]
+
+  @@index([companyId], name: "idx_support_tickets_company_id")
+  @@index([status], name: "idx_support_tickets_status")
+  @@map("support_tickets")
+}
+
+model SupportTicketMessage {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ticketId    String   @map("ticket_id") @db.Uuid
+  authorId    String   @map("author_id") @db.Uuid
+  isFromStaff Boolean  @default(false) @map("is_from_staff")
+  body        String
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId], name: "idx_support_msgs_ticket_id")
+  @@map("support_ticket_messages")
 }

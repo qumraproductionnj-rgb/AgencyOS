@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { PrismaService } from '../database/prisma.service'
 import { NotificationGateway } from './notification.gateway'
+import { TelegramService } from '../telegram/telegram.service'
 
 @Injectable()
 export class NotificationService {
@@ -10,6 +11,7 @@ export class NotificationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly gateway: NotificationGateway,
+    private readonly telegramService: TelegramService,
   ) {}
 
   async findAll(
@@ -64,6 +66,12 @@ export class NotificationService {
 
     this.gateway.sendToUser(dto.userId, 'notification', notification)
     this.logger.log(`Notification created: ${notification.id} (${dto.type}) for user ${dto.userId}`)
+
+    // Also send via Telegram if user has linked their account
+    this.telegramService.sendNotification(dto.userId, dto.title, dto.body).catch((err) => {
+      this.logger.warn(`Telegram notification failed (non-fatal): ${err.message}`)
+    })
+
     return notification
   }
 

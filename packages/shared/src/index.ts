@@ -74,7 +74,7 @@ export interface TenantEntity extends SoftDeletable {
 // ---- Money ----
 // Always store as integer (lowest unit) + currency code
 export interface Money {
-  amount: number   // fils for IQD, cents for USD
+  amount: number // fils for IQD, cents for USD
   currency: Currency
 }
 
@@ -94,3 +94,7 @@ export function formatMoney(money: Money, locale: Locale = 'ar'): string {
 export function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0
 }
+
+// ---- Content Frameworks ----
+export { FRAMEWORKS } from './frameworks'
+export type { Framework, FrameworkField, ContentFormat, ContentObjective } from './frameworks'

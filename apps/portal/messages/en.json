@@ -1,0 +1,59 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "content": "Content",
+    "invoices": "Invoices",
+    "logout": "Logout",
+    "language": "العربية"
+  },
+  "login": {
+    "title": "Client Portal",
+    "subtitle": "Sign in to track your projects and content",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign In",
+    "loggingIn": "Signing in...",
+    "error": "Invalid email or password",
+    "forgotPassword": "Forgot password?"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "projectsCount": "Active Projects",
+    "pendingReview": "Pending Review",
+    "noProjects": "No active projects",
+    "noFiles": "No files pending review",
+    "noInvoices": "No invoices",
+    "recentInvoices": "Recent Invoices",
+    "pendingContent": "Content In Progress"
+  },
+  "projects": {
+    "title": "Projects",
+    "noProjects": "No projects",
+    "stage": "Stage",
+    "deadline": "Deadline",
+    "tasks": "Tasks"
+  },
+  "files": {
+    "title": "Files Pending Review",
+    "noFiles": "No files",
+    "annotations": "Comments",
+    "addAnnotation": "Add Comment",
+    "approve": "Approve",
+    "requestRevision": "Request Revision",
+    "feedbackPlaceholder": "Write your feedback here...",
+    "feedbackTitle": "Revision Feedback",
+    "approved": "Approved",
+    "revisionRequested": "Revision Requested",
+    "cancel": "Cancel",
+    "submit": "Submit"
+  },
+  "invoices": {
+    "title": "Invoices",
+    "number": "Invoice Number",
+    "total": "Total",
+    "status": "Status",
+    "dueDate": "Due Date",
+    "noInvoices": "No invoices"
+  }
+}

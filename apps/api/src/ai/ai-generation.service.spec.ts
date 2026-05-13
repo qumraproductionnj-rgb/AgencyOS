@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing'
 import { ForbiddenException } from '@nestjs/common'
 import { AiGenerationService } from './ai-generation.service'
 import { PrismaService } from '../database/prisma.service'
+import { SubscriptionService } from '../subscriptions/subscription.service'
 
 function mockPrisma() {
   return {
@@ -14,6 +15,15 @@ function mockPrisma() {
         count: jest.fn(),
       },
     },
+  }
+}
+
+function mockSubscriptionService() {
+  return {
+    requireNumericLimit: jest.fn(),
+    requireFeatureAccess: jest.fn(),
+    getCurrentPlan: jest.fn(),
+    checkFeatureAccess: jest.fn(),
   }
 }
 
@@ -54,13 +64,17 @@ describe('AiGenerationService', () => {
     getAll: jest.fn(),
   }
 
+  let subscriptionService: ReturnType<typeof mockSubscriptionService>
+
   beforeEach(async () => {
     prisma = mockPrisma()
+    subscriptionService = mockSubscriptionService()
 
     const module = await Test.createTestingModule({
       providers: [
         AiGenerationService,
         { provide: PrismaService, useValue: prisma },
+        { provide: SubscriptionService, useValue: subscriptionService },
         { provide: 'ANTHROPIC_CLIENT', useValue: mockClient },
         { provide: 'PROMPT_REGISTRY', useValue: mockRegistry },
       ],
@@ -81,6 +95,7 @@ describe('AiGenerationService', () => {
       })
       prisma.tenant.aiGeneration.count.mockResolvedValue(5)
       prisma.tenant.aiGeneration.create.mockResolvedValue(mockGeneration)
+      subscriptionService.requireNumericLimit.mockResolvedValue(undefined)
 
       const result = await service.generate('company-1', 'user-1', {
         toolType: 'big_idea_generator',
@@ -97,6 +112,7 @@ describe('AiGenerationService', () => {
       mockClient.generate.mockRejectedValue(new Error('API timeout'))
       prisma.tenant.aiGeneration.count.mockResolvedValue(5)
       prisma.tenant.aiGeneration.create.mockResolvedValue(mockGeneration)
+      subscriptionService.requireNumericLimit.mockResolvedValue(undefined)
 
       await expect(
         service.generate('company-1', 'user-1', {
@@ -116,6 +132,13 @@ describe('AiGenerationService', () => {
 
     it('should enforce monthly rate limit', async () => {
       prisma.tenant.aiGeneration.count.mockResolvedValue(1000)
+      subscriptionService.requireNumericLimit.mockRejectedValue(
+        new ForbiddenException({
+          statusCode: 403,
+          error: 'PLAN_LIMIT_EXCEEDED',
+          message: 'AI generations limit reached. Upgrade your plan for more.',
+        }),
+      )
 
       await expect(
         service.generate('company-1', 'user-1', {

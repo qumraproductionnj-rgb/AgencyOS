@@ -13,7 +13,7 @@ export class SessionService {
   constructor(private readonly prisma: PrismaService) {}
 
   create(params: {
-    companyId: string
+    companyId: string | null
     userId: string
     refreshTokenHash: string
     expiresAt: Date

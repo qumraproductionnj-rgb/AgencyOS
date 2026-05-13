@@ -1,0 +1,176 @@
+{
+  "site": {
+    "title": "AgencyOS — The Operating System for Creative Agencies",
+    "description": "All-in-one platform for marketing & creative production agencies. Manage projects, teams, clients, and finances."
+  },
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "pricing": "Pricing",
+    "about": "About",
+    "contact": "Contact",
+    "signIn": "Sign In",
+    "signUp": "Start Free Trial"
+  },
+  "home": {
+    "heroTitle": "The Operating System for Creative Agencies",
+    "heroSubtitle": "Manage projects, teams, clients, finances, and content — all in one platform built for marketing and creative production.",
+    "heroCta": "Start Free Trial",
+    "heroSecondary": "See Features",
+    "stats": {
+      "agencies": "500+ Agencies",
+      "countries": "15+ Countries",
+      "uptime": "99.9% Uptime"
+    },
+    "featuresTitle": "Everything your agency needs",
+    "featuresSubtitle": "From lead management to final delivery — AgencyOS covers the entire creative workflow.",
+    "featuresList": {
+      "projects": "Projects & Tasks",
+      "projectsDesc": "Kanban boards, Gantt charts, time tracking, and workload management.",
+      "attendance": "Attendance & HR",
+      "attendanceDesc": "GPS check-in, leave management, payroll, and performance reviews.",
+      "finance": "Finance & Billing",
+      "financeDesc": "Quotations, invoices, expenses, multi-currency support, and payment tracking.",
+      "content": "Content Studio",
+      "contentDesc": "Content calendar, AI-powered tools, brand frameworks, and client approval.",
+      "crm": "CRM & Sales",
+      "crmDesc": "Lead tracking, deal pipeline, client portal, and smart integrations.",
+      "reports": "Reports & Analytics",
+      "reportsDesc": "Real-time dashboards, financial reports, and exportable insights."
+    },
+    "ctaTitle": "Ready to transform your agency?",
+    "ctaSubtitle": "Start your free 14-day trial. No credit card required.",
+    "ctaButton": "Start Free Trial"
+  },
+  "features": {
+    "title": "Features",
+    "subtitle": "Everything you need to run your creative agency efficiently.",
+    "projectManagement": "Project Management",
+    "projectManagementDesc": "Kanban boards, task assignments, Gantt charts, milestones, and workload balancing across teams.",
+    "attendanceHr": "Attendance & HR",
+    "attendanceHrDesc": "GPS-based check-in/out, leave requests, overtime tracking, payroll processing, and performance reviews.",
+    "financial": "Financial Management",
+    "financialDesc": "Multi-currency quotations and invoices, expense tracking, payment reconciliation, and profit analysis.",
+    "contentStudio": "Content Studio",
+    "contentStudioDesc": "Content calendar, brand briefs, AI content generation, revision workflows, and client approval portal.",
+    "crmSales": "CRM & Sales",
+    "crmSalesDesc": "Lead management, deal pipeline tracking, quotation generation, and client communication history.",
+    "equipmentExhibitions": "Equipment & Exhibitions",
+    "equipmentExhibitionsDesc": "Equipment booking with conflict detection, QR code tracking, exhibition planning, booth management, and settlement.",
+    "integrations": "Integrations & AI",
+    "integrationsDesc": "Telegram notifications, AI content tools (24+ tools), exchange rate automation, and webhook system.",
+    "multiTenant": "Multi-Tenant & White-Label",
+    "multiTenantDesc": "Support for multiple agencies, white-label branding, custom domains, and role-based access control."
+  },
+  "pricing": {
+    "title": "Simple, transparent pricing",
+    "subtitle": "Choose the plan that fits your agency. Upgrade anytime.",
+    "starter": "Starter",
+    "starterDesc": "For small teams getting started",
+    "professional": "Professional",
+    "professionalDesc": "For growing production studios",
+    "agency": "Agency",
+    "agencyDesc": "For full-service agencies",
+    "enterprise": "Enterprise",
+    "enterpriseDesc": "For large organizations",
+    "monthly": "/month",
+    "yearly": "/year",
+    "contactUs": "Contact Us",
+    "getStarted": "Get Started",
+    "features": {
+      "users": "users",
+      "storage": "storage",
+      "aiGenerations": "AI generations/mo",
+      "allModules": "All modules",
+      "coreModules": "Core modules",
+      "clientPortal": "Client portal",
+      "whiteLabel": "White-label option",
+      "customDomain": "Custom domain",
+      "prioritySupport": "Priority support",
+      "customIntegrations": "Custom integrations"
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "q1": "Can I change plans later?",
+      "a1": "Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.",
+      "q2": "Is there a free trial?",
+      "a2": "Yes, all plans come with a 14-day free trial on the Professional plan. No credit card required.",
+      "q3": "Do you support Arabic?",
+      "a3": "Yes, AgencyOS is fully bilingual in Arabic and English with full RTL support.",
+      "q4": "What payment methods do you accept?",
+      "a4": "We accept international payments via Stripe (USD) and local Iraqi payments via FIB, ZainCash, and bank transfer."
+    }
+  },
+  "about": {
+    "title": "About AgencyOS",
+    "subtitle": "Built for creative agencies, by creative agency operators.",
+    "mission": "Our Mission",
+    "missionDesc": "To empower creative and marketing production agencies with the tools they need to deliver exceptional work efficiently. We believe great creative work deserves great operational support.",
+    "story": "Our Story",
+    "storyDesc": "AgencyOS was born from the challenges of running a real production agency in Iraq. We experienced firsthand the pain of juggling spreadsheets, separate tools, and manual processes. Built initially for Ru'ya for Artistic Production, AgencyOS has grown into a comprehensive platform serving agencies across the Middle East.",
+    "valuesTitle": "Our Values",
+    "values": {
+      "quality": "Quality First",
+      "qualityDesc": "Every feature is built to production-grade standards with comprehensive testing.",
+      "bilingual": "Bilingual by Design",
+      "bilingualDesc": "Full Arabic and English support, not an afterthought — from day one.",
+      "localFirst": "Regionally Aware",
+      "localFirstDesc": "Built for the unique needs of the Middle Eastern market, including local payment gateways and cultural considerations.",
+      "security": "Security & Privacy",
+      "securityDesc": "Enterprise-grade security with row-level security, audit logging, and data encryption."
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Have a question? We'd love to hear from you.",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "message": "Message",
+      "submit": "Send Message",
+      "success": "Thank you! We'll get back to you soon."
+    },
+    "email": "hello@agencyos.app",
+    "response": "We typically respond within 24 hours."
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: May 2026",
+    "intro": "AgencyOS respects your privacy. This policy explains how we collect, use, and protect your personal data.",
+    "sections": {
+      "data": "Data We Collect",
+      "dataDesc": "We collect information you provide when signing up: name, email, company details, and payment information. We also collect usage data to improve our service.",
+      "usage": "How We Use Data",
+      "usageDesc": "We use your data to provide and improve the service, process payments, send notifications, and comply with legal obligations.",
+      "sharing": "Data Sharing",
+      "sharingDesc": "We never sell your data. We may share with trusted service providers (Stripe, Resend, Cloudflare) who are bound by data processing agreements.",
+      "rights": "Your Rights",
+      "rightsDesc": "You may request access, correction, or deletion of your data at any time. Contact us at privacy@agencyos.app.",
+      "security": "Security",
+      "securityDesc": "We implement industry-standard security measures including encryption at rest and in transit, regular audits, and access controls."
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: May 2026",
+    "intro": "By using AgencyOS, you agree to these terms. Please read them carefully.",
+    "sections": {
+      "service": "Service Description",
+      "serviceDesc": "AgencyOS provides a SaaS platform for marketing and creative production agency management. We grant you a non-exclusive, non-transferable license to use the service during your subscription period.",
+      "payments": "Payments & Billing",
+      "paymentsDesc": "Subscription fees are billed monthly or annually as selected. Payments are processed securely via Stripe or local Iraqi payment gateways. Refunds are handled per our refund policy.",
+      "responsibilities": "Your Responsibilities",
+      "responsibilitiesDesc": "You are responsible for maintaining confidentiality of your account credentials, ensuring data accuracy, and complying with applicable laws.",
+      "limitations": "Limitations of Liability",
+      "limitationsDesc": "AgencyOS is provided 'as is' without warranty. We are not liable for indirect damages or loss of data beyond the amount paid for the service.",
+      "termination": "Termination",
+      "terminationDesc": "Either party may terminate at any time. On termination, your data will be retained for 90 days before anonymization per our data retention policy."
+    }
+  },
+  "footer": {
+    "product": "Product",
+    "company": "Company",
+    "legal": "Legal",
+    "rights": "All rights reserved."
+  }
+}

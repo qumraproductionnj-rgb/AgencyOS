@@ -1,0 +1,59 @@
+{
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "projects": "المشاريع",
+    "content": "المحتوى",
+    "invoices": "الفواتير",
+    "logout": "تسجيل خروج",
+    "language": "English"
+  },
+  "login": {
+    "title": "بوابة العميل",
+    "subtitle": "سجل الدخول لمتابعة مشاريعك ومحتواك",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "submit": "دخول",
+    "loggingIn": "جاري تسجيل الدخول...",
+    "error": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "forgotPassword": "نسيت كلمة المرور؟"
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "projectsCount": "المشاريع النشطة",
+    "pendingReview": "بانتظار المراجعة",
+    "noProjects": "لا توجد مشاريع حالياً",
+    "noFiles": "لا توجد ملفات بانتظار المراجعة",
+    "noInvoices": "لا توجد فواتير",
+    "recentInvoices": "أحدث الفواتير",
+    "pendingContent": "المحتوى قيد الإنجاز"
+  },
+  "projects": {
+    "title": "المشاريع",
+    "noProjects": "لا توجد مشاريع",
+    "stage": "المرحلة",
+    "deadline": "تاريخ التسليم",
+    "tasks": "المهام"
+  },
+  "files": {
+    "title": "ملفات بانتظار المراجعة",
+    "noFiles": "لا توجد ملفات",
+    "annotations": "التعليقات",
+    "addAnnotation": "إضافة تعليق",
+    "approve": "موافقة",
+    "requestRevision": "طلب تعديل",
+    "feedbackPlaceholder": "اكتب ملاحظاتك هنا...",
+    "feedbackTitle": "ملاحظات التعديل",
+    "approved": "تمت الموافقة",
+    "revisionRequested": "تم طلب التعديل",
+    "cancel": "إلغاء",
+    "submit": "إرسال"
+  },
+  "invoices": {
+    "title": "الفواتير",
+    "number": "رقم الفاتورة",
+    "total": "المجموع",
+    "status": "الحالة",
+    "dueDate": "تاريخ الاستحقاق",
+    "noInvoices": "لا توجد فواتير"
+  }
+}

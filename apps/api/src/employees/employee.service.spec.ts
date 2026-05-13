@@ -5,6 +5,7 @@ import { PrismaService } from '../database/prisma.service'
 import { PasswordService } from '../auth/services/password.service'
 import { EmailService } from '../auth/services/email.service'
 import { RedisService } from '../redis/redis.service'
+import { SubscriptionService } from '../subscriptions/subscription.service'
 
 describe('EmployeeService', () => {
   let service: EmployeeService
@@ -63,6 +64,10 @@ describe('EmployeeService', () => {
         { provide: PasswordService, useValue: { hash: jest.fn().mockResolvedValue('$hash') } },
         { provide: EmailService, useValue: { send: jest.fn().mockResolvedValue(undefined) } },
         { provide: RedisService, useValue: redis },
+        {
+          provide: SubscriptionService,
+          useValue: { requireNumericLimit: jest.fn().mockResolvedValue(undefined) },
+        },
       ],
     }).compile()
 

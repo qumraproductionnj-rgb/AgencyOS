@@ -12,6 +12,7 @@ import {
   type UpdateContentPieceDto,
 } from '@/hooks/use-content-pieces'
 import { useBrandBriefs } from '@/hooks/use-brand-briefs'
+import { FrameworkApplyModal } from '@/components/frameworks/framework-apply-modal'
 import { api } from '@/lib/api'
 
 // ─── Stage colors ─────────────────────────────────────
@@ -244,7 +245,9 @@ export function ContentPieceEditor({ pieceId }: Props) {
 
         {/* Tab content */}
         <div className="flex-1 overflow-y-auto p-6">
-          {activeTab === 'overview' && <TabOverview piece={piece} patch={patch} t={t} />}
+          {activeTab === 'overview' && (
+            <TabOverview piece={piece} patch={patch} t={t} _tCommon={tCommon} />
+          )}
           {activeTab === 'idea' && (
             <TabIdea piece={piece} patch={patch} t={t} aiGenerate={aiGenerate} />
           )}
@@ -591,11 +594,21 @@ function TabOverview({
   piece,
   patch,
   t,
+  _tCommon,
 }: {
   piece: ContentPieceDetail
   patch: (k: string, v: unknown) => void
   t: (key: string) => string
+  _tCommon: (key: string) => string
 }) {
+  const tf = useTranslations('frameworks')
+  const [frameworkModalOpen, setFrameworkModalOpen] = useState(false)
+  const [frameworkName, setFrameworkName] = useState<string | null>(piece.frameworkUsed)
+
+  const handleFrameworkApplied = () => {
+    setFrameworkName(piece.frameworkUsed ?? null)
+  }
+
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <h2 className="text-lg font-semibold">{t('overview')}</h2>
@@ -634,12 +647,32 @@ function TabOverview({
         />
       </Field>
       <Field label={t('frameworkUsed')}>
-        <input
-          defaultValue={piece.frameworkUsed ?? ''}
-          onChange={(e) => patch('frameworkUsed', e.target.value || null)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-        />
+        <div className="flex items-center gap-2">
+          <div className="flex-1 rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-600">
+            {frameworkName || tf('noFrameworks')}
+          </div>
+          <button
+            onClick={() => setFrameworkModalOpen(true)}
+            className="whitespace-nowrap rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            {tf('useFramework')}
+          </button>
+        </div>
       </Field>
+
+      <FrameworkApplyModal
+        pieceId={piece.id}
+        contentType={piece.type}
+        currentFramework={piece.frameworkUsed}
+        open={frameworkModalOpen}
+        onClose={() => {
+          setFrameworkModalOpen(false)
+          handleFrameworkApplied()
+        }}
+        onApplied={() => {
+          setFrameworkName(piece.frameworkUsed ?? null)
+        }}
+      />
     </div>
   )
 }

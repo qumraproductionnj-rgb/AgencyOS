@@ -2,6 +2,7 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import { NotificationService } from './notification.service'
 import { NotificationGateway } from './notification.gateway'
 import { PrismaService } from '../database/prisma.service'
+import { TelegramService } from '../telegram/telegram.service'
 
 function mockPrisma() {
   return {
@@ -26,6 +27,15 @@ function mockGateway() {
   }
 }
 
+function mockTelegramService() {
+  return {
+    sendNotification: jest.fn().mockResolvedValue(true),
+    getStatus: jest.fn(),
+    generateLinkToken: jest.fn(),
+    unlink: jest.fn(),
+  }
+}
+
 const mockNotification = {
   id: 'notif-1',
   companyId: 'company-1',
@@ -44,14 +54,18 @@ describe('NotificationService', () => {
   let prisma: ReturnType<typeof mockPrisma>
   let gateway: ReturnType<typeof mockGateway>
 
+  let telegram: ReturnType<typeof mockTelegramService>
+
   beforeEach(async () => {
     prisma = mockPrisma()
     gateway = mockGateway()
+    telegram = mockTelegramService()
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NotificationService,
         { provide: PrismaService, useValue: prisma },
         { provide: NotificationGateway, useValue: gateway },
+        { provide: TelegramService, useValue: telegram },
       ],
     }).compile()
     service = module.get<NotificationService>(NotificationService)

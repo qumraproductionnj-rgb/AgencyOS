@@ -9,10 +9,12 @@ import {
   UpdateClientSchema,
   CreateContactSchema,
   UpdateContactSchema,
+  CreatePortalUserSchema,
   type CreateClientDto,
   type UpdateClientDto,
   type CreateContactDto,
   type UpdateContactDto,
+  type CreatePortalUserDto,
 } from './client.dto'
 import { ClientService } from './client.service'
 
@@ -109,5 +111,37 @@ export class ClientController {
   ) {
     await this.client.removeContact(user.companyId!, clientId, id, user.sub)
     return { status: 'deleted' }
+  }
+
+  // --- Portal Access ---
+
+  @Post(':id/enable-portal')
+  @ApiOperation({ summary: 'Enable client portal access' })
+  async enablePortal(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
+    await this.client.enablePortal(user.companyId!, id, user.sub)
+    return { status: 'portal_enabled' }
+  }
+
+  @Post(':id/disable-portal')
+  @ApiOperation({ summary: 'Disable client portal access' })
+  async disablePortal(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
+    await this.client.disablePortal(user.companyId!, id, user.sub)
+    return { status: 'portal_disabled' }
+  }
+
+  @Post(':id/portal-users')
+  @ApiOperation({ summary: 'Create a portal user for a client' })
+  async createPortalUser(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(CreatePortalUserSchema)) dto: CreatePortalUserDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    return this.client.createPortalUser(user.companyId!, id, dto, user.sub)
+  }
+
+  @Get(':id/portal-users')
+  @ApiOperation({ summary: 'List portal users for a client' })
+  async listPortalUsers(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
+    return this.client.listPortalUsers(user.companyId!, id)
   }
 }

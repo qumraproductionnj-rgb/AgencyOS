@@ -1,16 +1,8 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  ForbiddenException,
-  Inject,
-  Optional,
-} from '@nestjs/common'
+import { Injectable, Logger, NotFoundException, Inject, Optional } from '@nestjs/common'
 import { PrismaService } from '../database/prisma.service'
+import { SubscriptionService } from '../subscriptions/subscription.service'
 import { AnthropicClient, PromptRegistry } from '@agencyos/ai'
 import type { GenerateDto, GenerateResponseDto } from './ai.dto'
-
-const MONTHLY_GENERATION_LIMIT = 1000
 
 @Injectable()
 export class AiGenerationService {
@@ -20,6 +12,7 @@ export class AiGenerationService {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly subscriptionService: SubscriptionService,
     @Optional() @Inject('ANTHROPIC_CLIENT') client?: AnthropicClient,
     @Optional() @Inject('PROMPT_REGISTRY') registry?: PromptRegistry,
   ) {
@@ -166,12 +159,11 @@ export class AiGenerationService {
       },
     })
 
-    if (count >= MONTHLY_GENERATION_LIMIT) {
-      throw new ForbiddenException({
-        statusCode: 403,
-        error: 'PLAN_LIMIT_EXCEEDED',
-        message: `Monthly AI generation limit (${MONTHLY_GENERATION_LIMIT}) reached. Upgrade your plan for more.`,
-      })
-    }
+    await this.subscriptionService.requireNumericLimit(
+      companyId,
+      count,
+      'maxAiGenerationsPerMonth',
+      'AI generations',
+    )
   }
 }

@@ -38,10 +38,28 @@ import { BrandBriefsModule } from './brand-briefs/brand-brief.module'
 import { ContentPillarsModule } from './content-pillars/content-pillar.module'
 import { AiModule } from './ai/ai.module'
 import { ContentPlansModule } from './content-plans/content-plan.module'
+import { FrameworksModule } from './frameworks/framework.module'
 import { ContentPiecesModule } from './content-pieces/content-piece.module'
+import { IntegrationModule } from './integrations/integration.module'
+import { PortalAuthModule } from './portal-auth/portal-auth.module'
+import { ClientPortalModule } from './client-portal/client-portal.module'
+import { TelegramModule } from './telegram/telegram.module'
+import { EquipmentModule } from './equipment/equipment.module'
+import { ExhibitionsModule } from './exhibitions/exhibition.module'
+import { SubscriptionsModule } from './subscriptions/subscription.module'
+import { BillingModule } from './billing/billing.module'
+import { LifecycleModule } from './lifecycle/lifecycle.module'
+import { PlatformAuthModule } from './platform-auth/platform-auth.module'
+import { PlatformAdminModule } from './platform-admin/platform-admin.module'
+import { ReportsModule } from './reports/reports.module'
+import { ExternalWebhookModule } from './external-webhooks/external-webhook.module'
+import { WhiteLabelModule } from './white-label/white-label.module'
+import { SupportModule } from './support/support.module'
+import { SubscriptionActiveGuard } from './common/guards/subscription-active.guard'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
 import { PermissionsGuard } from './common/guards/permission.guard'
 import { RolesGuard } from './common/guards/role.guard'
+import { PlanLimitGuard } from './common/guards/plan-limit.guard'
 import { TenantContextInterceptor } from './common/interceptors/tenant-context.interceptor'
 import { envSchema } from './config/env.validation'
 
@@ -110,6 +128,22 @@ import { envSchema } from './config/env.validation'
     AiModule,
     ContentPlansModule,
     ContentPiecesModule,
+    FrameworksModule,
+    IntegrationModule,
+    PortalAuthModule,
+    ClientPortalModule,
+    TelegramModule,
+    EquipmentModule,
+    ExhibitionsModule,
+    SubscriptionsModule,
+    BillingModule,
+    LifecycleModule,
+    PlatformAuthModule,
+    PlatformAdminModule,
+    ReportsModule,
+    ExternalWebhookModule,
+    WhiteLabelModule,
+    SupportModule,
     HealthModule,
   ],
   controllers: [AppController],
@@ -118,6 +152,8 @@ import { envSchema } from './config/env.validation'
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_GUARD, useClass: PermissionsGuard },
+    { provide: APP_GUARD, useClass: PlanLimitGuard },
+    { provide: APP_GUARD, useClass: SubscriptionActiveGuard },
     { provide: APP_INTERCEPTOR, useClass: TenantContextInterceptor },
   ],
 })

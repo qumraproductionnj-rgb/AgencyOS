@@ -6,6 +6,7 @@ import { AppSidebar } from './layout/app-sidebar'
 import { SubscriptionStatusBanner } from './subscription/subscription-status-banner'
 import { CommandPalette } from './command-palette'
 import { useCommandPalette } from '@/hooks/use-command-palette'
+import { AIAssistant } from './ai-assistant'
 
 interface Props {
   children: ReactNode
@@ -30,6 +31,7 @@ export function AppShell({ children }: Props) {
         </div>
         <main className="flex-1 overflow-x-hidden">{children}</main>
       </div>
+      <AIAssistant />
     </div>
   )
 }

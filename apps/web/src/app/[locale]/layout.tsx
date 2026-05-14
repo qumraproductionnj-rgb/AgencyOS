@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from 'next'
+import { IBM_Plex_Sans_Arabic } from 'next/font/google'
+import { GeistSans } from 'geist/font/sans'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
@@ -8,22 +10,29 @@ import { AppShell } from '../../components/app-shell'
 import { Providers } from '../../components/providers'
 import '../../globals.css'
 
+const plexArabic = IBM_Plex_Sans_Arabic({
+  subsets: ['arabic'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-arabic',
+  display: 'swap',
+})
+
 export const metadata: Metadata = {
   title: {
-    template: '%s | AgencyOS',
-    default: 'AgencyOS — نظام إدارة الوكالات الإبداعية',
+    template: '%s | VISION OS',
+    default: 'VISION OS — نظام إدارة الوكالات الإبداعية',
   },
   description: 'نظام تشغيل متكامل لوكالات التسويق والإنتاج الإبداعي',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'AgencyOS',
+    title: 'VISION OS',
   },
 }
 
 export const viewport: Viewport = {
-  themeColor: '#0f172a',
+  themeColor: '#0a0a0a',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -49,11 +58,17 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   const messages = await getMessages()
   const dir = locale === 'ar' ? 'rtl' : 'ltr'
+  const fontClass = locale === 'ar' ? plexArabic.className : GeistSans.className
 
   return (
-    <html lang={locale} dir={dir} suppressHydrationWarning>
+    <html
+      lang={locale}
+      dir={dir}
+      className={`dark ${GeistSans.variable} ${plexArabic.variable}`}
+      suppressHydrationWarning
+    >
       <head />
-      <body className="bg-background min-h-screen font-sans antialiased">
+      <body className={`bg-bg-primary text-foreground min-h-screen antialiased ${fontClass}`}>
         <NextIntlClientProvider messages={messages}>
           <Providers>
             <AppShell>{children}</AppShell>

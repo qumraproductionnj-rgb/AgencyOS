@@ -250,7 +250,27 @@
     "frameworks": "مكتبة الإطارات",
     "equipment": "المعدات",
     "exhibitions": "المعارض",
-    "billing": "الفواتير والاشتراك"
+    "billing": "الفواتير والاشتراك",
+    "deals": "الصفقات",
+    "payments": "المدفوعات",
+    "contentStudio": "Content Studio",
+    "clientPortal": "بوابة العميل",
+    "subscription": "الاشتراك",
+    "sections": {
+      "home": "الرئيسية",
+      "hr": "الموارد البشرية",
+      "sales": "المبيعات",
+      "ops": "العمليات",
+      "finance": "المالية",
+      "creative": "الإبداع",
+      "analytics": "التحليل",
+      "system": "النظام"
+    },
+    "search": "بحث... ⌘K",
+    "collapse": "طي",
+    "expand": "توسيع",
+    "live": "مباشر",
+    "breadcrumbRoot": "VISION"
   },
   "pwa": {
     "installPrompt": "قم بتثبيت AgencyOS على جهازك للوصول السريع والدعم بدون اتصال.",

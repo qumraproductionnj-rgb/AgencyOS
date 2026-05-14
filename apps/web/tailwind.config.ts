@@ -44,6 +44,18 @@ const config: Config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        bg: {
+          primary: '#0a0a0a',
+          secondary: '#1a1a1a',
+        },
+        glass: {
+          DEFAULT: 'rgba(255,255,255,0.03)',
+          hover: 'rgba(255,255,255,0.05)',
+          border: 'rgba(255,255,255,0.08)',
+        },
+      },
+      backdropBlur: {
+        xl: '40px',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -51,8 +63,11 @@ const config: Config = {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],
         arabic: ['var(--font-arabic)', 'system-ui', 'sans-serif'],
+      },
+      transitionTimingFunction: {
+        smooth: 'cubic-bezier(0.4, 0, 0.2, 1)',
       },
     },
   },

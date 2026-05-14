@@ -250,7 +250,27 @@
     "frameworks": "Frameworks",
     "equipment": "Equipment",
     "exhibitions": "Exhibitions",
-    "billing": "Billing"
+    "billing": "Billing",
+    "deals": "Deals",
+    "payments": "Payments",
+    "contentStudio": "Content Studio",
+    "clientPortal": "Client Portal",
+    "subscription": "Subscription",
+    "sections": {
+      "home": "Home",
+      "hr": "HR",
+      "sales": "Sales",
+      "ops": "Operations",
+      "finance": "Finance",
+      "creative": "Creative",
+      "analytics": "Analytics",
+      "system": "System"
+    },
+    "search": "Search... ⌘K",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "live": "LIVE",
+    "breadcrumbRoot": "VISION"
   },
   "pwa": {
     "installPrompt": "Install AgencyOS on your device for quick access and offline support.",

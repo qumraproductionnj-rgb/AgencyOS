@@ -56,6 +56,8 @@ import { ExternalWebhookModule } from './external-webhooks/external-webhook.modu
 import { WhiteLabelModule } from './white-label/white-label.module'
 import { SupportModule } from './support/support.module'
 import { RealtimeModule } from './realtime/realtime.module'
+import { BetaModule } from './beta/beta.module'
+import { JobsModule } from './jobs/jobs.module'
 import { SubscriptionActiveGuard } from './common/guards/subscription-active.guard'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
 import { PermissionsGuard } from './common/guards/permission.guard'
@@ -146,6 +148,8 @@ import { envSchema } from './config/env.validation'
     WhiteLabelModule,
     SupportModule,
     RealtimeModule,
+    BetaModule,
+    JobsModule,
     HealthModule,
   ],
   controllers: [AppController],

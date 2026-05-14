@@ -2607,3 +2607,51 @@ model SupportTicketMessage {
   @@index([ticketId], name: "idx_support_msgs_ticket_id")
   @@map("support_ticket_messages")
 }
+
+// ── Beta Invites ─────────────────────────────────────────────────────────────
+model BetaInvite {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  companyName String    @map("company_name")
+  type        String    @default("agency")
+  status      String    @default("sent")
+  token       String    @unique @default(cuid())
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz
+  acceptedAt  DateTime? @map("accepted_at") @db.Timestamptz
+  notes       String?
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([status], name: "idx_beta_invites_status")
+  @@index([token], name: "idx_beta_invites_token")
+  @@map("beta_invites")
+}
+
+// ── Feedback Submissions ──────────────────────────────────────────────────────
+model FeedbackSubmission {
+  id          String   @id @default(cuid())
+  companyId   String   @map("company_id") @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  liked       String?
+  improved    String?
+  missing     String?
+  willContinue Boolean? @map("will_continue")
+  willPay     String?  @map("will_pay")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([companyId], name: "idx_feedback_company_id")
+  @@map("feedback_submissions")
+}
+
+
+// ── Platform Admins ───────────────────────────────────────────────────────────
+model PlatformAdmin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("platform_admins")
+}

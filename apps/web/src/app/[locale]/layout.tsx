@@ -9,6 +9,8 @@ import { routing } from '../../i18n/routing'
 import { AppShell } from '../../components/app-shell'
 import { Providers } from '../../components/providers'
 import { ErrorBoundary } from '../../components/error-boundary'
+import { PostHogProvider } from '../../components/providers/posthog-provider'
+import { FeedbackForm } from '../../components/feedback/feedback-form'
 import '../../globals.css'
 
 const plexArabic = IBM_Plex_Sans_Arabic({
@@ -72,9 +74,12 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       <body className={`bg-bg-primary text-foreground min-h-screen antialiased ${fontClass}`}>
         <NextIntlClientProvider messages={messages}>
           <Providers>
-            <ErrorBoundary>
-              <AppShell>{children}</AppShell>
-            </ErrorBoundary>
+            <PostHogProvider>
+              <ErrorBoundary>
+                <AppShell>{children}</AppShell>
+              </ErrorBoundary>
+              <FeedbackForm />
+            </PostHogProvider>
           </Providers>
         </NextIntlClientProvider>
       </body>

@@ -1,5 +1,6 @@
 import createNextIntlPlugin from 'next-intl/plugin'
 import withPwaInit from 'next-pwa'
+import { withSentryConfig } from '@sentry/nextjs'
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
@@ -52,4 +53,16 @@ const nextConfig = {
   },
 }
 
-export default withNextIntl(withPwa(nextConfig))
+/* eslint-disable no-undef */
+const sentryOptions = {
+  silent: true,
+  org: process.env.SENTRY_ORG ?? 'CHANGE_ME_SENTRY_ORG',
+  project: process.env.SENTRY_PROJECT ?? 'agencyos-web',
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  widenClientFileUpload: true,
+  hideSourceMaps: true,
+  disableLogger: true,
+}
+/* eslint-enable no-undef */
+
+export default withSentryConfig(withNextIntl(withPwa(nextConfig)), sentryOptions)

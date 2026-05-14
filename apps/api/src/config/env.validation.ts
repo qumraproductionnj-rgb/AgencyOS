@@ -53,6 +53,7 @@ export const envSchema = z.object({
   // Telegram (Phase 3)
   TELEGRAM_BOT_TOKEN: z.string().optional(),
   TELEGRAM_BOT_USERNAME: z.string().default('AgencyOSBot'),
+  TELEGRAM_ADMIN_CHAT_ID: z.string().optional(),
 
   // Sentry
   SENTRY_DSN: z.string().optional(),

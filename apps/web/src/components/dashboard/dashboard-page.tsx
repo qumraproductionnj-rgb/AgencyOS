@@ -5,6 +5,7 @@ import { useLocale } from 'next-intl'
 import { LayoutGrid, Settings2, RotateCcw, Plus, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useTour } from '@/hooks/use-tour'
+import { ChecklistWidget } from '@/components/onboarding/checklist-widget'
 import { WidgetRenderer } from './widgets/widget-renderer'
 import {
   WIDGET_CATALOG,
@@ -157,6 +158,9 @@ export function DashboardPage() {
           </button>
         </div>
       </div>
+
+      {/* Onboarding checklist — shows for new users */}
+      <ChecklistWidget />
 
       {editMode && (
         <div className="rounded-xl border border-purple-400/20 bg-purple-400/[0.05] px-4 py-2.5 text-sm text-purple-300">

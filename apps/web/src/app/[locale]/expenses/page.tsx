@@ -1,9 +1,12 @@
-import { ExpenseList } from '@/components/expenses/expense-list'
+import { setRequestLocale } from 'next-intl/server'
+import { ExpensesClient } from '@/components/expenses/expenses-client'
 
-export default function ExpensesPage() {
-  return (
-    <div className="p-6">
-      <ExpenseList />
-    </div>
-  )
+interface Props {
+  params: Promise<{ locale: string }>
+}
+
+export default async function ExpensesPage({ params }: Props) {
+  const { locale } = await params
+  setRequestLocale(locale)
+  return <ExpensesClient />
 }

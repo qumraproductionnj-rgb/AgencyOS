@@ -1,9 +1,12 @@
-import { QuotationList } from '@/components/quotations/quotation-list'
+import { setRequestLocale } from 'next-intl/server'
+import { QuotationsClient } from '@/components/quotations/quotations-client'
 
-export default function QuotationsPage() {
-  return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <QuotationList />
-    </div>
-  )
+interface Props {
+  params: Promise<{ locale: string }>
+}
+
+export default async function QuotationsPage({ params }: Props) {
+  const { locale } = await params
+  setRequestLocale(locale)
+  return <QuotationsClient />
 }

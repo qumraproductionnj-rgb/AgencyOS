@@ -4,9 +4,16 @@ import { useState, type ReactNode } from 'react'
 import { AppHeader } from './layout/app-header'
 import { AppSidebar } from './layout/app-sidebar'
 import { SubscriptionStatusBanner } from './subscription/subscription-status-banner'
+import { CommandPalette } from './command-palette'
+import { useCommandPalette } from '@/hooks/use-command-palette'
 
 interface Props {
   children: ReactNode
+}
+
+function CommandPaletteMount() {
+  useCommandPalette()
+  return <CommandPalette />
 }
 
 export function AppShell({ children }: Props) {
@@ -14,6 +21,7 @@ export function AppShell({ children }: Props) {
 
   return (
     <div className="flex min-h-screen">
+      <CommandPaletteMount />
       <AppSidebar mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
       <div className="flex min-w-0 flex-1 flex-col">
         <AppHeader onMenuClick={() => setMobileOpen(true)} />

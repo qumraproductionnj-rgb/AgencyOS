@@ -29,6 +29,7 @@ import {
 import { useTranslations } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
 import { cn } from '@/lib/utils'
+import { useCommandPaletteStore } from '@/stores/command-palette-store'
 
 interface Props {
   mobileOpen: boolean
@@ -103,6 +104,7 @@ export function AppSidebar({ mobileOpen, onMobileClose }: Props) {
   const [collapsed, setCollapsed] = useState(false)
   const t = useTranslations('nav')
   const pathname = usePathname()
+  const openPalette = useCommandPaletteStore((s) => s.open)
 
   const widthClass = collapsed ? 'lg:w-[72px]' : 'lg:w-[240px]'
 
@@ -148,14 +150,17 @@ export function AppSidebar({ mobileOpen, onMobileClose }: Props) {
 
         {!collapsed && (
           <div className="px-3 pb-3">
-            <div className="bg-glass border-glass-border focus-within:border-glass-hover flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs">
+            <button
+              type="button"
+              onClick={openPalette}
+              className="bg-glass border-glass-border hover:border-glass-hover flex w-full items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs transition-colors"
+            >
               <Search className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
-              <input
-                type="text"
-                placeholder={t('search')}
-                className="placeholder:text-muted-foreground text-foreground w-full bg-transparent outline-none"
-              />
-            </div>
+              <span className="text-muted-foreground flex-1 text-start">{t('search')}</span>
+              <kbd className="rounded border border-white/[0.08] px-1 font-mono text-[9px] text-white/20">
+                ⌘K
+              </kbd>
+            </button>
           </div>
         )}
 

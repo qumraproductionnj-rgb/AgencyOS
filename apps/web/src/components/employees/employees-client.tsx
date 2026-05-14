@@ -5,6 +5,8 @@ import { Search, UserPlus, X, Mail, Phone, Building2, Calendar, BadgeCheck } fro
 import * as Dialog from '@radix-ui/react-dialog'
 import { useLocale } from 'next-intl'
 import { useEmployees, type Employee } from '@/hooks/use-employees'
+import { useBulkSelect } from '@/hooks/use-bulk-select'
+import { BulkActionBar } from '@/components/bulk-action-bar'
 import { cn } from '@/lib/utils'
 
 const STATIC_EMPLOYEES: Employee[] = [
@@ -339,6 +341,14 @@ export function EmployeesClient() {
   })
 
   const employees = apiData ?? STATIC_EMPLOYEES
+  const {
+    toggleOne,
+    clearAll,
+    isSelected,
+    isAllSelected,
+    toggleAll,
+    count: bulkCount,
+  } = useBulkSelect()
 
   const filtered = employees.filter((e) => {
     const matchSearch =
@@ -400,6 +410,14 @@ export function EmployeesClient() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-white/[0.06]">
+              <th className="w-10 px-4 py-3">
+                <input
+                  type="checkbox"
+                  checked={isAllSelected(filtered.map((e) => e.id))}
+                  onChange={() => toggleAll(filtered.map((e) => e.id))}
+                  className="h-3.5 w-3.5 rounded accent-purple-500"
+                />
+              </th>
               <th className="text-muted-foreground px-4 py-3 text-start text-[11px] font-semibold uppercase tracking-wider">
                 {isAr ? 'الموظف' : 'Employee'}
               </th>
@@ -421,13 +439,24 @@ export function EmployeesClient() {
             {filtered.map((emp, idx) => {
               const colorIdx = (emp.userId.charCodeAt(0) ?? idx) % AVATAR_COLORS.length
               const gradClass = AVATAR_COLORS[colorIdx] ?? 'from-sky-500 to-blue-600'
+              const sel = isSelected(emp.id)
               return (
                 <tr
                   key={emp.id}
-                  onClick={() => setSelected(emp)}
-                  className="cursor-pointer transition-colors hover:bg-white/[0.03]"
+                  className={cn(
+                    'cursor-pointer transition-colors hover:bg-white/[0.03]',
+                    sel && 'bg-purple-500/[0.06]',
+                  )}
                 >
-                  <td className="px-4 py-3.5">
+                  <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={sel}
+                      onChange={() => toggleOne(emp.id)}
+                      className="h-3.5 w-3.5 rounded accent-purple-500"
+                    />
+                  </td>
+                  <td className="px-4 py-3.5" onClick={() => setSelected(emp)}>
                     <div className="flex items-center gap-3">
                       <div
                         className={cn(
@@ -447,15 +476,21 @@ export function EmployeesClient() {
                       </div>
                     </div>
                   </td>
-                  <td className="text-muted-foreground hidden px-4 py-3.5 sm:table-cell">
+                  <td
+                    className="text-muted-foreground hidden px-4 py-3.5 sm:table-cell"
+                    onClick={() => setSelected(emp)}
+                  >
                     {isAr
                       ? (emp.department?.nameAr ?? '—')
                       : (emp.department?.nameEn ?? emp.department?.nameAr ?? '—')}
                   </td>
-                  <td className="text-muted-foreground hidden px-4 py-3.5 md:table-cell">
+                  <td
+                    className="text-muted-foreground hidden px-4 py-3.5 md:table-cell"
+                    onClick={() => setSelected(emp)}
+                  >
                     {emp.position ?? '—'}
                   </td>
-                  <td className="px-4 py-3.5">
+                  <td className="px-4 py-3.5" onClick={() => setSelected(emp)}>
                     <span
                       className={cn(
                         'rounded-full px-2.5 py-0.5 text-[11px] font-medium',
@@ -467,7 +502,10 @@ export function EmployeesClient() {
                         : (STATUS_LABELS_EN[emp.status] ?? emp.status)}
                     </span>
                   </td>
-                  <td className="text-muted-foreground hidden px-4 py-3.5 text-sm lg:table-cell">
+                  <td
+                    className="text-muted-foreground hidden px-4 py-3.5 text-sm lg:table-cell"
+                    onClick={() => setSelected(emp)}
+                  >
                     {new Date(emp.startDate).toLocaleDateString(isAr ? 'ar-IQ' : 'en-GB')}
                   </td>
                 </tr>
@@ -493,6 +531,8 @@ export function EmployeesClient() {
           isAr={isAr}
         />
       )}
+
+      <BulkActionBar count={bulkCount} context="employees" onClear={clearAll} />
     </div>
   )
 }

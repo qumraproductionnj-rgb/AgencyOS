@@ -1,7 +1,17 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Plus, Flame, Thermometer, Snowflake, DollarSign } from 'lucide-react'
+import {
+  Plus,
+  Flame,
+  Thermometer,
+  Snowflake,
+  DollarSign,
+  Square,
+  CheckSquare as CheckSq,
+} from 'lucide-react'
+import { useBulkSelect } from '@/hooks/use-bulk-select'
+import { BulkActionBar } from '@/components/bulk-action-bar'
 import {
   DndContext,
   DragOverlay,
@@ -727,10 +737,14 @@ function LeadCard({
   lead,
   isAr,
   dragging,
+  selected,
+  onToggle,
 }: {
   lead: EnrichedLead
   isAr: boolean
   dragging?: boolean
+  selected?: boolean
+  onToggle?: (e: React.MouseEvent) => void
 }) {
   const tempCfg = TEMP_CONFIG[lead.temperature]
   const TempIcon = tempCfg.icon
@@ -740,12 +754,27 @@ function LeadCard({
         'cursor-grab select-none space-y-2.5 rounded-xl border border-white/[0.06] bg-white/[0.03] p-3.5 active:cursor-grabbing',
         'transition-all duration-150',
         dragging && 'scale-95 opacity-50',
+        selected && 'ring-1 ring-purple-500/40',
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <div className="truncate text-sm font-medium">{lead.companyName ?? lead.name}</div>
-          <div className="text-muted-foreground truncate text-xs">{lead.name}</div>
+        <div className="flex min-w-0 flex-1 items-start gap-2">
+          {onToggle && (
+            <button
+              onClick={onToggle}
+              className="mt-0.5 shrink-0 text-white/30 hover:text-purple-400"
+            >
+              {selected ? (
+                <CheckSq className="h-3.5 w-3.5 text-purple-400" />
+              ) : (
+                <Square className="h-3.5 w-3.5" />
+              )}
+            </button>
+          )}
+          <div className="min-w-0">
+            <div className="truncate text-sm font-medium">{lead.companyName ?? lead.name}</div>
+            <div className="text-muted-foreground truncate text-xs">{lead.name}</div>
+          </div>
         </div>
         <span
           className={cn(
@@ -766,11 +795,27 @@ function LeadCard({
   )
 }
 
-function DraggableLeadCard({ lead, isAr }: { lead: EnrichedLead; isAr: boolean }) {
+function DraggableLeadCard({
+  lead,
+  isAr,
+  selected,
+  onToggle,
+}: {
+  lead: EnrichedLead
+  isAr: boolean
+  selected: boolean
+  onToggle: (e: React.MouseEvent) => void
+}) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: lead.id })
   return (
     <div ref={setNodeRef} {...listeners} {...attributes}>
-      <LeadCard lead={lead} isAr={isAr} dragging={isDragging} />
+      <LeadCard
+        lead={lead}
+        isAr={isAr}
+        dragging={isDragging}
+        selected={selected}
+        onToggle={onToggle}
+      />
     </div>
   )
 }
@@ -779,10 +824,14 @@ function Column({
   col,
   leads,
   isAr,
+  isSelected,
+  onToggle,
 }: {
   col: (typeof COLUMNS)[number]
   leads: EnrichedLead[]
   isAr: boolean
+  isSelected: (id: string) => boolean
+  onToggle: (id: string) => void
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: col.key })
   const total = leads.reduce((s, l) => s + l.expectedValue, 0)
@@ -806,7 +855,16 @@ function Column({
       </div>
       <div className="flex flex-col gap-2">
         {leads.map((lead) => (
-          <DraggableLeadCard key={lead.id} lead={lead} isAr={isAr} />
+          <DraggableLeadCard
+            key={lead.id}
+            lead={lead}
+            isAr={isAr}
+            selected={isSelected(lead.id)}
+            onToggle={(e) => {
+              e.stopPropagation()
+              onToggle(lead.id)
+            }}
+          />
         ))}
       </div>
     </div>
@@ -817,6 +875,7 @@ export function LeadsClient() {
   const locale = useLocale()
   const isAr = locale === 'ar'
   const [tempFilter, setTempFilter] = useState<Temperature | 'all'>('all')
+  const { toggleOne, clearAll, isSelected, count: bulkCount } = useBulkSelect()
 
   const { data: apiData } = useLeads()
 
@@ -909,11 +968,15 @@ export function LeadsClient() {
               col={col}
               leads={filtered.filter((l) => l.status === col.key)}
               isAr={isAr}
+              isSelected={isSelected}
+              onToggle={toggleOne}
             />
           ))}
         </div>
         <DragOverlay>{activeLead && <LeadCard lead={activeLead} isAr={isAr} />}</DragOverlay>
       </DndContext>
+
+      <BulkActionBar count={bulkCount} context="leads" onClear={clearAll} />
     </div>
   )
 }

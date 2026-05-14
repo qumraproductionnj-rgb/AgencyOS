@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { Plus, LayoutGrid, List, Calendar, CheckSquare } from 'lucide-react'
 import { useLocale } from 'next-intl'
 import { useProjects, type Project } from '@/hooks/use-projects'
+import { useBulkSelect } from '@/hooks/use-bulk-select'
+import { BulkActionBar } from '@/components/bulk-action-bar'
 import { cn } from '@/lib/utils'
 
 const STATIC_PROJECTS: Project[] = [
@@ -212,48 +214,6 @@ function ProjectGridCard({ project, isAr }: { project: Project; isAr: boolean })
   )
 }
 
-function ProjectListRow({ project, isAr }: { project: Project; isAr: boolean }) {
-  const stage = STAGE_CONFIG[project.stage] ?? STAGE_CONFIG['BRIEF']!
-  return (
-    <tr className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.02]">
-      <td className="px-4 py-3.5">
-        <div className="font-medium">{isAr ? project.name : (project.nameEn ?? project.name)}</div>
-        <div className="text-muted-foreground text-xs">
-          {isAr ? project.client.name : (project.client.nameEn ?? project.client.name)}
-        </div>
-      </td>
-      <td className="px-4 py-3.5">
-        <span className={cn('rounded-full px-2.5 py-0.5 text-[11px] font-medium', stage.style)}>
-          {isAr ? stage.ar : stage.en}
-        </span>
-      </td>
-      <td className="hidden px-4 py-3.5 md:table-cell">
-        <div className="flex items-center gap-2">
-          <div className="h-1.5 w-24 rounded-full bg-white/[0.06]">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-sky-400 to-purple-400"
-              style={{ width: `${stage.progress}%` }}
-            />
-          </div>
-          <span className="text-xs font-medium">{stage.progress}%</span>
-        </div>
-      </td>
-      <td className="hidden px-4 py-3.5 lg:table-cell">
-        <TeamAvatars count={3} />
-      </td>
-      <td className="hidden px-4 py-3.5 sm:table-cell">
-        <span className="text-muted-foreground flex items-center gap-1 text-xs">
-          <Calendar className="h-3 w-3" />
-          {formatDeadline(project.deadline, isAr)}
-        </span>
-      </td>
-      <td className="text-muted-foreground hidden px-4 py-3.5 text-xs md:table-cell">
-        {project._count?.tasks ?? 0} {isAr ? 'مهمة' : 'tasks'}
-      </td>
-    </tr>
-  )
-}
-
 export function ProjectsClient() {
   const locale = useLocale()
   const isAr = locale === 'ar'
@@ -261,6 +221,14 @@ export function ProjectsClient() {
 
   const { data: apiData } = useProjects()
   const projects = apiData ?? STATIC_PROJECTS
+  const {
+    toggleOne,
+    toggleAll,
+    clearAll,
+    isSelected,
+    isAllSelected,
+    count: bulkCount,
+  } = useBulkSelect()
 
   return (
     <div className="space-y-5 p-6">
@@ -306,7 +274,18 @@ export function ProjectsClient() {
       {view === 'grid' ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {projects.map((p) => (
-            <ProjectGridCard key={p.id} project={p} isAr={isAr} />
+            <div
+              key={p.id}
+              className={cn('relative', isSelected(p.id) && 'rounded-xl ring-1 ring-purple-500/40')}
+            >
+              <input
+                type="checkbox"
+                checked={isSelected(p.id)}
+                onChange={() => toggleOne(p.id)}
+                className="absolute end-3 top-3 z-10 h-3.5 w-3.5 rounded accent-purple-500"
+              />
+              <ProjectGridCard project={p} isAr={isAr} />
+            </div>
           ))}
         </div>
       ) : (
@@ -314,6 +293,14 @@ export function ProjectsClient() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/[0.06]">
+                <th className="w-10 px-4 py-3">
+                  <input
+                    type="checkbox"
+                    checked={isAllSelected(projects.map((p) => p.id))}
+                    onChange={() => toggleAll(projects.map((p) => p.id))}
+                    className="h-3.5 w-3.5 rounded accent-purple-500"
+                  />
+                </th>
                 <th className="text-muted-foreground px-4 py-3 text-start text-[11px] font-semibold uppercase tracking-wider">
                   {isAr ? 'المشروع' : 'Project'}
                 </th>
@@ -336,12 +323,78 @@ export function ProjectsClient() {
             </thead>
             <tbody>
               {projects.map((p) => (
-                <ProjectListRow key={p.id} project={p} isAr={isAr} />
+                <tr
+                  key={p.id}
+                  className={cn(
+                    'border-b border-white/[0.04] transition-colors hover:bg-white/[0.02]',
+                    isSelected(p.id) && 'bg-purple-500/[0.06]',
+                  )}
+                >
+                  <td className="px-4 py-3.5">
+                    <input
+                      type="checkbox"
+                      checked={isSelected(p.id)}
+                      onChange={() => toggleOne(p.id)}
+                      className="h-3.5 w-3.5 rounded accent-purple-500"
+                    />
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <div className="font-medium">{isAr ? p.name : (p.nameEn ?? p.name)}</div>
+                    <div className="text-muted-foreground text-xs">
+                      {isAr ? p.client.name : (p.client.nameEn ?? p.client.name)}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3.5">
+                    {(() => {
+                      const stage = STAGE_CONFIG[p.stage] ?? STAGE_CONFIG['BRIEF']!
+                      return (
+                        <span
+                          className={cn(
+                            'rounded-full px-2.5 py-0.5 text-[11px] font-medium',
+                            stage.style,
+                          )}
+                        >
+                          {isAr ? stage.ar : stage.en}
+                        </span>
+                      )
+                    })()}
+                  </td>
+                  <td className="hidden px-4 py-3.5 md:table-cell">
+                    {(() => {
+                      const stage = STAGE_CONFIG[p.stage] ?? STAGE_CONFIG['BRIEF']!
+                      return (
+                        <div className="flex items-center gap-2">
+                          <div className="h-1.5 w-24 rounded-full bg-white/[0.06]">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-sky-400 to-purple-400"
+                              style={{ width: `${stage.progress}%` }}
+                            />
+                          </div>
+                          <span className="text-xs font-medium">{stage.progress}%</span>
+                        </div>
+                      )
+                    })()}
+                  </td>
+                  <td className="hidden px-4 py-3.5 lg:table-cell">
+                    <TeamAvatars count={3} />
+                  </td>
+                  <td className="hidden px-4 py-3.5 sm:table-cell">
+                    <span className="text-muted-foreground flex items-center gap-1 text-xs">
+                      <Calendar className="h-3 w-3" />
+                      {formatDeadline(p.deadline, isAr)}
+                    </span>
+                  </td>
+                  <td className="text-muted-foreground hidden px-4 py-3.5 text-xs md:table-cell">
+                    {p._count?.tasks ?? 0} {isAr ? 'مهمة' : 'tasks'}
+                  </td>
+                </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
+
+      <BulkActionBar count={bulkCount} context="projects" onClear={clearAll} />
     </div>
   )
 }

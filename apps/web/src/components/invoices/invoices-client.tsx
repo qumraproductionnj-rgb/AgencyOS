@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { Plus, Eye, Bell, FileCheck, AlertTriangle, Clock } from 'lucide-react'
 import { useLocale } from 'next-intl'
 import { useInvoices, type Invoice } from '@/hooks/use-invoices'
+import { useBulkSelect } from '@/hooks/use-bulk-select'
+import { BulkActionBar } from '@/components/bulk-action-bar'
 import { cn } from '@/lib/utils'
 
 const STATIC_INVOICES: Invoice[] = [
@@ -326,6 +328,14 @@ export function InvoicesClient() {
 
   const { data: apiData } = useInvoices(statusFilter ? { status: statusFilter } : undefined)
   const invoices = apiData ?? STATIC_INVOICES
+  const {
+    toggleOne,
+    toggleAll,
+    clearAll,
+    isSelected,
+    isAllSelected,
+    count: bulkCount,
+  } = useBulkSelect()
 
   const filtered = statusFilter ? invoices.filter((i) => i.status === statusFilter) : invoices
 
@@ -437,6 +447,14 @@ export function InvoicesClient() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-white/[0.06]">
+              <th className="w-10 px-4 py-3">
+                <input
+                  type="checkbox"
+                  checked={isAllSelected(filtered.map((i) => i.id))}
+                  onChange={() => toggleAll(filtered.map((i) => i.id))}
+                  className="h-3.5 w-3.5 rounded accent-purple-500"
+                />
+              </th>
               {[
                 { ar: 'الرقم', en: 'Number' },
                 { ar: 'العميل', en: 'Client' },
@@ -462,14 +480,24 @@ export function InvoicesClient() {
             {filtered.map((inv) => {
               const cfg = STATUS_CFG[inv.status as keyof typeof STATUS_CFG] ?? STATUS_CFG.DRAFT
               const isOverdue = inv.status === 'OVERDUE'
+              const selected = isSelected(inv.id)
               return (
                 <tr
                   key={inv.id}
                   className={cn(
                     'transition-colors hover:bg-white/[0.02]',
                     isOverdue && 'bg-red-400/[0.02]',
+                    selected && 'bg-purple-500/[0.06]',
                   )}
                 >
+                  <td className="px-4 py-3.5">
+                    <input
+                      type="checkbox"
+                      checked={selected}
+                      onChange={() => toggleOne(inv.id)}
+                      className="h-3.5 w-3.5 rounded accent-purple-500"
+                    />
+                  </td>
                   <td className="px-4 py-3.5">
                     <span className="font-mono text-sm font-medium text-sky-300">{inv.number}</span>
                   </td>
@@ -539,6 +567,8 @@ export function InvoicesClient() {
           </tbody>
         </table>
       </div>
+
+      <BulkActionBar count={bulkCount} context="invoices" onClear={clearAll} />
     </div>
   )
 }

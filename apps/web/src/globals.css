@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import 'driver.js/dist/driver.css';
 
 @layer base {
   :root {
@@ -88,5 +89,19 @@
 
   .vision-pulse {
     animation: vision-pulse 1.6s ease-in-out infinite;
+  }
+}
+
+
+@media print {
+  nav, aside, header, [data-sidebar], [data-header], .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  main {
+    padding: 0 !important;
   }
 }

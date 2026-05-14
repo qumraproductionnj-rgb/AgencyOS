@@ -8,6 +8,7 @@ import type { ReactNode } from 'react'
 import { routing } from '../../i18n/routing'
 import { AppShell } from '../../components/app-shell'
 import { Providers } from '../../components/providers'
+import { ErrorBoundary } from '../../components/error-boundary'
 import '../../globals.css'
 
 const plexArabic = IBM_Plex_Sans_Arabic({
@@ -71,7 +72,9 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       <body className={`bg-bg-primary text-foreground min-h-screen antialiased ${fontClass}`}>
         <NextIntlClientProvider messages={messages}>
           <Providers>
-            <AppShell>{children}</AppShell>
+            <ErrorBoundary>
+              <AppShell>{children}</AppShell>
+            </ErrorBoundary>
           </Providers>
         </NextIntlClientProvider>
       </body>

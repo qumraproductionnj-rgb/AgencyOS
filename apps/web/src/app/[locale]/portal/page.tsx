@@ -1,12 +1,12 @@
 import { setRequestLocale } from 'next-intl/server'
-import { ReportsClient } from '@/components/reports/reports-client'
+import { PortalClient } from '@/components/portal/portal-client'
 
 interface Props {
   params: Promise<{ locale: string }>
 }
 
-export default async function ReportsPage({ params }: Props) {
+export default async function PortalPage({ params }: Props) {
   const { locale } = await params
   setRequestLocale(locale)
-  return <ReportsClient />
+  return <PortalClient />
 }

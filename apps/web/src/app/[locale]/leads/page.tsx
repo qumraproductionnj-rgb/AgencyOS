@@ -1,9 +1,12 @@
-import { LeadKanban } from '@/components/leads/lead-kanban'
+import { setRequestLocale } from 'next-intl/server'
+import { LeadsClient } from '@/components/leads/leads-client'
 
-export default function LeadsPage() {
-  return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <LeadKanban />
-    </div>
-  )
+interface Props {
+  params: Promise<{ locale: string }>
+}
+
+export default async function LeadsPage({ params }: Props) {
+  const { locale } = await params
+  setRequestLocale(locale)
+  return <LeadsClient />
 }

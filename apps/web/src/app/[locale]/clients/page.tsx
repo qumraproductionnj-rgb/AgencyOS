@@ -1,9 +1,12 @@
-import { ClientTable } from '@/components/clients/client-table'
+import { setRequestLocale } from 'next-intl/server'
+import { ClientsClient } from '@/components/clients/clients-client'
 
-export default function ClientsPage() {
-  return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <ClientTable />
-    </div>
-  )
+interface Props {
+  params: Promise<{ locale: string }>
+}
+
+export default async function ClientsPage({ params }: Props) {
+  const { locale } = await params
+  setRequestLocale(locale)
+  return <ClientsClient />
 }

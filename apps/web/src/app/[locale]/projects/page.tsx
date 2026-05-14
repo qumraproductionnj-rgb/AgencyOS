@@ -1,5 +1,12 @@
-import { ProjectList } from '@/components/projects/project-list'
+import { setRequestLocale } from 'next-intl/server'
+import { ProjectsClient } from '@/components/projects/projects-client'
 
-export default function ProjectsPage() {
-  return <ProjectList />
+interface Props {
+  params: Promise<{ locale: string }>
+}
+
+export default async function ProjectsPage({ params }: Props) {
+  const { locale } = await params
+  setRequestLocale(locale)
+  return <ProjectsClient />
 }

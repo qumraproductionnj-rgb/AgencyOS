@@ -1,4 +1,4 @@
-import { DashboardPage } from '@/components/dashboard/dashboard-page'
+import { redirect } from 'next/navigation'
 import { setRequestLocale } from 'next-intl/server'
 
 interface HomePageProps {
@@ -8,6 +8,5 @@ interface HomePageProps {
 export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params
   setRequestLocale(locale)
-
-  return <DashboardPage />
+  redirect('/dashboard')
 }

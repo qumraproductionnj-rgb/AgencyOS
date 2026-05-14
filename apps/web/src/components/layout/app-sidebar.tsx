@@ -48,7 +48,7 @@ interface NavSection {
 }
 
 const SECTIONS: NavSection[] = [
-  { key: 'home', items: [{ href: '/', icon: LayoutDashboard, key: 'dashboard' }] },
+  { key: 'home', items: [{ href: '/dashboard', icon: LayoutDashboard, key: 'dashboard' }] },
   {
     key: 'hr',
     items: [

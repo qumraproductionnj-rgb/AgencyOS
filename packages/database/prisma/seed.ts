@@ -313,7 +313,324 @@ async function main() {
   })
   console.log(`✅ Platform admin: ${adminEmail}`)
 
+  await seedRuyaDemoData(prisma, ruya.id)
+
   console.log('✅ Seed complete.')
+}
+
+async function seedRuyaDemoData(prisma: PrismaClient, companyId: string) {
+  console.log("🎨 Seeding Ru'ya demo data...")
+
+  // Departments
+  const dept = await prisma.department.upsert({
+    where: { id: '00000000-0000-0000-0000-000000000001' },
+    update: {},
+    create: {
+      id: '00000000-0000-0000-0000-000000000001',
+      companyId,
+      nameAr: 'الإنتاج الإبداعي',
+      nameEn: 'Creative Production',
+    },
+  })
+
+  // Users + Employees
+  const employees = [
+    {
+      email: 'ahmed@ruya.iq',
+      nameAr: 'أحمد العبادي',
+      nameEn: 'Ahmed Al-Abbadi',
+      position: 'Creative Director',
+      code: 'EMP-001',
+    },
+    {
+      email: 'sara@ruya.iq',
+      nameAr: 'سارة جاسم',
+      nameEn: 'Sara Jasim',
+      position: 'Project Manager',
+      code: 'EMP-002',
+    },
+    {
+      email: 'mohammed@ruya.iq',
+      nameAr: 'محمد الحسناوي',
+      nameEn: 'Mohammed Al-Hasnawi',
+      position: 'Senior Designer',
+      code: 'EMP-003',
+    },
+    {
+      email: 'zainab@ruya.iq',
+      nameAr: 'زينب الموسوي',
+      nameEn: 'Zainab Al-Musawi',
+      position: 'Content Strategist',
+      code: 'EMP-004',
+    },
+    {
+      email: 'hassan@ruya.iq',
+      nameAr: 'حسن الكاظمي',
+      nameEn: 'Hassan Al-Kadhimi',
+      position: 'Videographer',
+      code: 'EMP-005',
+    },
+    {
+      email: 'ali@ruya.iq',
+      nameAr: 'علي الربيعي',
+      nameEn: 'Ali Al-Rubaie',
+      position: 'Motion Designer',
+      code: 'EMP-006',
+    },
+    {
+      email: 'nour@ruya.iq',
+      nameAr: 'نور الهاشمي',
+      nameEn: 'Nour Al-Hashimi',
+      position: 'Social Media',
+      code: 'EMP-007',
+    },
+    {
+      email: 'karim@ruya.iq',
+      nameAr: 'كريم الجبوري',
+      nameEn: 'Karim Al-Jubouri',
+      position: 'Photographer',
+      code: 'EMP-008',
+    },
+  ]
+
+  const hash = await argon2.hash('Demo1234!', { type: argon2.argon2id })
+  for (const emp of employees) {
+    const user = await prisma.user.upsert({
+      where: { email: emp.email },
+      update: {},
+      create: {
+        email: emp.email,
+        passwordHash: hash,
+        tier: 'TENANT',
+        isActive: true,
+        emailVerifiedAt: new Date(),
+        companyId,
+      },
+    })
+    await prisma.employee.upsert({
+      where: { companyId_employeeCode: { companyId, employeeCode: emp.code } },
+      update: {},
+      create: {
+        companyId,
+        userId: user.id,
+        employeeCode: emp.code,
+        fullNameAr: emp.nameAr,
+        fullNameEn: emp.nameEn,
+        email: emp.email,
+        position: emp.position,
+        departmentId: dept.id,
+        startDate: new Date('2025-01-01'),
+        salaryAmount: 1200000n,
+        salaryCurrency: 'IQD',
+      },
+    })
+  }
+  console.log(`  ✅ ${employees.length} employees seeded`)
+
+  // Clients
+  const clientsExist = await prisma.client.count({ where: { companyId } })
+  let clients: { id: string }[] = []
+  if (clientsExist < 5) {
+    const clientData = [
+      {
+        name: 'مطعم الزلال',
+        nameEn: 'Al-Zalal Restaurant',
+        email: 'info@zalal.iq',
+        address: 'شارع فلسطين، بغداد',
+      },
+      {
+        name: 'معسل أحمد',
+        nameEn: 'Ahmad Moassel',
+        email: 'info@ahmad-moassel.iq',
+        address: 'النجف الأشرف',
+      },
+      {
+        name: 'معسل العطاء',
+        nameEn: 'Al-Ataa Moassel',
+        email: 'info@ataa-moassel.iq',
+        address: 'النجف الأشرف',
+      },
+      {
+        name: 'محلات السلامي',
+        nameEn: 'Al-Salami Stores',
+        email: 'info@salami-stores.iq',
+        address: 'النجف الأشرف',
+      },
+      {
+        name: 'مجمع الإمام علي التجاري',
+        nameEn: 'Imam Ali Commercial Complex',
+        email: 'info@imamali-complex.iq',
+        address: 'النجف الأشرف',
+      },
+    ]
+    clients = await Promise.all(
+      clientData.map((c) =>
+        prisma.client.create({ data: { companyId, ...c }, select: { id: true } }),
+      ),
+    )
+    console.log(`  ✅ ${clients.length} clients seeded`)
+  } else {
+    clients = await prisma.client.findMany({ where: { companyId }, select: { id: true }, take: 5 })
+    console.log(`  ℹ️  Clients already exist, skipping`)
+  }
+
+  const [zalal, ahmadMoassel, , salami, imamAli] = clients as [
+    { id: string },
+    { id: string },
+    { id: string },
+    { id: string },
+    { id: string },
+  ]
+
+  // Projects
+  const projectsExist = await prisma.project.count({ where: { companyId } })
+  if (projectsExist < 4) {
+    const projectData = [
+      {
+        clientId: ahmadMoassel.id,
+        name: 'حملة معسل أحمد رمضان 2026',
+        stage: 'IN_PROGRESS' as const,
+        budget: 18000000n,
+        start: '2026-02-01',
+        deadline: '2026-03-30',
+      },
+      {
+        clientId: zalal.id,
+        name: 'إعلان مطعم الزلال - قابلي',
+        stage: 'REVIEW' as const,
+        budget: 8500000n,
+        start: '2026-01-15',
+        deadline: '2026-02-15',
+      },
+      {
+        clientId: imamAli.id,
+        name: 'معرض النجف للصناعات',
+        stage: 'IN_PROGRESS' as const,
+        budget: 25000000n,
+        start: '2026-03-01',
+        deadline: '2026-04-30',
+      },
+      {
+        clientId: zalal.id,
+        name: 'هوية مطعم بغداد',
+        stage: 'PLANNING' as const,
+        budget: 5000000n,
+        start: '2026-04-01',
+        deadline: '2026-05-31',
+      },
+      {
+        clientId: salami.id,
+        name: 'سوشيال ميديا السلامي',
+        stage: 'IN_PROGRESS' as const,
+        budget: 12000000n,
+        start: '2026-01-01',
+        deadline: '2026-06-30',
+      },
+      {
+        clientId: imamAli.id,
+        name: 'فيديو مجمع الإمام علي',
+        stage: 'BRIEF' as const,
+        budget: 15000000n,
+        start: '2026-04-15',
+        deadline: '2026-06-15',
+      },
+    ]
+    await Promise.all(
+      projectData.map((p) =>
+        prisma.project.create({
+          data: {
+            companyId,
+            clientId: p.clientId,
+            name: p.name,
+            stage: p.stage,
+            budget: p.budget,
+            currency: 'IQD',
+            startDate: new Date(p.start),
+            deadline: new Date(p.deadline),
+          },
+        }),
+      ),
+    )
+    console.log(`  ✅ 6 projects seeded`)
+  } else {
+    console.log(`  ℹ️  Projects already exist, skipping`)
+  }
+
+  // Invoices
+  const invNumbers = ['INV-2026-145', 'INV-2026-144', 'INV-2026-141']
+  for (const num of invNumbers) {
+    const existing = await prisma.invoice.findUnique({ where: { number: num } })
+    if (existing) continue
+  }
+  const inv145 = await prisma.invoice.findUnique({ where: { number: 'INV-2026-145' } })
+  if (!inv145) {
+    const items = JSON.stringify([
+      { description: 'إنتاج إعلان تلفزيوني', quantity: 1, unitPrice: 8500000, total: 8500000 },
+    ])
+    await prisma.invoice.create({
+      data: {
+        companyId,
+        clientId: zalal.id,
+        number: 'INV-2026-145',
+        status: 'PAID',
+        items,
+        subtotal: 8500000n,
+        total: 8500000n,
+        paidAmount: 8500000n,
+        balanceDue: 0n,
+        currency: 'IQD',
+        issuedDate: new Date('2026-04-01'),
+        dueDate: new Date('2026-04-30'),
+      },
+    })
+    await prisma.invoice.create({
+      data: {
+        companyId,
+        clientId: ahmadMoassel.id,
+        number: 'INV-2026-144',
+        status: 'SENT',
+        items: JSON.stringify([
+          {
+            description: 'حملة رمضان الإبداعية',
+            quantity: 1,
+            unitPrice: 12200000,
+            total: 12200000,
+          },
+        ]),
+        subtotal: 12200000n,
+        total: 12200000n,
+        paidAmount: 0n,
+        balanceDue: 12200000n,
+        currency: 'IQD',
+        issuedDate: new Date('2026-03-15'),
+        dueDate: new Date('2026-04-15'),
+      },
+    })
+    await prisma.invoice.create({
+      data: {
+        companyId,
+        clientId: salami.id,
+        number: 'INV-2026-141',
+        status: 'OVERDUE',
+        items: JSON.stringify([
+          {
+            description: 'محتوى سوشيال ميديا - فبراير',
+            quantity: 1,
+            unitPrice: 3800000,
+            total: 3800000,
+          },
+        ]),
+        subtotal: 3800000n,
+        total: 3800000n,
+        paidAmount: 0n,
+        balanceDue: 3800000n,
+        currency: 'IQD',
+        issuedDate: new Date('2026-02-01'),
+        dueDate: new Date('2026-02-28'),
+      },
+    })
+    console.log('  ✅ 3 invoices seeded')
+  }
 }
 
 main()

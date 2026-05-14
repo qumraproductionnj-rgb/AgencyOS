@@ -55,6 +55,7 @@ import { ReportsModule } from './reports/reports.module'
 import { ExternalWebhookModule } from './external-webhooks/external-webhook.module'
 import { WhiteLabelModule } from './white-label/white-label.module'
 import { SupportModule } from './support/support.module'
+import { RealtimeModule } from './realtime/realtime.module'
 import { SubscriptionActiveGuard } from './common/guards/subscription-active.guard'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
 import { PermissionsGuard } from './common/guards/permission.guard'
@@ -144,6 +145,7 @@ import { envSchema } from './config/env.validation'
     ExternalWebhookModule,
     WhiteLabelModule,
     SupportModule,
+    RealtimeModule,
     HealthModule,
   ],
   controllers: [AppController],

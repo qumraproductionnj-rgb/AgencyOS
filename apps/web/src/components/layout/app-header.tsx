@@ -7,6 +7,8 @@ import { LanguageSwitcher } from '../language-switcher'
 import { ThemeToggle } from '../theme-toggle'
 import { NotificationBell } from '../notifications/notification-bell'
 import { SearchTrigger } from '../search/search-modal'
+import { OnlineAvatars } from '../realtime/online-avatars'
+import { usePresenceContext } from '../realtime/presence-provider'
 
 interface Props {
   onMenuClick: () => void
@@ -17,6 +19,7 @@ export function AppHeader({ onMenuClick }: Props) {
   const locale = useLocale()
   const pathname = usePathname()
   const Chevron = locale === 'ar' ? ChevronLeft : ChevronRight
+  const { onlineList } = usePresenceContext()
 
   const currentKey = deriveCurrentKey(pathname)
 
@@ -49,6 +52,7 @@ export function AppHeader({ onMenuClick }: Props) {
 
         <div className="ms-auto flex items-center gap-3">
           <LiveIndicator label={t('live')} />
+          <OnlineAvatars users={onlineList} maxVisible={4} />
           <SearchTrigger />
           <NotificationBell />
           <LanguageSwitcher />

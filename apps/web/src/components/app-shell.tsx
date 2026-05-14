@@ -7,6 +7,8 @@ import { SubscriptionStatusBanner } from './subscription/subscription-status-ban
 import { CommandPalette } from './command-palette'
 import { useCommandPalette } from '@/hooks/use-command-palette'
 import { AIAssistant } from './ai-assistant'
+import { PresenceProvider } from './realtime/presence-provider'
+import { ConnectionStatus } from './realtime/connection-status'
 
 interface Props {
   children: ReactNode
@@ -21,17 +23,20 @@ export function AppShell({ children }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen">
-      <CommandPaletteMount />
-      <AppSidebar mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <AppHeader onMenuClick={() => setMobileOpen(true)} />
-        <div className="px-4 pt-3">
-          <SubscriptionStatusBanner />
+    <PresenceProvider>
+      <div className="flex min-h-screen">
+        <CommandPaletteMount />
+        <AppSidebar mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <AppHeader onMenuClick={() => setMobileOpen(true)} />
+          <div className="px-4 pt-3">
+            <SubscriptionStatusBanner />
+          </div>
+          <main className="flex-1 overflow-x-hidden">{children}</main>
         </div>
-        <main className="flex-1 overflow-x-hidden">{children}</main>
+        <AIAssistant />
+        <ConnectionStatus />
       </div>
-      <AIAssistant />
-    </div>
+    </PresenceProvider>
   )
 }

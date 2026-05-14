@@ -1,9 +1,12 @@
-import { PayrollPage } from '@/components/payroll/payroll-page'
+import { setRequestLocale } from 'next-intl/server'
+import { PayrollClient } from '@/components/payroll/payroll-client'
 
-export default function PayrollRoute() {
-  return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <PayrollPage />
-    </div>
-  )
+interface Props {
+  params: Promise<{ locale: string }>
+}
+
+export default async function PayrollPage({ params }: Props) {
+  const { locale } = await params
+  setRequestLocale(locale)
+  return <PayrollClient />
 }

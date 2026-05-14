@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
 import { CheckCircle2, XCircle, Loader2 } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 
-export default function BillingReturnPage() {
+function BillingReturnContent() {
   const t = useTranslations('billing')
   const params = useSearchParams()
   const router = useRouter()
@@ -50,5 +50,13 @@ export default function BillingReturnPage() {
         {t('backToBilling')}
       </button>
     </div>
+  )
+}
+
+export default function BillingReturnPage() {
+  return (
+    <Suspense>
+      <BillingReturnContent />
+    </Suspense>
   )
 }

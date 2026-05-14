@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useAcceptInvite } from '@/hooks/use-employees'
 
-export default function AcceptInvitePage() {
+function AcceptInviteContent() {
   const t = useTranslations('acceptInvite')
   const tCommon = useTranslations('common')
   const searchParams = useSearchParams()
@@ -102,5 +102,13 @@ export default function AcceptInvitePage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AcceptInvitePage() {
+  return (
+    <Suspense>
+      <AcceptInviteContent />
+    </Suspense>
   )
 }

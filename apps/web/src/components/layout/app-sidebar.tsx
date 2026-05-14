@@ -85,8 +85,8 @@ const SECTIONS: NavSection[] = [
   {
     key: 'creative',
     items: [
-      { href: '/content-plans', icon: Sparkles, key: 'contentStudio', badge: 'AI' },
-      { href: '/files', icon: Share2, key: 'clientPortal' },
+      { href: '/content-studio', icon: Sparkles, key: 'contentStudio', badge: 'AI' },
+      { href: '/portal', icon: Share2, key: 'clientPortal' },
     ],
   },
   { key: 'analytics', items: [{ href: '/reports', icon: BarChart3, key: 'reports' }] },
@@ -94,7 +94,7 @@ const SECTIONS: NavSection[] = [
     key: 'system',
     items: [
       { href: '/settings', icon: Settings, key: 'settings' },
-      { href: '/settings/billing', icon: CircleDollarSign, key: 'subscription' },
+      { href: '/billing', icon: CircleDollarSign, key: 'subscription' },
     ],
   },
 ]

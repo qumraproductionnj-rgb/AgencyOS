@@ -679,6 +679,27 @@ function LanguageTab({ isAr }: { isAr: boolean }) {
           <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
         </div>
       </div>
+
+      {/* Intro replay */}
+      <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h3 className="text-sm font-semibold">{isAr ? 'مقدمة النظام' : 'Intro Animation'}</h3>
+            <p className="mt-0.5 text-xs text-white/40">
+              {isAr ? 'إعادة مشاهدة مقدمة Vision OS' : 'Replay the Vision OS intro animation'}
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              localStorage.removeItem('agencyos:intro:shown')
+              window.location.reload()
+            }}
+            className="shrink-0 rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 py-2 text-sm text-white/70 transition hover:bg-white/[0.08] hover:text-white"
+          >
+            {isAr ? '▶ إعادة المشاهدة' : '▶ Replay'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

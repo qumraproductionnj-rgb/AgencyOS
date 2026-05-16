@@ -29,6 +29,8 @@ import {
 } from 'recharts'
 import { useLocale } from 'next-intl'
 import { cn } from '@/lib/utils'
+import { useDashboard } from '@/hooks/use-dashboard'
+import { Loader2 } from 'lucide-react'
 
 const REVENUE_DATA = [
   { month: 'ديس', monthEn: 'Dec', value: 32 },
@@ -140,9 +142,10 @@ interface KpiCardProps {
   sub: string
   trend?: string
   trendUp?: boolean
+  loading?: boolean
 }
 
-function KpiCard({ icon, label, value, sub, trend, trendUp }: KpiCardProps) {
+function KpiCard({ icon, label, value, sub, trend, trendUp, loading }: KpiCardProps) {
   return (
     <div className="group relative overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.03] p-5 transition-all duration-200 hover:border-white/[0.1] hover:bg-white/[0.05]">
       <div className="flex items-start justify-between">
@@ -150,7 +153,13 @@ function KpiCard({ icon, label, value, sub, trend, trendUp }: KpiCardProps) {
           <p className="text-muted-foreground truncate text-xs font-medium uppercase tracking-wider">
             {label}
           </p>
-          <p className="mt-2 text-2xl font-bold">{value}</p>
+          {loading ? (
+            <div className="mt-2 flex items-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin text-white/20" />
+            </div>
+          ) : (
+            <p className="mt-2 text-2xl font-bold">{value}</p>
+          )}
           <p className="text-muted-foreground mt-1 text-xs">{sub}</p>
         </div>
         <div className="ms-3 shrink-0 rounded-lg bg-white/[0.06] p-2.5">{icon}</div>
@@ -170,43 +179,73 @@ function KpiCard({ icon, label, value, sub, trend, trendUp }: KpiCardProps) {
   )
 }
 
+function formatIqd(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M د.ع`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K د.ع`
+  return `${n} د.ع`
+}
+
 export function DashboardClient() {
   const locale = useLocale()
   const isAr = locale === 'ar'
+  const { data, isLoading, isError, refetch } = useDashboard()
+
+  const present = data?.todayAttendance.present ?? 0
+  const late = data?.todayAttendance.late ?? 0
+  const totalPresent = present + late
+  const totalAttendance =
+    (data?.todayAttendance.present ?? 0) +
+    (data?.todayAttendance.late ?? 0) +
+    (data?.todayAttendance.absent ?? 0) +
+    (data?.todayAttendance.remote ?? 0)
+  const attendancePct = totalAttendance > 0 ? Math.round((totalPresent / totalAttendance) * 100) : 0
+
+  const revenueIqd = data?.revenueThisMonth.iqd ?? 0
 
   return (
     <div className="space-y-6 p-6">
+      {isError && (
+        <div className="flex items-center justify-between rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-2 text-sm text-red-400">
+          <span>{isAr ? 'تعذّر تحميل البيانات' : 'Failed to load data'}</span>
+          <button onClick={() => refetch()} className="underline">
+            {isAr ? 'إعادة المحاولة' : 'Retry'}
+          </button>
+        </div>
+      )}
+
       {/* KPI Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard
           icon={<TrendingUp className="h-5 w-5 text-sky-400" />}
           label={isAr ? 'الإيرادات الشهرية' : 'Monthly Revenue'}
-          value="45.2M د.ع"
-          sub={isAr ? 'شهر أبريل 2026' : 'April 2026'}
-          trend={isAr ? '+12.5% مقارنة بالشهر الماضي' : '+12.5% vs last month'}
-          trendUp
+          value={isLoading ? '—' : formatIqd(revenueIqd)}
+          sub={isAr ? 'هذا الشهر' : 'This month'}
+          loading={isLoading}
         />
         <KpiCard
           icon={<FolderKanban className="h-5 w-5 text-purple-400" />}
           label={isAr ? 'المشاريع النشطة' : 'Active Projects'}
-          value="6"
+          value={isLoading ? '—' : String(data?.activeProjects ?? 0)}
           sub={isAr ? 'مشروع قيد التنفيذ' : 'In progress'}
-          trend={isAr ? '+2 هذا الأسبوع' : '+2 this week'}
-          trendUp
+          loading={isLoading}
         />
         <KpiCard
           icon={<Users className="h-5 w-5 text-emerald-400" />}
-          label={isAr ? 'الموظفون' : 'Employees'}
-          value="7/8"
-          sub={isAr ? 'حاضر اليوم (86%)' : 'Present today (86%)'}
+          label={isAr ? 'الحضور اليوم' : 'Present Today'}
+          value={isLoading ? '—' : `${totalPresent}/${totalAttendance}`}
+          sub={isAr ? `${attendancePct}% نسبة الحضور` : `${attendancePct}% attendance`}
+          loading={isLoading}
         />
         <KpiCard
           icon={<Briefcase className="h-5 w-5 text-amber-400" />}
-          label={isAr ? 'العملاء النشطون' : 'Active Clients'}
-          value="5"
-          sub={isAr ? '94% معدل الاحتفاظ' : '94% retention rate'}
-          trend={isAr ? 'أعلى من الشهر الماضي' : 'Higher than last month'}
-          trendUp
+          label={isAr ? 'المهام المتأخرة' : 'Overdue Tasks'}
+          value={isLoading ? '—' : String(data?.overdueTasks ?? 0)}
+          sub={
+            isAr
+              ? 'فواتير معلّقة: ' + (data?.pendingInvoices ?? 0)
+              : `Pending invoices: ${data?.pendingInvoices ?? 0}`
+          }
+          loading={isLoading}
         />
       </div>
 

@@ -9,6 +9,7 @@ import { NotificationBell } from '../notifications/notification-bell'
 import { SearchTrigger } from '../search/search-modal'
 import { OnlineAvatars } from '../realtime/online-avatars'
 import { usePresenceContext } from '../realtime/presence-provider'
+import { VoiceButton } from '../voice-button'
 
 interface Props {
   onMenuClick: () => void
@@ -54,6 +55,7 @@ export function AppHeader({ onMenuClick }: Props) {
           <LiveIndicator label={t('live')} />
           <OnlineAvatars users={onlineList} maxVisible={4} />
           <SearchTrigger />
+          <VoiceButton />
           <NotificationBell />
           <LanguageSwitcher />
           <ThemeToggle />

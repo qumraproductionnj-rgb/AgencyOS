@@ -6,14 +6,10 @@ import { getMessages, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { routing } from '../../i18n/routing'
-import { AppShell } from '../../components/app-shell'
 import { Providers } from '../../components/providers'
 import { ErrorBoundary } from '../../components/error-boundary'
 import { PostHogProvider } from '../../components/providers/posthog-provider'
-import { FeedbackForm } from '../../components/feedback/feedback-form'
 import { TitleBar } from '../../components/desktop/title-bar'
-import { MobileNav } from '../../components/mobile/mobile-nav'
-import { PWAInstallPrompt } from '../../components/pwa-install-prompt'
 import '../../globals.css'
 
 const plexArabic = IBM_Plex_Sans_Arabic({
@@ -79,12 +75,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
           <Providers>
             <TitleBar />
             <PostHogProvider>
-              <ErrorBoundary>
-                <AppShell>{children}</AppShell>
-              </ErrorBoundary>
-              <FeedbackForm />
-              <MobileNav />
-              <PWAInstallPrompt />
+              <ErrorBoundary>{children}</ErrorBoundary>
             </PostHogProvider>
           </Providers>
         </NextIntlClientProvider>

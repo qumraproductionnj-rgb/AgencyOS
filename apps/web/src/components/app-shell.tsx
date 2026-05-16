@@ -9,6 +9,9 @@ import { useCommandPalette } from '@/hooks/use-command-palette'
 import { AIAssistant } from './ai-assistant'
 import { PresenceProvider } from './realtime/presence-provider'
 import { ConnectionStatus } from './realtime/connection-status'
+import { ShortcutsHelp } from './shortcuts-help'
+import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
+import { OfflineBanner } from './OfflineBanner'
 
 interface Props {
   children: ReactNode
@@ -19,6 +22,11 @@ function CommandPaletteMount() {
   return <CommandPalette />
 }
 
+function GlobalShortcuts() {
+  useKeyboardShortcuts()
+  return null
+}
+
 export function AppShell({ children }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -26,6 +34,9 @@ export function AppShell({ children }: Props) {
     <PresenceProvider>
       <div className="flex min-h-screen">
         <CommandPaletteMount />
+        <GlobalShortcuts />
+        <ShortcutsHelp />
+        <OfflineBanner />
         <AppSidebar mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
         <div className="flex min-w-0 flex-1 flex-col">
           <AppHeader onMenuClick={() => setMobileOpen(true)} />

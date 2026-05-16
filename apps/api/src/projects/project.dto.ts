@@ -1,16 +1,21 @@
 import { z } from 'zod'
 
-export const CreateProjectSchema = z.object({
-  clientId: z.string().uuid(),
-  campaignId: z.string().uuid().optional(),
-  name: z.string().min(1).max(200),
-  nameEn: z.string().max(200).optional(),
-  description: z.string().max(2000).optional(),
-  budget: z.number().nonnegative().default(0),
-  currency: z.string().default('IQD'),
-  startDate: z.string(),
-  deadline: z.string(),
-})
+export const CreateProjectSchema = z
+  .object({
+    clientId: z.string().uuid(),
+    campaignId: z.string().uuid().optional(),
+    name: z.string().min(3, 'Name must be at least 3 characters').max(200),
+    nameEn: z.string().max(200).optional(),
+    description: z.string().max(2000).optional(),
+    budget: z.number().nonnegative().default(0),
+    currency: z.enum(['IQD', 'USD']).default('IQD'),
+    startDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid start date'),
+    deadline: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid deadline'),
+  })
+  .refine((d) => new Date(d.deadline) > new Date(d.startDate), {
+    message: 'Deadline must be after start date',
+    path: ['deadline'],
+  })
 
 export const UpdateProjectSchema = z.object({
   name: z.string().min(1).max(200).optional(),

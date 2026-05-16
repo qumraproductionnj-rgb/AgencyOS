@@ -6,6 +6,9 @@ import { useRouter } from '@/i18n/navigation'
 import { useEmployees, useDeleteEmployee } from '@/hooks/use-employees'
 import { useDepartments, type Department } from '@/hooks/use-departments'
 import { EmployeeCreateModal } from './employee-create-modal'
+import { EmptyState } from '@/components/EmptyState'
+import { SkeletonTable } from '@/components/SkeletonTable'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 
 export function EmployeeTable() {
   const t = useTranslations('employees')
@@ -22,8 +25,9 @@ export function EmployeeTable() {
   })
   const deleteEmp = useDeleteEmployee()
   const [modalOpen, setModalOpen] = useState(false)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
 
-  if (isLoading) return <p className="text-muted-foreground p-4">{tCommon('loading')}</p>
+  if (isLoading) return <SkeletonTable rows={8} cols={6} />
 
   return (
     <div className="space-y-4">
@@ -70,7 +74,12 @@ export function EmployeeTable() {
       </div>
 
       {!employees?.length ? (
-        <p className="text-muted-foreground p-8 text-center">{t('noEmployees')}</p>
+        <EmptyState
+          icon="👥"
+          title={t('noEmployees')}
+          description={t('noEmployeesDesc')}
+          actions={[{ label: `+ ${t('invite')}`, onClick: () => setModalOpen(true) }]}
+        />
       ) : (
         <div className="overflow-x-auto rounded-lg border">
           <table className="w-full text-sm">
@@ -117,7 +126,7 @@ export function EmployeeTable() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
-                        if (window.confirm(t('deleteConfirm'))) deleteEmp.mutate(emp.id)
+                        setDeleteId(emp.id)
                       }}
                       className="ml-3 text-red-500 hover:underline"
                       disabled={deleteEmp.isPending}
@@ -133,6 +142,17 @@ export function EmployeeTable() {
       )}
 
       {modalOpen && <EmployeeCreateModal onClose={() => setModalOpen(false)} />}
+
+      <ConfirmDialog
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={() => deleteEmp.mutateAsync(deleteId!)}
+        title={t('deleteConfirm')}
+        description="This will permanently remove the employee and all their data."
+        confirmLabel={tCommon('delete')}
+        variant="danger"
+        requireTyping="delete"
+      />
     </div>
   )
 }

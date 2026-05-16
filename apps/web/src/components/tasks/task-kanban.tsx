@@ -1,8 +1,9 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { useUpdateTaskStatus } from '@/hooks/use-tasks'
+import { useUpdateTaskStatus, useUpdateTask } from '@/hooks/use-tasks'
 import type { Task } from '@/hooks/use-tasks'
+import { InlineEdit } from '@/components/InlineEdit'
 
 const STATUS_LABELS: Record<string, string> = {
   TODO: 'todo',
@@ -25,9 +26,14 @@ interface Props {
   tasks: Task[]
 }
 
-export function TaskKanban({ tasks }: Props) {
+interface KanbanProps extends Props {
+  onCardClick?: (taskId: string) => void
+}
+
+export function TaskKanban({ tasks, onCardClick }: KanbanProps) {
   const t = useTranslations('tasks')
   const updateStatus = useUpdateTaskStatus()
+  const updateTask = useUpdateTask()
 
   const handleDrop = (taskId: string, newStatus: string) => {
     updateStatus.mutate({ id: taskId, status: newStatus })
@@ -59,10 +65,19 @@ export function TaskKanban({ tasks }: Props) {
                   key={task.id}
                   draggable
                   onDragStart={(e) => e.dataTransfer.setData('taskId', task.id)}
-                  className="cursor-grab rounded-md border bg-white p-3 text-sm shadow-sm hover:shadow-md active:cursor-grabbing"
+                  onClick={() => onCardClick?.(task.id)}
+                  className="cursor-pointer rounded-md border bg-white p-3 text-sm shadow-sm hover:shadow-md"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="font-medium">{task.title}</p>
+                  <div
+                    className="flex items-start justify-between gap-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <InlineEdit
+                      type="text"
+                      value={task.title}
+                      onSave={(v) => updateTask.mutateAsync({ id: task.id, title: v })}
+                      className="w-full text-sm font-medium"
+                    />
                     <span className={`whitespace-nowrap text-xs ${PRIORITY_COLORS[task.priority]}`}>
                       {t(task.priority.toLowerCase())}
                     </span>

@@ -102,7 +102,22 @@ export function useUpdateProjectStage() {
   return useMutation({
     mutationFn: ({ id, stage }: { id: string; stage: string }) =>
       api.patch<Project>(`/projects/${id}/stage`, { stage }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [PROJECTS_KEY] }),
+    onMutate: async ({ id, stage }) => {
+      await qc.cancelQueries({ queryKey: [PROJECTS_KEY] })
+      const previous = qc.getQueriesData<Project[]>({ queryKey: [PROJECTS_KEY] })
+      qc.setQueriesData<Project[]>(
+        { queryKey: [PROJECTS_KEY] },
+        (old) =>
+          old?.map((p) => (p.id === id ? { ...p, stage: stage as Project['stage'] } : p)) ?? old,
+      )
+      return { previous }
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous) {
+        ctx.previous.forEach(([key, data]) => qc.setQueryData(key, data))
+      }
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: [PROJECTS_KEY] }),
   })
 }
 

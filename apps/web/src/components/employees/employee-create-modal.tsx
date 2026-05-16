@@ -1,9 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslations } from 'next-intl'
 import { useCreateEmployee } from '@/hooks/use-employees'
 import { useDepartments, type Department } from '@/hooks/use-departments'
+import { EmployeeSchema, type EmployeeFormValues } from '@/lib/schemas/employee.schema'
+import { FieldError } from '@/components/FieldError'
 
 interface Props {
   onClose: () => void
@@ -15,30 +18,31 @@ export function EmployeeCreateModal({ onClose }: Props) {
   const { data: departments } = useDepartments()
   const create = useCreateEmployee()
 
-  const [fullNameAr, setFullNameAr] = useState('')
-  const [fullNameEn, setFullNameEn] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
-  const [position, setPosition] = useState('')
-  const [departmentId, setDepartmentId] = useState('')
-  const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10))
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<EmployeeFormValues>({
+    resolver: zodResolver(EmployeeSchema),
+    defaultValues: { startDate: new Date().toISOString().slice(0, 10) },
+  })
 
-  const busy = create.isPending
-
-  const handleSubmit = async () => {
-    if (!fullNameAr.trim() || !email.trim() || !startDate) return
+  const onSubmit = async (data: EmployeeFormValues) => {
     const payload: Record<string, unknown> = {
-      fullNameAr: fullNameAr.trim(),
-      email: email.trim(),
-      startDate,
+      fullNameAr: data.fullNameAr.trim(),
+      email: data.email.trim(),
+      startDate: data.startDate,
     }
-    if (fullNameEn.trim()) payload['fullNameEn'] = fullNameEn.trim()
-    if (phone.trim()) payload['phone'] = phone.trim()
-    if (position.trim()) payload['position'] = position.trim()
-    if (departmentId) payload['departmentId'] = departmentId
+    if (data.fullNameEn?.trim()) payload['fullNameEn'] = data.fullNameEn.trim()
+    if (data.phone?.trim()) payload['phone'] = data.phone.trim()
+    if (data.position?.trim()) payload['position'] = data.position.trim()
+    if (data.departmentId) payload['departmentId'] = data.departmentId
     await create.mutateAsync(payload)
     onClose()
   }
+
+  const fc = (hasErr: boolean) =>
+    `w-full rounded-md border px-3 py-2 text-sm ${hasErr ? 'border-red-400' : 'border-gray-300'}`
 
   return (
     <div
@@ -52,89 +56,71 @@ export function EmployeeCreateModal({ onClose }: Props) {
         <h2 className="mb-4 text-lg font-semibold">{t('createTitle')}</h2>
         <p className="text-muted-foreground mb-4 text-sm">{t('inviteSent')}</p>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="col-span-2">
-            <label className="text-sm font-medium">{t('fullNameAr')}</label>
-            <input
-              value={fullNameAr}
-              onChange={(e) => setFullNameAr(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-            />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2">
+              <label className="text-sm font-medium">{t('fullNameAr')} *</label>
+              <input {...register('fullNameAr')} className={fc(!!errors.fullNameAr)} dir="rtl" />
+              <FieldError message={errors.fullNameAr?.message} />
+            </div>
+            <div className="col-span-2">
+              <label className="text-sm font-medium">{t('fullNameEn')}</label>
+              <input {...register('fullNameEn')} className={fc(false)} dir="ltr" />
+            </div>
+            <div className="col-span-2">
+              <label className="text-sm font-medium">{t('email')} *</label>
+              <input {...register('email')} type="email" className={fc(!!errors.email)} dir="ltr" />
+              <FieldError message={errors.email?.message} />
+            </div>
+            <div>
+              <label className="text-sm font-medium">{t('phone')}</label>
+              <input
+                {...register('phone')}
+                className={fc(!!errors.phone)}
+                placeholder="+9647..."
+                dir="ltr"
+              />
+              <FieldError message={errors.phone?.message} />
+            </div>
+            <div>
+              <label className="text-sm font-medium">{t('position')}</label>
+              <input {...register('position')} className={fc(false)} />
+            </div>
+            <div>
+              <label className="text-sm font-medium">{t('department')}</label>
+              <select {...register('departmentId')} className={fc(false)}>
+                <option value="">—</option>
+                {departments?.map((d: Department) => (
+                  <option key={d.id} value={d.id}>
+                    {d.nameAr}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium">{t('startDate')} *</label>
+              <input type="date" {...register('startDate')} className={fc(!!errors.startDate)} />
+              <FieldError message={errors.startDate?.message} />
+            </div>
           </div>
-          <div className="col-span-2">
-            <label className="text-sm font-medium">{t('fullNameEn')}</label>
-            <input
-              value={fullNameEn}
-              onChange={(e) => setFullNameEn(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div className="col-span-2">
-            <label className="text-sm font-medium">{t('email')}</label>
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="email"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium">{t('phone')}</label>
-            <input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium">{t('position')}</label>
-            <input
-              value={position}
-              onChange={(e) => setPosition(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium">{t('department')}</label>
-            <select
-              value={departmentId}
-              onChange={(e) => setDepartmentId(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-            >
-              <option value="">—</option>
-              {departments?.map((d: Department) => (
-                <option key={d.id} value={d.id}>
-                  {d.nameAr}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="text-sm font-medium">{t('startDate')}</label>
-            <input
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              type="date"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-            />
-          </div>
-        </div>
 
-        <div className="mt-6 flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
-          >
-            {tCommon('cancel')}
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={busy || !fullNameAr.trim() || !email.trim()}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-          >
-            {busy ? tCommon('loading') : tCommon('save')}
-          </button>
-        </div>
+          <div className="mt-6 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-md border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+            >
+              {tCommon('cancel')}
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              {isSubmitting ? tCommon('loading') : tCommon('save')}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )

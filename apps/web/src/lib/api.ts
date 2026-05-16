@@ -8,7 +8,16 @@ async function getToken(): Promise<string | null> {
   return useAuthStore.getState().token
 }
 
-async function request<T>(path: string, options?: RequestInit, retry = true): Promise<T> {
+async function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms))
+}
+
+async function request<T>(
+  path: string,
+  options?: RequestInit,
+  authRetry = true,
+  serverRetry = 0,
+): Promise<T> {
   const token = await getToken()
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -16,13 +25,29 @@ async function request<T>(path: string, options?: RequestInit, retry = true): Pr
   }
   if (token) headers['Authorization'] = `Bearer ${token}`
 
-  const res = await fetch(`${BASE}${path}`, { ...options, headers })
+  let res: Response
+  try {
+    res = await fetch(`${BASE}${path}`, { ...options, headers })
+  } catch {
+    // Network error — retry once
+    if (serverRetry < 1) {
+      await sleep(1000)
+      return request<T>(path, options, authRetry, serverRetry + 1)
+    }
+    throw new Error('Network error — please check your connection')
+  }
 
-  if (res.status === 401 && retry) {
+  if (res.status === 401 && authRetry) {
     const newToken = await refreshAccessToken()
-    if (newToken) return request<T>(path, options, false)
+    if (newToken) return request<T>(path, options, false, serverRetry)
     if (typeof window !== 'undefined') window.location.href = '/ar/login'
     throw new Error('Unauthorized')
+  }
+
+  // Retry on 5xx up to 3 times with exponential backoff
+  if (res.status >= 500 && serverRetry < 3) {
+    await sleep(1000 * Math.pow(2, serverRetry))
+    return request<T>(path, options, authRetry, serverRetry + 1)
   }
 
   if (!res.ok) {

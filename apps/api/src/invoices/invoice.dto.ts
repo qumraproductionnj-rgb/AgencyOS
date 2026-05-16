@@ -8,19 +8,24 @@ export const InvoiceLineItemSchema = z.object({
   total: z.number().nonnegative(),
 })
 
-export const CreateInvoiceSchema = z.object({
-  clientId: z.string().uuid(),
-  projectId: z.string().uuid().optional(),
-  quotationId: z.string().uuid().optional(),
-  items: z.array(InvoiceLineItemSchema).min(1),
-  currency: z.string().default('IQD'),
-  discountPercent: z.number().min(0).max(100).optional(),
-  discountAmount: z.number().nonnegative().optional(),
-  taxPercent: z.number().min(0).max(100).optional(),
-  dueDate: z.string(),
-  notes: z.string().max(2000).optional(),
-  type: z.enum(['STANDARD', 'RECURRING', 'CREDIT_NOTE']).optional(),
-})
+export const CreateInvoiceSchema = z
+  .object({
+    clientId: z.string().uuid(),
+    projectId: z.string().uuid().optional(),
+    quotationId: z.string().uuid().optional(),
+    items: z.array(InvoiceLineItemSchema).min(1, 'At least one line item is required'),
+    currency: z.enum(['IQD', 'USD']).default('IQD'),
+    discountPercent: z.number().min(0).max(100).optional(),
+    discountAmount: z.number().nonnegative().optional(),
+    taxPercent: z.number().min(0).max(100).optional(),
+    dueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid due date'),
+    notes: z.string().max(2000).optional(),
+    type: z.enum(['STANDARD', 'RECURRING', 'CREDIT_NOTE']).optional(),
+  })
+  .refine((d) => d.items.reduce((s, i) => s + i.unitPrice * i.quantity, 0) > 0, {
+    message: 'Invoice total must be greater than 0',
+    path: ['items'],
+  })
 
 export const UpdateInvoiceSchema = z.object({
   items: z.array(InvoiceLineItemSchema).min(1).optional(),

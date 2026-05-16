@@ -1,6 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslations } from 'next-intl'
 import {
   useProject,
@@ -9,6 +11,8 @@ import {
   useClientsList,
   useCampaignsList,
 } from '@/hooks/use-projects'
+import { ProjectSchema, type ProjectFormValues } from '@/lib/schemas/project.schema'
+import { FieldError } from '@/components/FieldError'
 
 interface Props {
   projectId: string | null
@@ -24,46 +28,48 @@ export function ProjectForm({ projectId, onClose }: Props) {
   const createProject = useCreateProject()
   const updateProject = useUpdateProject()
 
-  const [clientId, setClientId] = useState('')
-  const [campaignId, setCampaignId] = useState('')
-  const [name, setName] = useState('')
-  const [nameEn, setNameEn] = useState('')
-  const [description, setDescription] = useState('')
-  const [budget, setBudget] = useState(0)
-  const [currency, setCurrency] = useState('IQD')
-  const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10))
-  const [deadline, setDeadline] = useState('')
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<ProjectFormValues>({
+    resolver: zodResolver(ProjectSchema),
+    defaultValues: {
+      currency: 'IQD',
+      budget: 0,
+      startDate: new Date().toISOString().slice(0, 10),
+    },
+  })
 
   useEffect(() => {
     if (existing) {
-      setClientId(existing.clientId)
-      setCampaignId(existing.campaignId ?? '')
-      setName(existing.name)
-      setNameEn(existing.nameEn ?? '')
-      setDescription(existing.description ?? '')
-      setBudget(Number(existing.budget))
-      setCurrency(existing.currency)
-      setStartDate(existing.startDate ? existing.startDate.slice(0, 10) : '')
-      setDeadline(existing.deadline ? existing.deadline.slice(0, 10) : '')
+      reset({
+        clientId: existing.clientId,
+        campaignId: existing.campaignId ?? '',
+        name: existing.name,
+        nameEn: existing.nameEn ?? '',
+        description: existing.description ?? '',
+        budget: Number(existing.budget),
+        currency: existing.currency as 'IQD' | 'USD',
+        startDate: existing.startDate ? existing.startDate.slice(0, 10) : '',
+        deadline: existing.deadline ? existing.deadline.slice(0, 10) : '',
+      })
     }
-  }, [existing])
+  }, [existing, reset])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!clientId || !name || !deadline) return
-
+  const onSubmit = async (data: ProjectFormValues) => {
     const body = {
-      clientId,
-      ...(campaignId ? { campaignId } : {}),
-      name,
-      ...(nameEn ? { nameEn } : {}),
-      ...(description ? { description } : {}),
-      budget,
-      currency,
-      startDate: new Date(startDate).toISOString(),
-      deadline: new Date(deadline).toISOString(),
+      clientId: data.clientId,
+      ...(data.campaignId ? { campaignId: data.campaignId } : {}),
+      name: data.name,
+      ...(data.nameEn ? { nameEn: data.nameEn } : {}),
+      ...(data.description ? { description: data.description } : {}),
+      budget: data.budget,
+      currency: data.currency,
+      startDate: new Date(data.startDate).toISOString(),
+      deadline: new Date(data.deadline).toISOString(),
     }
-
     if (projectId) {
       await updateProject.mutateAsync({ id: projectId, ...body })
     } else {
@@ -71,6 +77,9 @@ export function ProjectForm({ projectId, onClose }: Props) {
     }
     onClose()
   }
+
+  const fieldClass = (hasError: boolean) =>
+    `w-full rounded-md border px-3 py-2 text-sm ${hasError ? 'border-red-400 focus:ring-red-400' : 'border-gray-300'}`
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end bg-black/30" onClick={onClose}>
@@ -80,15 +89,10 @@ export function ProjectForm({ projectId, onClose }: Props) {
       >
         <h2 className="mb-6 text-xl font-bold">{projectId ? t('editTitle') : t('createTitle')}</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium">{t('client')}</label>
-            <select
-              value={clientId}
-              onChange={(e) => setClientId(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-              required
-            >
+            <label className="mb-1 block text-sm font-medium">{t('client')} *</label>
+            <select {...register('clientId')} className={fieldClass(!!errors.clientId)}>
               <option value="">{t('selectClient')}</option>
               {clients?.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -96,15 +100,12 @@ export function ProjectForm({ projectId, onClose }: Props) {
                 </option>
               ))}
             </select>
+            <FieldError message={errors.clientId?.message} />
           </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium">{t('campaign')}</label>
-            <select
-              value={campaignId}
-              onChange={(e) => setCampaignId(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-            >
+            <select {...register('campaignId')} className={fieldClass(false)}>
               <option value="">{t('noCampaign')}</option>
               {campaigns?.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -115,32 +116,26 @@ export function ProjectForm({ projectId, onClose }: Props) {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">{t('name')}</label>
+            <label className="mb-1 block text-sm font-medium">{t('name')} *</label>
             <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+              {...register('name')}
+              className={fieldClass(!!errors.name)}
               dir="auto"
-              required
+              placeholder="3-100 characters"
             />
+            <FieldError message={errors.name?.message} />
           </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium">{t('nameEn')}</label>
-            <input
-              value={nameEn}
-              onChange={(e) => setNameEn(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-              dir="ltr"
-            />
+            <input {...register('nameEn')} className={fieldClass(false)} dir="ltr" />
           </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium">{t('description')}</label>
             <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+              {...register('description')}
+              className={fieldClass(false)}
               rows={3}
               dir="auto"
             />
@@ -151,19 +146,15 @@ export function ProjectForm({ projectId, onClose }: Props) {
               <label className="mb-1 block text-sm font-medium">{t('budget')}</label>
               <input
                 type="number"
-                value={budget}
-                onChange={(e) => setBudget(Number(e.target.value))}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                {...register('budget', { valueAsNumber: true })}
+                className={fieldClass(!!errors.budget)}
                 min={0}
               />
+              <FieldError message={errors.budget?.message} />
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium">{t('currency')}</label>
-              <select
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-              >
+              <select {...register('currency')} className={fieldClass(false)}>
                 <option value="IQD">IQD</option>
                 <option value="USD">USD</option>
               </select>
@@ -172,34 +163,32 @@ export function ProjectForm({ projectId, onClose }: Props) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-1 block text-sm font-medium">{t('startDate')}</label>
+              <label className="mb-1 block text-sm font-medium">{t('startDate')} *</label>
               <input
                 type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-                required
+                {...register('startDate')}
+                className={fieldClass(!!errors.startDate)}
               />
+              <FieldError message={errors.startDate?.message} />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">{t('deadline')}</label>
+              <label className="mb-1 block text-sm font-medium">{t('deadline')} *</label>
               <input
                 type="date"
-                value={deadline}
-                onChange={(e) => setDeadline(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-                required
+                {...register('deadline')}
+                className={fieldClass(!!errors.deadline)}
               />
+              <FieldError message={errors.deadline?.message} />
             </div>
           </div>
 
           <div className="flex gap-3 pt-2">
             <button
               type="submit"
-              disabled={createProject.isPending || updateProject.isPending}
+              disabled={isSubmitting}
               className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
             >
-              {projectId ? tCommon('save') : tCommon('create')}
+              {isSubmitting ? tCommon('saving') : projectId ? tCommon('save') : tCommon('create')}
             </button>
             <button
               type="button"

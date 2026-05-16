@@ -5,6 +5,9 @@ import { useTranslations } from 'next-intl'
 import { useInvoices, useSendInvoice, useDeleteInvoice } from '@/hooks/use-invoices'
 import { InvoiceForm } from './invoice-form'
 import { InvoiceDetail } from './invoice-detail'
+import { EmptyState } from '@/components/EmptyState'
+import { SkeletonTable } from '@/components/SkeletonTable'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 
 const STATUS_LABELS: Record<string, string> = {
   DRAFT: 'draft',
@@ -40,8 +43,9 @@ export function InvoiceList() {
   const [formOpen, setFormOpen] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
   const [detailId, setDetailId] = useState<string | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
 
-  if (isLoading) return <p className="text-muted-foreground p-4">{tCommon('loading')}</p>
+  if (isLoading) return <SkeletonTable rows={6} cols={7} />
 
   const formatCurrency = (value: number, currency: string) => {
     const sym = currency === 'IQD' ? 'د.ع' : currency === 'USD' ? '$' : currency
@@ -85,7 +89,20 @@ export function InvoiceList() {
       </div>
 
       {!invoices?.length ? (
-        <p className="text-muted-foreground p-8 text-center">{t('noInvoices')}</p>
+        <EmptyState
+          icon="💰"
+          title={t('noInvoices')}
+          description={t('noInvoicesDesc')}
+          actions={[
+            {
+              label: `+ ${t('create')}`,
+              onClick: () => {
+                setEditId(null)
+                setFormOpen(true)
+              },
+            },
+          ]}
+        />
       ) : (
         <div className="overflow-x-auto rounded-lg border">
           <table className="w-full text-sm">
@@ -147,7 +164,7 @@ export function InvoiceList() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
-                          if (window.confirm(t('deleteConfirm'))) deleteInvoice.mutate(inv.id)
+                          setDeleteId(inv.id)
                         }}
                         className="ml-3 text-red-500 hover:underline"
                       >
@@ -173,6 +190,17 @@ export function InvoiceList() {
       )}
 
       {detailId && <InvoiceDetail invoiceId={detailId} onClose={() => setDetailId(null)} />}
+
+      <ConfirmDialog
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={() => deleteInvoice.mutateAsync(deleteId!)}
+        title={t('deleteConfirm')}
+        description="⚠️ Accounting warning: deleting a paid invoice affects your financial records."
+        confirmLabel={tCommon('delete')}
+        variant="warning"
+        requireTyping="delete"
+      />
     </div>
   )
 }

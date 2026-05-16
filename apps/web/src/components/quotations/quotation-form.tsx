@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslations } from 'next-intl'
 import {
   useQuotation,
@@ -9,6 +11,9 @@ import {
   useClientsList,
 } from '@/hooks/use-quotations'
 import type { QuotationItem } from '@/hooks/use-quotations'
+import { QuotationSchema } from '@/lib/schemas/quotation.schema'
+import type { QuotationFormValues } from '@/lib/schemas/quotation.schema'
+import { FieldError } from '@/components/FieldError'
 
 interface Props {
   quotationId: string | null
@@ -27,25 +32,42 @@ export function QuotationForm({ quotationId, onClose }: Props) {
   const create = useCreateQuotation()
   const update = useUpdateQuotation()
 
-  const [clientId, setClientId] = useState('')
-  const [currency, setCurrency] = useState('IQD')
   const [items, setItems] = useState<QuotationItem[]>([emptyItem()])
-  const [discountPercent, setDiscountPercent] = useState(0)
-  const [taxPercent, setTaxPercent] = useState(0)
-  const [validUntil, setValidUntil] = useState('')
-  const [notes, setNotes] = useState('')
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<QuotationFormValues>({
+    resolver: zodResolver(QuotationSchema),
+    defaultValues: {
+      clientId: '',
+      currency: 'IQD',
+      items: [emptyItem()],
+      discountPercent: 0,
+      taxPercent: 0,
+      validUntil: '',
+      notes: '',
+    },
+  })
 
   useEffect(() => {
     if (existing) {
-      setClientId(existing.clientId)
-      setCurrency(existing.currency)
-      setItems(existing.items.length > 0 ? existing.items : [emptyItem()])
-      setDiscountPercent(existing.discountPercent ?? 0)
-      setTaxPercent(existing.taxPercent ?? 0)
-      setValidUntil(existing.validUntil ?? '')
-      setNotes(existing.notes ?? '')
+      const populated = existing.items.length > 0 ? existing.items : [emptyItem()]
+      setItems(populated)
+      reset({
+        clientId: existing.clientId,
+        currency: existing.currency as 'IQD' | 'USD',
+        items: populated,
+        discountPercent: existing.discountPercent ?? 0,
+        taxPercent: existing.taxPercent ?? 0,
+        validUntil: existing.validUntil ?? '',
+        notes: existing.notes ?? '',
+      })
     }
-  }, [existing])
+  }, [existing, reset])
 
   const updateItem = useCallback(
     (index: number, field: keyof QuotationItem, value: string | number) => {
@@ -67,25 +89,25 @@ export function QuotationForm({ quotationId, onClose }: Props) {
     [],
   )
 
+  const discountPercent = watch('discountPercent') ?? 0
+  const taxPercent = watch('taxPercent') ?? 0
+  const currency = watch('currency') ?? 'IQD'
+
   const subtotal = items.reduce((sum, item) => sum + item.total, 0)
   const discountAmt = discountPercent > 0 ? Math.round(subtotal * (discountPercent / 100)) : 0
   const taxAmt = taxPercent > 0 ? Math.round((subtotal - discountAmt) * (taxPercent / 100)) : 0
   const grandTotal = subtotal - discountAmt + taxAmt
 
-  const busy = create.isPending || update.isPending
-
-  const handleSubmit = async () => {
-    if (!clientId || items.length === 0 || !items[0]?.description) return
+  const onSubmit = async (data: QuotationFormValues) => {
     const payload = {
-      clientId,
-      currency,
+      clientId: data.clientId,
+      currency: data.currency,
       items: items.filter((i) => i.description.trim()),
-      ...(discountPercent > 0 ? { discountPercent } : {}),
-      ...(taxPercent > 0 ? { taxPercent } : {}),
-      ...(validUntil ? { validUntil } : {}),
-      ...(notes.trim() ? { notes: notes.trim() } : {}),
+      ...(data.discountPercent ? { discountPercent: data.discountPercent } : {}),
+      ...(data.taxPercent ? { taxPercent: data.taxPercent } : {}),
+      ...(data.validUntil ? { validUntil: data.validUntil } : {}),
+      ...(data.notes ? { notes: data.notes } : {}),
     }
-
     if (quotationId) {
       await update.mutateAsync({ id: quotationId, ...payload })
     } else {
@@ -107,13 +129,12 @@ export function QuotationForm({ quotationId, onClose }: Props) {
           {quotationId ? t('editTitle') : t('createTitle')}
         </h2>
 
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium">{t('client')} *</label>
               <select
-                value={clientId}
-                onChange={(e) => setClientId(e.target.value)}
+                {...register('clientId')}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
               >
                 <option value="">{t('selectClient')}</option>
@@ -123,12 +144,12 @@ export function QuotationForm({ quotationId, onClose }: Props) {
                   </option>
                 ))}
               </select>
+              <FieldError message={errors.clientId?.message} />
             </div>
             <div>
               <label className="text-sm font-medium">{t('currency')}</label>
               <select
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
+                {...register('currency')}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
               >
                 <option value="IQD">IQD - د.ع</option>
@@ -183,6 +204,7 @@ export function QuotationForm({ quotationId, onClose }: Props) {
                   </div>
                   {items.length > 1 && (
                     <button
+                      type="button"
                       onClick={() => removeItem(i)}
                       className="text-red-400 hover:text-red-600"
                     >
@@ -192,6 +214,7 @@ export function QuotationForm({ quotationId, onClose }: Props) {
                 </div>
               ))}
             </div>
+            <FieldError message={errors.items?.message as string | undefined} />
           </div>
 
           <div className="grid grid-cols-3 gap-4">
@@ -199,32 +222,32 @@ export function QuotationForm({ quotationId, onClose }: Props) {
               <label className="text-sm font-medium">{t('discountPercent')}</label>
               <input
                 type="number"
-                value={discountPercent}
-                onChange={(e) => setDiscountPercent(Number(e.target.value))}
+                {...register('discountPercent', { valueAsNumber: true })}
                 min={0}
                 max={100}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
               />
+              <FieldError message={errors.discountPercent?.message} />
             </div>
             <div>
               <label className="text-sm font-medium">{t('taxPercent')}</label>
               <input
                 type="number"
-                value={taxPercent}
-                onChange={(e) => setTaxPercent(Number(e.target.value))}
+                {...register('taxPercent', { valueAsNumber: true })}
                 min={0}
                 max={100}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
               />
+              <FieldError message={errors.taxPercent?.message} />
             </div>
             <div>
               <label className="text-sm font-medium">{t('validUntil')}</label>
               <input
                 type="date"
-                value={validUntil}
-                onChange={(e) => setValidUntil(e.target.value)}
+                {...register('validUntil')}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
               />
+              <FieldError message={errors.validUntil?.message} />
             </div>
           </div>
 
@@ -268,30 +291,30 @@ export function QuotationForm({ quotationId, onClose }: Props) {
           <div>
             <label className="text-sm font-medium">{t('notes')}</label>
             <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              {...register('notes')}
               rows={2}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
               dir="auto"
             />
           </div>
-        </div>
 
-        <div className="mt-6 flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
-          >
-            {tCommon('cancel')}
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={busy || !clientId || items.length === 0 || !items[0]?.description}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-          >
-            {busy ? tCommon('loading') : tCommon('save')}
-          </button>
-        </div>
+          <div className="mt-6 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-md border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+            >
+              {tCommon('cancel')}
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              {isSubmitting ? tCommon('saving') : tCommon('save')}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )

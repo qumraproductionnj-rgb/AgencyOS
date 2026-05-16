@@ -6,6 +6,9 @@ import { useTasks, useDeleteTask } from '@/hooks/use-tasks'
 import { TaskForm } from './task-modal'
 import { TaskDetail } from './task-detail'
 import { TaskKanban } from './task-kanban'
+import { EmptyState } from '@/components/EmptyState'
+import { SkeletonTable } from '@/components/SkeletonTable'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 
 const STATUS_LABELS: Record<string, string> = {
   TODO: 'todo',
@@ -48,8 +51,9 @@ export function TaskList() {
   const [formOpen, setFormOpen] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
   const [detailId, setDetailId] = useState<string | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
 
-  if (isLoading) return <p className="text-muted-foreground p-4">{tCommon('loading')}</p>
+  if (isLoading) return <SkeletonTable rows={6} cols={6} />
 
   return (
     <div className="space-y-4">
@@ -133,8 +137,21 @@ export function TaskList() {
             <tbody className="divide-y">
               {tasks?.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-gray-400">
-                    {t('noTasks')}
+                  <td colSpan={8} className="px-4 py-4">
+                    <EmptyState
+                      icon="✅"
+                      title={t('noTasks')}
+                      description={t('noTasksDesc')}
+                      actions={[
+                        {
+                          label: `+ ${t('create')}`,
+                          onClick: () => {
+                            setEditId(null)
+                            setFormOpen(true)
+                          },
+                        },
+                      ]}
+                    />
                   </td>
                 </tr>
               )}
@@ -184,7 +201,7 @@ export function TaskList() {
                       {(task.status === 'TODO' || task.status === 'CANCELLED') && (
                         <button
                           onClick={() => {
-                            if (window.confirm(t('deleteConfirm'))) deleteTask.mutate(task.id)
+                            setDeleteId(task.id)
                           }}
                           className="rounded bg-red-100 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-200"
                         >
@@ -199,7 +216,7 @@ export function TaskList() {
           </table>
         </div>
       ) : (
-        <TaskKanban tasks={tasks ?? []} />
+        <TaskKanban tasks={tasks ?? []} onCardClick={(id) => setDetailId(id)} />
       )}
 
       {formOpen && (
@@ -212,6 +229,15 @@ export function TaskList() {
         />
       )}
       {detailId && <TaskDetail taskId={detailId} onClose={() => setDetailId(null)} />}
+
+      <ConfirmDialog
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={() => deleteTask.mutateAsync(deleteId!)}
+        title={t('deleteConfirm')}
+        confirmLabel={tCommon('delete')}
+        variant="danger"
+      />
     </div>
   )
 }

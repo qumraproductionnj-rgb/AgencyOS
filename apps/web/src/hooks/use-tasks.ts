@@ -129,7 +129,21 @@ export function useUpdateTask() {
   return useMutation({
     mutationFn: ({ id, ...body }: UpdateTaskDto & { id: string }) =>
       api.put<Task>(`/tasks/${id}`, body),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [TASKS_KEY] }),
+    onMutate: async ({ id, ...body }) => {
+      await qc.cancelQueries({ queryKey: [TASKS_KEY] })
+      const previous = qc.getQueriesData<Task[]>({ queryKey: [TASKS_KEY] })
+      qc.setQueriesData<Task[]>(
+        { queryKey: [TASKS_KEY] },
+        (old) => old?.map((t) => (t.id === id ? { ...t, ...body } : t)) ?? old,
+      )
+      return { previous }
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous) {
+        ctx.previous.forEach(([key, data]) => qc.setQueryData(key, data))
+      }
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: [TASKS_KEY] }),
   })
 }
 
@@ -138,7 +152,22 @@ export function useUpdateTaskStatus() {
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
       api.patch<Task>(`/tasks/${id}/status`, { status }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [TASKS_KEY] }),
+    onMutate: async ({ id, status }) => {
+      await qc.cancelQueries({ queryKey: [TASKS_KEY] })
+      const previous = qc.getQueriesData<Task[]>({ queryKey: [TASKS_KEY] })
+      qc.setQueriesData<Task[]>(
+        { queryKey: [TASKS_KEY] },
+        (old) =>
+          old?.map((t) => (t.id === id ? { ...t, status: status as Task['status'] } : t)) ?? old,
+      )
+      return { previous }
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous) {
+        ctx.previous.forEach(([key, data]) => qc.setQueryData(key, data))
+      }
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: [TASKS_KEY] }),
   })
 }
 

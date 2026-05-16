@@ -5,6 +5,9 @@ import { useTranslations } from 'next-intl'
 import { useClients, useDeleteClient } from '@/hooks/use-clients'
 import { ClientModal } from './client-modal'
 import { ClientDetail } from './client-detail'
+import { EmptyState } from '@/components/EmptyState'
+import { SkeletonTable } from '@/components/SkeletonTable'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 
 export function ClientTable() {
   const t = useTranslations('clients')
@@ -19,8 +22,9 @@ export function ClientTable() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
   const [detailId, setDetailId] = useState<string | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
 
-  if (isLoading) return <p className="text-muted-foreground p-4">{tCommon('loading')}</p>
+  if (isLoading) return <SkeletonTable rows={6} cols={5} />
 
   return (
     <div className="space-y-4">
@@ -55,7 +59,12 @@ export function ClientTable() {
       </div>
 
       {!clients?.length ? (
-        <p className="text-muted-foreground p-8 text-center">{t('noClients')}</p>
+        <EmptyState
+          icon="🏢"
+          title={t('noClients')}
+          description={t('noClientsDesc')}
+          actions={[{ label: `+ ${t('create')}`, onClick: () => setModalOpen(true) }]}
+        />
       ) : (
         <div className="overflow-x-auto rounded-lg border">
           <table className="w-full text-sm">
@@ -128,7 +137,7 @@ export function ClientTable() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
-                        if (window.confirm(t('deleteConfirm'))) deleteClient.mutate(client.id)
+                        setDeleteId(client.id)
                       }}
                       className="ml-3 text-red-500 hover:underline"
                       disabled={deleteClient.isPending}
@@ -154,6 +163,17 @@ export function ClientTable() {
       )}
 
       {detailId && <ClientDetail clientId={detailId} onClose={() => setDetailId(null)} />}
+
+      <ConfirmDialog
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={() => deleteClient.mutateAsync(deleteId!)}
+        title={t('deleteConfirm')}
+        description="Warning: this will also delete all contacts linked to this client."
+        confirmLabel={tCommon('delete')}
+        variant="danger"
+        requireTyping="delete"
+      />
     </div>
   )
 }

@@ -3,10 +3,10 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useAuditLogs } from '@/hooks/use-audit-logs'
+import { SkeletonTable } from '@/components/SkeletonTable'
 
 export default function AuditLogsPage() {
   const t = useTranslations('auditLogs')
-  const tCommon = useTranslations('common')
   const [typeFilter, setTypeFilter] = useState('')
   const { data, isLoading } = useAuditLogs({
     ...(typeFilter ? { entityType: typeFilter } : {}),
@@ -26,7 +26,7 @@ export default function AuditLogsPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-muted-foreground p-4">{tCommon('loading')}</p>
+        <SkeletonTable rows={8} cols={5} />
       ) : (
         <div className="overflow-x-auto rounded-lg border">
           <table className="w-full text-sm">
@@ -37,6 +37,7 @@ export default function AuditLogsPage() {
                 <th className="px-4 py-3 text-left font-medium">{t('action')}</th>
                 <th className="px-4 py-3 text-left font-medium">{t('entity')}</th>
                 <th className="px-4 py-3 text-left font-medium">{t('ip')}</th>
+                <th className="px-4 py-3 text-left font-medium">Changes</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -55,11 +56,25 @@ export default function AuditLogsPage() {
                   </td>
                   <td className="text-muted-foreground px-4 py-3">{log.entityType ?? '—'}</td>
                   <td className="px-4 py-3 font-mono text-xs">{log.ipAddress ?? '—'}</td>
+                  <td className="px-4 py-3">
+                    {log.changes ? (
+                      <details>
+                        <summary className="cursor-pointer text-xs text-blue-600 hover:underline">
+                          View
+                        </summary>
+                        <pre className="mt-1 max-w-xs overflow-auto rounded bg-gray-50 p-2 text-xs">
+                          {JSON.stringify(log.changes, null, 2)}
+                        </pre>
+                      </details>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </td>
                 </tr>
               ))}
               {!data?.items.length && (
                 <tr>
-                  <td colSpan={5} className="text-muted-foreground px-4 py-8 text-center">
+                  <td colSpan={6} className="text-muted-foreground px-4 py-8 text-center">
                     {t('noLogs')}
                   </td>
                 </tr>

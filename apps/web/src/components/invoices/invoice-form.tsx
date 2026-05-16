@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslations } from 'next-intl'
 import {
   useInvoice,
@@ -9,6 +11,9 @@ import {
   useClientsList,
 } from '@/hooks/use-invoices'
 import type { InvoiceItem } from '@/hooks/use-invoices'
+import { InvoiceSchema } from '@/lib/schemas/invoice.schema'
+import type { InvoiceFormValues } from '@/lib/schemas/invoice.schema'
+import { FieldError } from '@/components/FieldError'
 
 interface Props {
   invoiceId: string | null
@@ -27,25 +32,42 @@ export function InvoiceForm({ invoiceId, onClose }: Props) {
   const createInvoice = useCreateInvoice()
   const updateInvoice = useUpdateInvoice()
 
-  const [clientId, setClientId] = useState('')
-  const [currency, setCurrency] = useState('IQD')
   const [items, setItems] = useState<InvoiceItem[]>([emptyItem()])
-  const [discountPercent, setDiscountPercent] = useState(0)
-  const [taxPercent, setTaxPercent] = useState(0)
-  const [dueDate, setDueDate] = useState('')
-  const [notes, setNotes] = useState('')
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<InvoiceFormValues>({
+    resolver: zodResolver(InvoiceSchema),
+    defaultValues: {
+      clientId: '',
+      currency: 'IQD',
+      items: [emptyItem()],
+      discountPercent: 0,
+      taxPercent: 0,
+      dueDate: '',
+      notes: '',
+    },
+  })
 
   useEffect(() => {
     if (existing) {
-      setClientId(existing.clientId)
-      setCurrency(existing.currency)
-      setItems(existing.items.length > 0 ? existing.items : [emptyItem()])
-      setDiscountPercent(Number(existing.discountPercent ?? 0))
-      setTaxPercent(Number(existing.taxPercent ?? 0))
-      setDueDate(existing.dueDate ? existing.dueDate.slice(0, 10) : '')
-      setNotes(existing.notes ?? '')
+      const populated = existing.items.length > 0 ? existing.items : [emptyItem()]
+      setItems(populated)
+      reset({
+        clientId: existing.clientId,
+        currency: existing.currency as 'IQD' | 'USD',
+        items: populated,
+        discountPercent: Number(existing.discountPercent ?? 0),
+        taxPercent: Number(existing.taxPercent ?? 0),
+        dueDate: existing.dueDate ? existing.dueDate.slice(0, 10) : '',
+        notes: existing.notes ?? '',
+      })
     }
-  }, [existing])
+  }, [existing, reset])
 
   const updateItem = useCallback(
     (index: number, field: keyof InvoiceItem, value: string | number) => {
@@ -67,25 +89,25 @@ export function InvoiceForm({ invoiceId, onClose }: Props) {
     [],
   )
 
+  const discountPercent = watch('discountPercent') ?? 0
+  const taxPercent = watch('taxPercent') ?? 0
+  const currency = watch('currency') ?? 'IQD'
+
   const subtotal = items.reduce((sum, item) => sum + item.total, 0)
   const discount = discountPercent > 0 ? Math.round(subtotal * (discountPercent / 100)) : 0
   const tax = taxPercent > 0 ? Math.round((subtotal - discount) * (taxPercent / 100)) : 0
   const total = subtotal - discount + tax
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!clientId) return
-
+  const onSubmit = async (data: InvoiceFormValues) => {
     const body = {
-      clientId,
-      currency,
+      clientId: data.clientId,
+      currency: data.currency,
       items,
-      dueDate: new Date(dueDate).toISOString(),
-      ...(discountPercent > 0 ? { discountPercent } : {}),
-      ...(taxPercent > 0 ? { taxPercent } : {}),
-      ...(notes ? { notes } : {}),
+      dueDate: new Date(data.dueDate).toISOString(),
+      ...(data.discountPercent ? { discountPercent: data.discountPercent } : {}),
+      ...(data.taxPercent ? { taxPercent: data.taxPercent } : {}),
+      ...(data.notes ? { notes: data.notes } : {}),
     }
-
     if (invoiceId) {
       await updateInvoice.mutateAsync({ id: invoiceId, ...body })
     } else {
@@ -102,14 +124,12 @@ export function InvoiceForm({ invoiceId, onClose }: Props) {
       >
         <h2 className="mb-6 text-xl font-bold">{invoiceId ? t('editTitle') : t('createTitle')}</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="mb-1 block text-sm font-medium">{t('selectClient')}</label>
             <select
-              value={clientId}
-              onChange={(e) => setClientId(e.target.value)}
+              {...register('clientId')}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-              required
             >
               <option value="">{t('selectClient')}</option>
               {clients?.map((c) => (
@@ -118,14 +138,14 @@ export function InvoiceForm({ invoiceId, onClose }: Props) {
                 </option>
               ))}
             </select>
+            <FieldError message={errors.clientId?.message} />
           </div>
 
           <div className="flex gap-4">
             <div className="flex-1">
               <label className="mb-1 block text-sm font-medium">{t('currency')}</label>
               <select
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
+                {...register('currency')}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
               >
                 <option value="IQD">IQD</option>
@@ -136,11 +156,10 @@ export function InvoiceForm({ invoiceId, onClose }: Props) {
               <label className="mb-1 block text-sm font-medium">{t('dueDate')}</label>
               <input
                 type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
+                {...register('dueDate')}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-                required
               />
+              <FieldError message={errors.dueDate?.message} />
             </div>
           </div>
 
@@ -162,7 +181,6 @@ export function InvoiceForm({ invoiceId, onClose }: Props) {
                   onChange={(e) => updateItem(i, 'description', e.target.value)}
                   placeholder={t('itemDescription')}
                   className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm"
-                  required
                   dir="auto"
                 />
                 <input
@@ -194,6 +212,7 @@ export function InvoiceForm({ invoiceId, onClose }: Props) {
                 )}
               </div>
             ))}
+            <FieldError message={errors.items?.message as string | undefined} />
           </div>
 
           <div className="flex gap-4">
@@ -201,23 +220,23 @@ export function InvoiceForm({ invoiceId, onClose }: Props) {
               <label className="mb-1 block text-sm font-medium">{t('discountPercent')}</label>
               <input
                 type="number"
-                value={discountPercent}
-                onChange={(e) => setDiscountPercent(Number(e.target.value))}
+                {...register('discountPercent', { valueAsNumber: true })}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
                 min="0"
                 max="100"
               />
+              <FieldError message={errors.discountPercent?.message} />
             </div>
             <div className="flex-1">
               <label className="mb-1 block text-sm font-medium">{t('taxPercent')}</label>
               <input
                 type="number"
-                value={taxPercent}
-                onChange={(e) => setTaxPercent(Number(e.target.value))}
+                {...register('taxPercent', { valueAsNumber: true })}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
                 min="0"
                 max="100"
               />
+              <FieldError message={errors.taxPercent?.message} />
             </div>
           </div>
 
@@ -255,8 +274,7 @@ export function InvoiceForm({ invoiceId, onClose }: Props) {
           <div>
             <label className="mb-1 block text-sm font-medium">{t('notes')}</label>
             <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              {...register('notes')}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
               rows={3}
               dir="auto"
@@ -273,10 +291,10 @@ export function InvoiceForm({ invoiceId, onClose }: Props) {
             </button>
             <button
               type="submit"
-              disabled={createInvoice.isPending || updateInvoice.isPending}
+              disabled={isSubmitting}
               className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
             >
-              {tCommon('save')}
+              {isSubmitting ? tCommon('saving') : tCommon('save')}
             </button>
           </div>
         </form>

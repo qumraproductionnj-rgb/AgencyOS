@@ -2,9 +2,18 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { useProjects, useDeleteProject } from '@/hooks/use-projects'
+import {
+  useProjects,
+  useDeleteProject,
+  useUpdateProject,
+  useUpdateProjectStage,
+} from '@/hooks/use-projects'
 import { ProjectForm } from './project-modal'
 import { ProjectDetail } from './project-detail'
+import { EmptyState } from '@/components/EmptyState'
+import { SkeletonTable } from '@/components/SkeletonTable'
+import { InlineEdit } from '@/components/InlineEdit'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 
 const STAGE_LABELS: Record<string, string> = {
   BRIEF: 'brief',
@@ -47,11 +56,14 @@ export function ProjectList() {
     ...(filterStage ? { stage: filterStage } : {}),
   })
   const deleteProject = useDeleteProject()
+  const updateProject = useUpdateProject()
+  const updateStage = useUpdateProjectStage()
   const [formOpen, setFormOpen] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
   const [detailId, setDetailId] = useState<string | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
 
-  if (isLoading) return <p className="text-muted-foreground p-4">{tCommon('loading')}</p>
+  if (isLoading) return <SkeletonTable rows={6} cols={7} />
 
   const formatCurrency = (value: number, currency: string) => {
     const sym = currency === 'IQD' ? 'د.ع' : currency === 'USD' ? '$' : currency
@@ -125,8 +137,21 @@ export function ProjectList() {
             <tbody className="divide-y">
               {projects?.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-gray-400">
-                    {t('noProjects')}
+                  <td colSpan={7} className="px-4 py-4">
+                    <EmptyState
+                      icon="🎬"
+                      title={t('noProjects')}
+                      description={t('noProjectsDesc')}
+                      actions={[
+                        {
+                          label: `+ ${t('create')}`,
+                          onClick: () => {
+                            setEditId(null)
+                            setFormOpen(true)
+                          },
+                        },
+                      ]}
+                    />
                   </td>
                 </tr>
               )}
@@ -136,20 +161,27 @@ export function ProjectList() {
                   className="cursor-pointer hover:bg-gray-50"
                   onClick={() => setDetailId(project.id)}
                 >
-                  <td className="px-4 py-3 font-medium">
-                    {project.name}
+                  <td className="px-4 py-3 font-medium" onClick={(e) => e.stopPropagation()}>
+                    <InlineEdit
+                      type="text"
+                      value={project.name}
+                      onSave={(v) => updateProject.mutateAsync({ id: project.id, name: v })}
+                      className="font-medium"
+                    />
                     {project.nameEn && (
                       <span className="ml-1 text-xs text-gray-400">({project.nameEn})</span>
                     )}
                   </td>
                   <td className="px-4 py-3">{project.client.name}</td>
                   <td className="px-4 py-3">{formatCurrency(project.budget, project.currency)}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${STAGE_COLORS[project.stage]}`}
-                    >
-                      {t(STAGE_LABELS[project.stage])}
-                    </span>
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <InlineEdit
+                      type="select"
+                      value={project.stage}
+                      options={ALL_STAGES.map((s) => ({ value: s, label: t(STAGE_LABELS[s]) }))}
+                      onSave={(v) => updateStage.mutateAsync({ id: project.id, stage: v })}
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${STAGE_COLORS[project.stage]}`}
+                    />
                   </td>
                   <td className="px-4 py-3 text-xs">
                     {new Date(project.deadline).toLocaleDateString()}
@@ -171,7 +203,7 @@ export function ProjectList() {
                       {(project.stage === 'BRIEF' || project.stage === 'CANCELLED') && (
                         <button
                           onClick={() => {
-                            if (window.confirm(t('deleteConfirm'))) deleteProject.mutate(project.id)
+                            setDeleteId(project.id)
                           }}
                           className="rounded bg-red-100 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-200"
                         >
@@ -230,6 +262,17 @@ export function ProjectList() {
         />
       )}
       {detailId && <ProjectDetail projectId={detailId} onClose={() => setDetailId(null)} />}
+
+      <ConfirmDialog
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={() => deleteProject.mutateAsync(deleteId!)}
+        title={t('deleteConfirm')}
+        description="This will permanently remove the project and all associated tasks."
+        confirmLabel={tCommon('delete')}
+        variant="danger"
+        requireTyping="delete"
+      />
     </div>
   )
 }

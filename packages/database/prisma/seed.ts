@@ -315,7 +315,345 @@ async function main() {
 
   await seedRuyaDemoData(prisma, ruya.id)
 
+  // Round 4A — three demo tenants (flat / hierarchical / hybrid)
+  await seedRound4ADemoTenants(prisma, permissionMap)
+
   console.log('✅ Seed complete.')
+}
+
+async function seedRound4ADemoTenants(
+  prisma: PrismaClient,
+  permissionMap: Awaited<ReturnType<typeof seedPermissions>>,
+) {
+  console.log('🏗️ Seeding Round 4A demo tenants (flat/hierarchical/hybrid)...')
+  const passwordHash = await argon2.hash('Demo1234!', { type: argon2.argon2id })
+
+  // --- Tenant 1: FLAT — Spark Studio (4 employees, no managers) ---
+  const spark = await prisma.company.upsert({
+    where: { slug: 'spark-studio' },
+    update: { orgStructureType: 'FLAT' },
+    create: {
+      name: 'Spark Studio — استوديو شرارة',
+      slug: 'spark-studio',
+      orgStructureType: 'FLAT',
+    },
+  })
+  await seedDefaultRoles(prisma, spark.id, permissionMap)
+  await seedTenantUsers(prisma, spark.id, passwordHash, [
+    { email: 'owner@spark.iq', fullNameAr: 'مالك سبارك', role: 'owner', isManager: false },
+    { email: 'dina@spark.iq', fullNameAr: 'دينا حسن', role: 'designer', isManager: false },
+    { email: 'omar@spark.iq', fullNameAr: 'عمر السعيد', role: 'video_editor', isManager: false },
+    {
+      email: 'lara@spark.iq',
+      fullNameAr: 'لارا الجبوري',
+      role: 'account_manager',
+      isManager: false,
+    },
+  ])
+  console.log(`  ✅ FLAT tenant: ${spark.name} (4 employees, no departments)`)
+
+  // --- Tenant 2: HIERARCHICAL — Pixel House (10 employees, 3 depts with managers) ---
+  const pixel = await prisma.company.upsert({
+    where: { slug: 'pixel-house' },
+    update: { orgStructureType: 'HIERARCHICAL' },
+    create: {
+      name: 'Pixel House — بيت البكسل',
+      slug: 'pixel-house',
+      orgStructureType: 'HIERARCHICAL',
+    },
+  })
+  await seedDefaultRoles(prisma, pixel.id, permissionMap)
+  const pixelUsers = await seedTenantUsers(prisma, pixel.id, passwordHash, [
+    { email: 'owner@pixel.iq', fullNameAr: 'مالك بكسل', role: 'owner', isManager: false },
+    {
+      email: 'design.mgr@pixel.iq',
+      fullNameAr: 'مدير التصميم',
+      role: 'creative_director',
+      isManager: true,
+    },
+    {
+      email: 'video.mgr@pixel.iq',
+      fullNameAr: 'مدير الفيديو',
+      role: 'creative_director',
+      isManager: true,
+    },
+    {
+      email: 'sales.mgr@pixel.iq',
+      fullNameAr: 'مدير المبيعات',
+      role: 'account_manager',
+      isManager: true,
+    },
+    { email: 'd1@pixel.iq', fullNameAr: 'مصممة 1', role: 'designer', isManager: false },
+    { email: 'd2@pixel.iq', fullNameAr: 'مصمم 2', role: 'designer', isManager: false },
+    { email: 'v1@pixel.iq', fullNameAr: 'مونتير 1', role: 'video_editor', isManager: false },
+    { email: 'v2@pixel.iq', fullNameAr: 'مونتير 2', role: 'video_editor', isManager: false },
+    { email: 's1@pixel.iq', fullNameAr: 'مبيعات 1', role: 'sales', isManager: false },
+    { email: 's2@pixel.iq', fullNameAr: 'مبيعات 2', role: 'sales', isManager: false },
+  ])
+  const designMgr = pixelUsers.get('design.mgr@pixel.iq')!
+  const videoMgr = pixelUsers.get('video.mgr@pixel.iq')!
+  const salesMgr = pixelUsers.get('sales.mgr@pixel.iq')!
+  const pixelDesign = await prisma.department.create({
+    data: {
+      companyId: pixel.id,
+      nameAr: 'قسم التصميم',
+      nameEn: 'Design',
+      icon: '🎨',
+      color: '#ddd6fe',
+      managerUserId: designMgr,
+    },
+  })
+  const pixelVideo = await prisma.department.create({
+    data: {
+      companyId: pixel.id,
+      nameAr: 'قسم الفيديو',
+      nameEn: 'Video',
+      icon: '🎬',
+      color: '#fed7aa',
+      managerUserId: videoMgr,
+    },
+  })
+  const pixelSales = await prisma.department.create({
+    data: {
+      companyId: pixel.id,
+      nameAr: 'قسم المبيعات',
+      nameEn: 'Sales',
+      icon: '🤝',
+      color: '#bbf7d0',
+      managerUserId: salesMgr,
+    },
+  })
+  await assignEmployeesToDept(prisma, pixel.id, pixelDesign.id, [
+    'design.mgr@pixel.iq',
+    'd1@pixel.iq',
+    'd2@pixel.iq',
+  ])
+  await assignEmployeesToDept(prisma, pixel.id, pixelVideo.id, [
+    'video.mgr@pixel.iq',
+    'v1@pixel.iq',
+    'v2@pixel.iq',
+  ])
+  await assignEmployeesToDept(prisma, pixel.id, pixelSales.id, [
+    'sales.mgr@pixel.iq',
+    's1@pixel.iq',
+    's2@pixel.iq',
+  ])
+  console.log(`  ✅ HIERARCHICAL tenant: ${pixel.name} (10 employees, 3 departments w/ managers)`)
+
+  // --- Tenant 3: HYBRID — Crescent Agency (15 employees, sub-depts, some without managers) ---
+  const crescent = await prisma.company.upsert({
+    where: { slug: 'crescent-agency' },
+    update: { orgStructureType: 'HYBRID' },
+    create: {
+      name: 'Crescent Agency — وكالة الهلال',
+      slug: 'crescent-agency',
+      orgStructureType: 'HYBRID',
+    },
+  })
+  await seedDefaultRoles(prisma, crescent.id, permissionMap)
+  const cUsers = await seedTenantUsers(prisma, crescent.id, passwordHash, [
+    { email: 'owner@crescent.iq', fullNameAr: 'مالك الهلال', role: 'owner', isManager: false },
+    {
+      email: 'creative.head@crescent.iq',
+      fullNameAr: 'رئيس الإبداع',
+      role: 'creative_director',
+      isManager: true,
+    },
+    {
+      email: 'design.lead@crescent.iq',
+      fullNameAr: 'قائد التصميم',
+      role: 'creative_director',
+      isManager: true,
+    },
+    {
+      email: 'motion.lead@crescent.iq',
+      fullNameAr: 'قائد الموشن',
+      role: 'creative_director',
+      isManager: true,
+    },
+    { email: 'photo1@crescent.iq', fullNameAr: 'مصور 1', role: 'designer', isManager: false },
+    { email: 'photo2@crescent.iq', fullNameAr: 'مصور 2', role: 'designer', isManager: false },
+    { email: 'design1@crescent.iq', fullNameAr: 'مصمم 1', role: 'designer', isManager: false },
+    { email: 'design2@crescent.iq', fullNameAr: 'مصمم 2', role: 'designer', isManager: false },
+    { email: 'design3@crescent.iq', fullNameAr: 'مصمم 3', role: 'designer', isManager: false },
+    { email: 'motion1@crescent.iq', fullNameAr: 'موشن 1', role: 'video_editor', isManager: false },
+    { email: 'motion2@crescent.iq', fullNameAr: 'موشن 2', role: 'video_editor', isManager: false },
+    { email: 'editor1@crescent.iq', fullNameAr: 'محرر 1', role: 'video_editor', isManager: false },
+    { email: 'writer1@crescent.iq', fullNameAr: 'كاتب 1', role: 'designer', isManager: false },
+    { email: 'writer2@crescent.iq', fullNameAr: 'كاتب 2', role: 'designer', isManager: false },
+    {
+      email: 'pm1@crescent.iq',
+      fullNameAr: 'مدير مشروع',
+      role: 'project_manager',
+      isManager: false,
+    },
+  ])
+  const creativeHead = cUsers.get('creative.head@crescent.iq')!
+  const designLead = cUsers.get('design.lead@crescent.iq')!
+  const motionLead = cUsers.get('motion.lead@crescent.iq')!
+  // Parent department: Creative (with manager)
+  const creative = await prisma.department.create({
+    data: {
+      companyId: crescent.id,
+      nameAr: 'القسم الإبداعي',
+      nameEn: 'Creative',
+      icon: '💡',
+      color: '#fef08a',
+      managerUserId: creativeHead,
+    },
+  })
+  // Sub-departments
+  const photoSub = await prisma.department.create({
+    data: {
+      companyId: crescent.id,
+      nameAr: 'التصوير',
+      nameEn: 'Photography',
+      icon: '📸',
+      color: '#bae6fd',
+      parentId: creative.id,
+      // no manager — intentional (hybrid)
+    },
+  })
+  const designSub = await prisma.department.create({
+    data: {
+      companyId: crescent.id,
+      nameAr: 'التصميم',
+      nameEn: 'Design',
+      icon: '🎨',
+      color: '#ddd6fe',
+      parentId: creative.id,
+      managerUserId: designLead,
+    },
+  })
+  const motionSub = await prisma.department.create({
+    data: {
+      companyId: crescent.id,
+      nameAr: 'الموشن',
+      nameEn: 'Motion',
+      icon: '🎬',
+      color: '#fed7aa',
+      parentId: creative.id,
+      managerUserId: motionLead,
+    },
+  })
+  // Top-level Writing department, no manager
+  const writing = await prisma.department.create({
+    data: {
+      companyId: crescent.id,
+      nameAr: 'الكتابة',
+      nameEn: 'Writing',
+      icon: '📝',
+      color: '#fbcfe8',
+    },
+  })
+  await assignEmployeesToDept(prisma, crescent.id, photoSub.id, [
+    'photo1@crescent.iq',
+    'photo2@crescent.iq',
+  ])
+  await assignEmployeesToDept(prisma, crescent.id, designSub.id, [
+    'design.lead@crescent.iq',
+    'design1@crescent.iq',
+    'design2@crescent.iq',
+    'design3@crescent.iq',
+  ])
+  await assignEmployeesToDept(prisma, crescent.id, motionSub.id, [
+    'motion.lead@crescent.iq',
+    'motion1@crescent.iq',
+    'motion2@crescent.iq',
+    'editor1@crescent.iq',
+  ])
+  await assignEmployeesToDept(prisma, crescent.id, writing.id, [
+    'writer1@crescent.iq',
+    'writer2@crescent.iq',
+  ])
+  // pm1 deliberately unassigned (General Pool)
+  console.log(
+    `  ✅ HYBRID tenant: ${crescent.name} (15 employees, 4 departments incl. 1 unmanaged sub, 1 unassigned employee)`,
+  )
+}
+
+interface SeedUserSpec {
+  email: string
+  fullNameAr: string
+  role: string
+  isManager: boolean
+}
+
+async function seedTenantUsers(
+  prisma: PrismaClient,
+  companyId: string,
+  passwordHash: string,
+  specs: SeedUserSpec[],
+): Promise<Map<string, string>> {
+  const result = new Map<string, string>()
+  for (const spec of specs) {
+    const user = await prisma.user.upsert({
+      where: { email: spec.email },
+      update: { isManager: spec.isManager },
+      create: {
+        email: spec.email,
+        passwordHash,
+        companyId,
+        tier: 'TENANT',
+        emailVerifiedAt: new Date(),
+        isManager: spec.isManager,
+      },
+    })
+    result.set(spec.email, user.id)
+
+    // Attach role
+    const role = await prisma.role.findFirst({
+      where: { companyId, name: spec.role, deletedAt: null },
+    })
+    if (role) {
+      await prisma.userRole.upsert({
+        where: { userId_roleId: { userId: user.id, roleId: role.id } },
+        update: {},
+        create: { userId: user.id, roleId: role.id, companyId },
+      })
+    }
+
+    // Create employee profile
+    const existingEmp = await prisma.employee.findFirst({ where: { userId: user.id } })
+    if (!existingEmp) {
+      const code = `EMP-${spec.email.split('@')[0]!.toUpperCase()}`
+      await prisma.employee.create({
+        data: {
+          companyId,
+          userId: user.id,
+          employeeCode: code,
+          fullNameAr: spec.fullNameAr,
+          email: spec.email,
+          employmentType: 'FULL_TIME',
+          status: 'ACTIVE',
+          startDate: new Date(),
+          salaryAmount: 1000000n,
+          salaryCurrency: 'IQD',
+          salaryType: 'MONTHLY',
+          scheduledStartTime: '09:00',
+          scheduledEndTime: '17:00',
+          weeklyOffDays: ['Friday', 'Saturday'],
+        },
+      })
+    }
+  }
+  return result
+}
+
+async function assignEmployeesToDept(
+  prisma: PrismaClient,
+  companyId: string,
+  departmentId: string,
+  emails: string[],
+) {
+  for (const email of emails) {
+    const user = await prisma.user.findFirst({ where: { email, companyId } })
+    if (!user) continue
+    await prisma.employee.updateMany({
+      where: { userId: user.id, companyId },
+      data: { departmentId },
+    })
+  }
 }
 
 async function seedRuyaDemoData(prisma: PrismaClient, companyId: string) {
@@ -393,6 +731,18 @@ async function seedRuyaDemoData(prisma: PrismaClient, companyId: string) {
     },
   ]
 
+  // Role assignments: ahmed=owner, sara=admin, rest=employee
+  const roleAssignments: Record<string, string> = {
+    'ahmed@ruya.iq': 'owner',
+    'sara@ruya.iq': 'admin',
+    'mohammed@ruya.iq': 'employee',
+    'zainab@ruya.iq': 'employee',
+    'hassan@ruya.iq': 'employee',
+    'ali@ruya.iq': 'employee',
+    'nour@ruya.iq': 'employee',
+    'karim@ruya.iq': 'employee',
+  }
+
   const hash = await argon2.hash('Demo1234!', { type: argon2.argon2id })
   for (const emp of employees) {
     const user = await prisma.user.upsert({
@@ -424,8 +774,21 @@ async function seedRuyaDemoData(prisma: PrismaClient, companyId: string) {
         salaryCurrency: 'IQD',
       },
     })
+
+    // Assign role
+    const roleName = roleAssignments[emp.email] ?? 'employee'
+    const role = await prisma.role.findFirst({
+      where: { companyId, name: roleName, deletedAt: null },
+    })
+    if (role) {
+      await prisma.userRole.upsert({
+        where: { userId_roleId: { userId: user.id, roleId: role.id } },
+        update: {},
+        create: { userId: user.id, roleId: role.id, companyId },
+      })
+    }
   }
-  console.log(`  ✅ ${employees.length} employees seeded`)
+  console.log(`  ✅ ${employees.length} employees seeded with roles`)
 
   // Clients
   const clientsExist = await prisma.client.count({ where: { companyId } })

@@ -99,7 +99,18 @@ model Company {
   brandSecondaryColor String?  @map("brand_secondary_color")
   hidePoweredBy       Boolean  @default(false) @map("hide_powered_by")
 
+  // Round 4A — Dynamic org structure
+  orgStructureType    OrgStructureType @default(FLAT) @map("org_structure_type")
+
   @@map("companies")
+}
+
+enum OrgStructureType {
+  FLAT
+  HIERARCHICAL
+  HYBRID
+
+  @@map("org_structure_type")
 }
 
 /// Platform users — covers all three tiers (admin, tenant, external).
@@ -152,6 +163,9 @@ model User {
   telegramChatId            String?                @map("telegram_chat_id")
   telegramLinkedAt          DateTime?              @map("telegram_linked_at") @db.Timestamptz
   notificationPreferences   NotificationPreference[]
+
+  // Round 4A — Dynamic org structure
+  isManager                 Boolean                @default(false) @map("is_manager")
 
   @@index([companyId], name: "idx_users_company_id")
   @@index([email], name: "idx_users_email")
@@ -284,18 +298,25 @@ model Department {
   nameEn        String?   @map("name_en")
   description   String?
   managerUserId String?   @map("manager_user_id") @db.Uuid
+  // Round 4A — Dynamic org structure
+  parentId      String?   @map("parent_id") @db.Uuid
+  icon          String?
+  color         String?
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz
   deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
   createdBy     String?   @map("created_by") @db.Uuid
   updatedBy     String?   @map("updated_by") @db.Uuid
 
-  company   Company    @relation(fields: [companyId], references: [id])
-  manager   User?      @relation("DepartmentManager", fields: [managerUserId], references: [id])
+  company   Company      @relation(fields: [companyId], references: [id])
+  manager   User?        @relation("DepartmentManager", fields: [managerUserId], references: [id])
+  parent    Department?  @relation("DepartmentHierarchy", fields: [parentId], references: [id])
+  children  Department[] @relation("DepartmentHierarchy")
   employees Employee[]
 
   @@index([companyId], name: "idx_departments_company_id")
   @@index([companyId, createdAt(sort: Desc)], name: "idx_departments_company_created")
+  @@index([parentId], name: "idx_departments_parent_id")
   @@map("departments")
 }
 

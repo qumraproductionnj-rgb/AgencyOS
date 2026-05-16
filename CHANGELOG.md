@@ -6,6 +6,32 @@ All notable changes to AgencyOS are documented here.
 
 ## [Unreleased]
 
+### ROUND 4A — Dynamic Org Chart (2026-05-16)
+
+#### Added
+
+- `OrgStructureType` enum on `Company` (FLAT/HIERARCHICAL/HYBRID) with default FLAT
+- `Department.parentId` self-relation enabling sub-departments + `assertNoCycle` guard
+- `Department.icon` and `Department.color` for visual presentation
+- `User.isManager` flag (auto-maintained when a user gains/loses department-manager assignment)
+- `GET /departments/tree` — hierarchical view with `_count.employees`
+- `GET/PATCH /departments/org-structure/current` — read/set company structure type
+- Setup wizard at `/{locale}/settings/org-structure` (3 steps: structure type → departments → employee assignment)
+- Department editor with icon and color pickers, manager dropdown, parent dropdown (HYBRID only)
+- 3 demo tenants in seed: Spark Studio (FLAT), Pixel House (HIERARCHICAL), Crescent Agency (HYBRID)
+- 8 new department service tests (tree build, cycle detection, self-parent rejection, manager-flag sync, org-structure read/write)
+
+#### Changed
+
+- `Department` API now accepts `parentId`, `icon`, `color` on create and update
+- `useDepartments` hook extended; new `useDepartmentTree`, `useOrgStructure`, `useSetOrgStructure`
+
+#### Migration
+
+- `20260516000000_round4a_org_chart` written but **not executed** — run `pnpm db:migrate` when ready
+
+---
+
 ### ROUND 3 — Data Quality & Validation (2026-05-16)
 
 #### Added

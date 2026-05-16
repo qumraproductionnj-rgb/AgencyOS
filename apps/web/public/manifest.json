@@ -1,12 +1,12 @@
 {
-  "name": "AgencyOS — نظام إدارة الوكالات الإبداعية",
-  "short_name": "AgencyOS",
-  "description": "نظام تشغيل متكامل لوكالات التسويق والإنتاج الإبداعي",
-  "start_url": "/ar",
+  "name": "Vision OS",
+  "short_name": "Vision OS",
+  "description": "منصة إدارة وكالات الإنتاج",
+  "start_url": "/ar/dashboard",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
   "lang": "ar",
   "dir": "rtl",
   "icons": [
@@ -26,6 +26,25 @@
     }
   ],
   "categories": ["business", "productivity"],
-  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "لوحة التحكم",
+      "short_name": "Dashboard",
+      "url": "/ar/dashboard",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "تسجيل الحضور",
+      "short_name": "Attendance",
+      "url": "/ar/attendance",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "المشاريع",
+      "short_name": "Projects",
+      "url": "/ar/projects",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    }
+  ],
   "prefer_related_applications": false
 }

@@ -1,0 +1,82 @@
+{
+  "name": "desktop",
+  "version": "1.0.0",
+  "description": "Vision OS Desktop App",
+  "main": "main.js",
+  "scripts": {
+    "dev": "concurrently -n web,electron -c cyan,green \"pnpm --filter web dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "dependencies": {
+    "electron-log": "^5.2.4",
+    "electron-updater": "^6.3.9"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "electron": "^33.4.5",
+    "electron-builder": "^25.1.8",
+    "wait-on": "^8.0.3"
+  },
+  "build": {
+    "appId": "app.agencyos.desktop",
+    "productName": "Vision OS",
+    "copyright": "© 2026 Vision Agency OS",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "splash.html",
+      "assets/**"
+    ],
+    "mac": {
+      "category": "public.app-category.business",
+      "icon": "assets/icon.icns",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false
+    },
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Vision OS"
+    },
+    "linux": {
+      "icon": "assets/icon.png",
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Office"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "qumraproductionnj-rgb",
+      "repo": "AgencyOS"
+    }
+  }
+}

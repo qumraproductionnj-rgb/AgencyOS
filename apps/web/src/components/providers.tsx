@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { ThemeProvider } from 'next-themes'
 import { Toaster } from 'sonner'
-import { PwaInstallPrompt } from './pwa-install-prompt'
+import { PWAInstallPrompt } from './pwa-install-prompt'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,7 +27,7 @@ export function Providers({ children }: Props) {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         {children}
-        <PwaInstallPrompt />
+        <PWAInstallPrompt />
         <Toaster position="bottom-center" richColors theme="dark" />
       </ThemeProvider>
       <ReactQueryDevtools initialIsOpen={false} />

@@ -105,3 +105,15 @@
     padding: 0 !important;
   }
 }
+
+@media (max-width: 768px) {
+  [data-sidebar] {
+    display: none !important;
+  }
+  .mobile-nav {
+    display: flex !important;
+  }
+  main {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+}

@@ -25,6 +25,10 @@
     "e2e:ui": "npx playwright test --config=e2e/playwright.config.ts --ui",
     "e2e:report": "npx playwright show-report playwright-report",
     "db:generate": "pnpm --filter database generate",
+    "dev:desktop": "pnpm --filter desktop dev",
+    "build:win": "pnpm --filter desktop build:win",
+    "build:mac": "pnpm --filter desktop build:mac",
+    "build:linux": "pnpm --filter desktop build:linux",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
@@ -60,6 +64,7 @@
       "@prisma/engines",
       "argon2",
       "esbuild",
+      "electron",
       "prisma",
       "puppeteer"
     ]

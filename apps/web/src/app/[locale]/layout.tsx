@@ -11,6 +11,9 @@ import { Providers } from '../../components/providers'
 import { ErrorBoundary } from '../../components/error-boundary'
 import { PostHogProvider } from '../../components/providers/posthog-provider'
 import { FeedbackForm } from '../../components/feedback/feedback-form'
+import { TitleBar } from '../../components/desktop/title-bar'
+import { MobileNav } from '../../components/mobile/mobile-nav'
+import { PWAInstallPrompt } from '../../components/pwa-install-prompt'
 import '../../globals.css'
 
 const plexArabic = IBM_Plex_Sans_Arabic({
@@ -74,11 +77,14 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
       <body className={`bg-bg-primary text-foreground min-h-screen antialiased ${fontClass}`}>
         <NextIntlClientProvider messages={messages}>
           <Providers>
+            <TitleBar />
             <PostHogProvider>
               <ErrorBoundary>
                 <AppShell>{children}</AppShell>
               </ErrorBoundary>
               <FeedbackForm />
+              <MobileNav />
+              <PWAInstallPrompt />
             </PostHogProvider>
           </Providers>
         </NextIntlClientProvider>
